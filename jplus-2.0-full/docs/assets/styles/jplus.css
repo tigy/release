@@ -1,10 +1,10 @@
 ﻿/*
- * This file is created by a tool at 2012/04/06 20:45:30
+ * This file is created by a tool at 2012/04/12 17:45:41
  */
 
 
 /************************************
- * Milk.Core.Base-CSS
+ * Controls.Core.Base-CSS
  ************************************/
 /**
  * 最底层的 CSS 样式。
@@ -308,7 +308,7 @@ select {
   background-color: white;
 }
 /************************************
- * Milk.Core.Common
+ * Controls.Core.Common
  ************************************/
 html .x-left {
   float: left;
@@ -421,42 +421,42 @@ blockquote.x-right small {
   text-align: right;
 }
 /************************************
- * Milk.Core.ScrollableControl
+ * Controls.Core.ScrollableControl
  ************************************/
 /**
  * @author 
  */
 
 /************************************
- * Milk.Core.ListControl
+ * Controls.Core.ListControl
  ************************************/
 /**
  * @author 
  */
 
 /************************************
- * Milk.Core.ContainerControl
+ * Controls.Core.ContainerControl
  ************************************/
 /**
  * @author 
  */
 
 /************************************
- * Milk.Core.ContentControl
+ * Controls.Core.ContentControl
  ************************************/
 /**
  * @author 
  */
 
 /************************************
- * Milk.Core.ICollapsable
+ * Controls.Core.ICollapsable
  ************************************/
 /**
  * @author 
  */
 
 /************************************
- * Milk.Core.IDropDownMenuContainer
+ * Controls.Core.IDropDownMenuContainer
  ************************************/
 /**
  * @author 
@@ -470,7 +470,7 @@ blockquote.x-right small {
   z-index: 1000;
 }
 /************************************
- * Milk.Core.Splitter
+ * Controls.Core.Splitter
  ************************************/
 /**
  * @author 
@@ -504,7 +504,7 @@ blockquote.x-right small {
   left: 0;
 }
 /************************************
- * Milk.Button.Button
+ * Controls.Button.Button
  ************************************/
 .x-button {
   display: inline-block;
@@ -802,7 +802,7 @@ input.x-button-small {
   padding-right: 20px;
 }
 /************************************
- * Milk.Button.MenuButton
+ * Controls.Button.MenuButton
  ************************************/
 .x-button-menu {
   display: inline-block;
@@ -840,7 +840,7 @@ input.x-button-small {
   filter: alpha(opacity=30);
 }
 /************************************
- * Milk.Button.SplitButton
+ * Controls.Button.SplitButton
  ************************************/
 /**
  * @author 
@@ -857,7 +857,7 @@ input.x-button-small {
   _margin-bottom: 5px;
 }
 /************************************
- * Milk.Button.ButtonGroup
+ * Controls.Button.ButtonGroup
  ************************************/
 .x-buttongroup {
   display: inline-block;
@@ -900,7 +900,7 @@ input.x-button-small {
   border-bottom-right-radius: 4px;
 }
 /************************************
- * Milk.Button.CloseButton
+ * Controls.Button.CloseButton
  ************************************/
 .x-closebutton {
   font-size: 20px;
@@ -923,7 +923,7 @@ input.x-button-small {
   filter: alpha(opacity=40);
 }
 /************************************
- * Milk.Button.LinkButton
+ * Controls.Button.LinkButton
  ************************************/
 /**
  * @author 
@@ -933,7 +933,7 @@ input.x-button-small {
   text-decoration: underline;
 }
 /************************************
- * Milk.Button.Menu-Alt
+ * Controls.Button.Menu-Alt
  ************************************/
 /**
  * @author 
@@ -1053,21 +1053,21 @@ input.x-button-small {
   background-image: url(../images/button/unchecked.gif);
 }
 /************************************
- * Milk.Button.ContextMenu
+ * Controls.Button.ContextMenu
  ************************************/
 /**
  * @author 
  */
 
 /************************************
- * Milk.Form.IInput
+ * Controls.Form.IInput
  ************************************/
 /**
  * @author 
  */
 
 /************************************
- * Milk.Form.Form
+ * Controls.Form.Form
  ************************************/
 /**
  * @author 
@@ -1105,7 +1105,7 @@ input.x-button-small {
   margin-left: 0;
 }
 /************************************
- * Milk.Form.ListBox
+ * Controls.Form.ListBox
  ************************************/
 .x-listbox {
   display: inline-block;
@@ -1160,7 +1160,7 @@ input.x-button-small {
   cursor: default;
 }
 /************************************
- * Milk.Form.TextBox
+ * Controls.Form.TextBox
  ************************************/
 .x-textbox {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -1238,14 +1238,14 @@ textarea.x-textbox {
   color: #999999;
 }
 /************************************
- * Milk.Form.TextArea
+ * Controls.Form.TextArea
  ************************************/
 /**
  * @author 
  */
 
 /************************************
- * Milk.Form.CombinedTextBox
+ * Controls.Form.CombinedTextBox
  ************************************/
 /**
  * @author 
@@ -1289,14 +1289,14 @@ textarea.x-textbox {
   margin-right: -2px;
 }
 /************************************
- * Milk.Form.ComboBox
+ * Controls.Form.ComboBox
  ************************************/
 /**
  * @author 
  */
 
 /************************************
- * Milk.Form.Select
+ * Controls.Form.Select
  ************************************/
 /**
  * @author 
@@ -1325,7 +1325,7 @@ textarea.x-textbox {
   border-color: #468847;
 }
 /************************************
- * Milk.Form.CheckBox
+ * Controls.Form.CheckBox
  ************************************/
 /**
  * @author 
@@ -1335,7 +1335,7 @@ textarea.x-textbox {
   margin: 0px 4px 2px;
 }
 /************************************
- * Milk.Form.RadioButton
+ * Controls.Form.RadioButton
  ************************************/
 /**
  * @author 
@@ -1345,7 +1345,7 @@ textarea.x-textbox {
   margin: 0px 4px 2px;
 }
 /************************************
- * Milk.Form.SearchTextBox
+ * Controls.Form.SearchTextBox
  ************************************/
 /**
  * @author 
@@ -1382,7 +1382,7 @@ textarea.x-textbox {
   top: 1px;
 }
 /************************************
- * Milk.Form.Suggest
+ * Controls.Form.AutoComplete
  ************************************/
 /**
  * @author 
@@ -1395,7 +1395,7 @@ textarea.x-textbox {
   border-radius: 4px;
 }
 /************************************
- * Milk.Container.Tabbable
+ * Controls.Container.Tabbable
  ************************************/
 /**
  * @author 
@@ -1466,7 +1466,7 @@ textarea.x-textbox {
   background-color: #0088cc;
 }
 /************************************
- * Milk.Container.Stackable
+ * Controls.Container.Stackable
  ************************************/
 /**
  * @author 
@@ -1511,7 +1511,7 @@ textarea.x-textbox {
   margin-bottom: 0;
 }
 /************************************
- * Milk.Container.Accordion
+ * Controls.Container.Accordion
  ************************************/
 /**
  * @author 
@@ -1542,7 +1542,7 @@ textarea.x-textbox {
   height: 0;
 }
 /************************************
- * Milk.Container.Panel
+ * Controls.Container.Panel
  ************************************/
 /**
  * @author 
@@ -1577,7 +1577,7 @@ textarea.x-textbox {
   clear: both;
   visibility: hidden;
 }
-.x-paner-container {
+.x-panel-container {
   padding: 10px;
 }
 .x-panel-collapsed .x-panel-header {
@@ -1585,7 +1585,7 @@ textarea.x-textbox {
   border-radius: 4px;
 }
 /************************************
- * Milk.DataView.Table
+ * Controls.DataView.Table
  ************************************/
 .x-table {
   max-width: 100%;
@@ -1668,14 +1668,14 @@ textarea.x-textbox {
   background-color: #f3f3f3;
 }
 /************************************
- * Milk.Page.Scaffolding
+ * Controls.Page.Scaffolding
  ************************************/
 /**
  * @author 
  */
 
 /************************************
- * Milk.Page.Grid-Fluid
+ * Controls.Page.Grid-Fluid
  ************************************/
 .x-grid-fluid {
   margin-top: 10px;
@@ -1745,7 +1745,7 @@ textarea.x-textbox {
   margin-left: 0;
 }
 /************************************
- * Milk.Page.Grid
+ * Controls.Page.Grid
  ************************************/
 .x-grid {
   margin-top: 10px;
@@ -1816,7 +1816,7 @@ textarea.x-textbox {
   margin-left: 0;
 }
 /************************************
- * Milk.Page.Breadcrumb
+ * Controls.Page.Breadcrumb
  ************************************/
 /**
  * @author 
@@ -1856,7 +1856,7 @@ textarea.x-textbox {
   color: #333333;
 }
 /************************************
- * Milk.Page.Pagination
+ * Controls.Page.Pagination
  ************************************/
 /**
  * @author 
@@ -1922,7 +1922,7 @@ textarea.x-textbox {
   text-align: right;
 }
 /************************************
- * Milk.Page.Pager
+ * Controls.Page.Pager
  ************************************/
 /**
  * @author 
@@ -1964,14 +1964,14 @@ textarea.x-textbox {
   float: left;
 }
 /************************************
- * Milk.Display.IToolTip
+ * Controls.Display.IToolTip
  ************************************/
 /**
  * @author 
  */
 
 /************************************
- * Milk.Display.Thumbnail
+ * Controls.Display.Thumbnail
  ************************************/
 .x-thumbnail {
   display: inline-block;
@@ -1999,7 +1999,7 @@ a.x-thumbnail:hover {
   margin-right: auto;
 }
 /************************************
- * Milk.Display.Icon
+ * Controls.Display.Icon
  ************************************/
 .x-icon {
   display: inline-block;
@@ -2384,7 +2384,7 @@ a.x-thumbnail:hover {
   background-position: -456px -118px;
 }
 /************************************
- * Milk.Display.List
+ * Controls.Display.List
  ************************************/
 /**
  * @author 
@@ -2403,7 +2403,7 @@ li.x-list,
   margin-bottom: 0;
 }
 /************************************
- * Milk.Display.Arrow
+ * Controls.Display.Arrow
  ************************************/
 /**
  * @author
@@ -2493,7 +2493,7 @@ li.x-list,
   right: -10px;
 }
 /************************************
- * Milk.Display.Tip
+ * Controls.Display.Tip
  ************************************/
 /**
  * @author 
@@ -2539,7 +2539,7 @@ li.x-list,
   background-color: #2d6987;
 }
 /************************************
- * Milk.Display.TipBox
+ * Controls.Display.TipBox
  ************************************/
 .x-tipbox {
   padding: 5px 14px;
@@ -2600,7 +2600,7 @@ div.x-tipbox {
   border-color: transparent;
 }
 /************************************
- * Milk.Display.ProgressBar
+ * Controls.Display.ProgressBar
  ************************************/
 /**
  * @author 
@@ -2756,7 +2756,7 @@ div.x-tipbox {
   background-image: linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
 }
 /************************************
- * Milk.Display.Bubble
+ * Controls.Display.Bubble
  ************************************/
 .x-bubble {
   padding: 15px;
@@ -2775,7 +2775,7 @@ div.x-tipbox {
   border-color: rgba(0, 0, 0, 0.15);
 }
 /************************************
- * Milk.Display.ToolTip
+ * Controls.Display.ToolTip
  ************************************/
 /**
  * @author 
@@ -2801,7 +2801,7 @@ div.x-tipbox {
   border-radius: 4px;
 }
 /************************************
- * Milk.Display.BalloonTip
+ * Controls.Display.BalloonTip
  ************************************/
 /**
  * @author 
@@ -2853,7 +2853,7 @@ div.x-tipbox {
   color: rgba(0, 0, 0, 0.8);
 }
 /************************************
- * Milk.Display.Line
+ * Controls.Display.Line
  ************************************/
 /**
  * @author 
@@ -2869,7 +2869,7 @@ div.x-tipbox {
   border-style: dashed;
 }
 /************************************
- * Milk.DataView.TreeView
+ * Controls.DataView.TreeView
  ************************************/
 /**
  * @author 
@@ -2885,7 +2885,6 @@ div.x-tipbox {
   padding: 3px 0;
   overflow: auto;
   border: 1px solid #cccccc;
-  cursor: default;
   overflow: auto;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
@@ -2901,25 +2900,16 @@ div.x-tipbox {
 }
 .x-treenode {
   overflow: hidden;
-  cursor: pointer;
-}
-.x-treenode a {
+  cursor: default;
+  display: block;
   color: #333333;
+  font-size: 14px;
 }
 .x-treenode-space {
   float: left;
   display: block;
   width: 19px;
   background-repeat: no-repeat;
-  cursor: default;
-}
-.x-treeview a,
-.x-treeview a:hover {
-  text-decoration: none;
-}
-.x-treenode {
-  color: #183152;
-  font-size: 14px;
 }
 .x-treenode-none {
   background-image: none!important;
@@ -2929,9 +2919,11 @@ div.x-tipbox {
 }
 .x-treenode:hover {
   background-color: #eeeeee;
+  text-decoration: none;
 }
 .x-treenode-space {
   background-image: url(../images/dataview/treeview.gif);
+  background-repeat: no-repeat;
 }
 .x-treenode-plus {
   background-position: 0 -30px;
@@ -2959,4 +2951,8 @@ div.x-tipbox {
 }
 .x-treeview-alt .x-treenode-last .x-treenode-normal {
   background-position: 0 -180px;
+}
+.x-treenode-loading {
+  background-image: url(../images/dataview/loading.gif) !important;
+  background-position: 50% 50%;
 }

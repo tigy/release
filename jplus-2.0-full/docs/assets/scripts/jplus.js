@@ -1,5 +1,5 @@
 ﻿/*
- * This file is created by a tool at 2012/04/06 20:45:30
+ * This file is created by a tool at 2012/04/12 17:45:41
  */
 
 
@@ -546,7 +546,7 @@
 		    // IE6 不会遍历系统对象需要复制，所以强制去测试，如果改写就复制 。
 		    return function(dest, src) {
 			    if (src) {
-				    assert(dest != null, "Basee.extend(dest, src): {dest} 不可为空。", dest);
+				    assert(dest != null, "Object.extend(dest, src): {dest} 不可为空。", dest);
 
 				    for ( var i = p.enumerables.length, value; i--;)
 					    if (hasOwnProperty.call(src, value = p.enumerables[i]))
@@ -589,8 +589,8 @@
 		 */
 	    each: function(iterable, fn, bind) {
 
-		    assert(!Function.isFunction(iterable), "Basee.each(iterable, fn, bind): {iterable} 不能是函数。 ", iterable);
-		    assert(Function.isFunction(fn), "Basee.each(iterable, fn, bind): {fn} 必须是函数。 ", fn);
+		    assert(!Function.isFunction(iterable), "Object.each(iterable, fn, bind): {iterable} 不能是函数。 ", iterable);
+		    assert(Function.isFunction(fn), "Object.each(iterable, fn, bind): {fn} 必须是函数。 ", fn);
 
 		    // 如果 iterable 是 null， 无需遍历 。
 		    if (iterable != null) {
@@ -647,7 +647,7 @@
 
 				    value = value[fn];
 
-				    assert(!args || dest[key], "Basee.update(iterable, fn, dest, args): 试图把iterable[{key}][{fn}] 放到 dest[key][fn], 但  dest[key] 是一个空的成员。",
+				    assert(!args || dest[key], "Object.update(iterable, fn, dest, args): 试图把iterable[{key}][{fn}] 放到 dest[key][fn], 但  dest[key] 是一个空的成员。",
 				            key, fn);
 
 				    // 如果属性是非函数，则说明更新。 a.value
@@ -1641,7 +1641,7 @@
 	 */
 	function apply(dest, src) {
 
-		assert(dest != null, "Basee.extend(dest, src): {dest} 不可为空。", dest);
+		assert(dest != null, "Object.extend(dest, src): {dest} 不可为空。", dest);
 
 		// 直接遍历，不判断是否为真实成员还是原型的成员。
 		for ( var b in src)
@@ -1657,7 +1657,7 @@
 	 */
 	function applyIf(dest, src) {
 
-		assert(dest != null, "Basee.extendIf(dest, src): {dest} 不可为空。", dest);
+		assert(dest != null, "Object.extendIf(dest, src): {dest} 不可为空。", dest);
 
 		// 和 apply 类似，只是判断目标的值是否为 undefiend 。
 		for ( var b in src)
@@ -3038,13 +3038,6 @@ JPlus.resolveNamespace = function(ns, isStyle){
 				// 调用 init 初始化控件。
 				me.init(opt);
 	
-				// 处理样式。
-				if('style' in opt) {
-					assert.isElement(me.dom, "Control.prototype.constructor(options): 当前控件不支持样式。");
-					me.dom.style.cssText += ';' + opt.style;
-					delete opt.style;
-				}
-	
 				// 如果指定的节点已经在 DOM 树上，且重写了 attach 方法，则调用之。
 				if(me.dom.parentNode && this.attach !== Control.prototype.attach) {
 					this.attach(me.dom.parentNode, me.dom.nextSibling);
@@ -4320,7 +4313,7 @@ JPlus.resolveNamespace = function(ns, isStyle){
 		
 			// 设置通用的属性。
 			if(arguments.length == 1){
-				me.dom.style.cssText = name;
+				me.dom.style.cssText += ';' + name;
 				
 			// 特殊的属性值。
 			} else if( name in styles) {
@@ -4773,8 +4766,9 @@ JPlus.resolveNamespace = function(ns, isStyle){
 			assert.isFunction(handler, "Control.prototype.delegate(selector, eventName, handler): {handler}  ~");
 			
 			this.on(eventName, function(e){
+				var target = e.getTarget();
 				if(e.getTarget().match(selector)){
-					return handler.call(this, e);
+					return handler.call(this, e, target);
 				}
 			});
 			
@@ -7930,10 +7924,10 @@ var Collection = Class({
 String.map("indexOf forEach each invoke lastIndexOf item filter", Array.prototype, Collection.prototype);
 
 /************************************
- * Milk.Core.Common
+ * Controls.Core.Common
  ************************************/
 /************************************
- * Milk.Core.ScrollableControl
+ * Controls.Core.ScrollableControl
  ************************************/
 var ScrollableControl = Control.extend({
 
@@ -8081,7 +8075,7 @@ ScrollableControl.ControlCollection = Collection.extend({
 
 /// #endregion
 /************************************
- * Milk.Core.ListControl
+ * Controls.Core.ListControl
  ************************************/
 var ListControl = ScrollableControl.extend({
 	
@@ -8339,7 +8333,7 @@ var ListControl = ScrollableControl.extend({
 
 
 /************************************
- * Milk.Core.ContainerControl
+ * Controls.Core.ContainerControl
  ************************************/
 var ContainerControl = ScrollableControl.extend({
 	
@@ -8399,7 +8393,7 @@ var ContainerControl = ScrollableControl.extend({
 
 });
 /************************************
- * Milk.Core.ContentControl
+ * Controls.Core.ContentControl
  ************************************/
 var ContentControl = Control.extend({
 	
@@ -8480,7 +8474,7 @@ var ContentControl = Control.extend({
 
 Control.delegate(ContentControl, 'container', 'setWidth setHeight empty', 'insertBefore removeChild contains append getHtml getText getWidth getHeight');
 /************************************
- * Milk.Core.ICollapsable
+ * Controls.Core.ICollapsable
  ************************************/
 var ICollapsable = {
 	
@@ -8499,6 +8493,14 @@ var ICollapsable = {
 		
 	},
 	
+	onCollapsing: function(duration){
+		return this.trigger('collapse', duration);
+	},
+	
+	onExpanding: function(duration){
+		return this.trigger('expanding', duration);
+	},
+	
 	onCollapse: function(){
 		this.trigger('collapse');
 		this.onToggleCollapse(true);
@@ -8511,7 +8513,8 @@ var ICollapsable = {
 	
 	collapse: function(duration){
 		var me = this;
-		me.container && me.container.hide(duration === undefined ? me.collapseDuration : duration, function(){
+		if(me.onCollapsing(duration) && me.container)
+			me.container.hide(duration === undefined ? me.collapseDuration : duration, function(){
 			me.addClass('x-' + me.xType + '-collapsed');
 			me.onCollapse();
 		}  , 'height');
@@ -8519,8 +8522,10 @@ var ICollapsable = {
 	},
 	
 	expand: function(duration){
-		this.removeClass('x-' + this.xType + '-collapsed');
-		this.container && this.container.show(duration === undefined ? this.collapseDuration : duration, Function.bind(this.onExpand, this), 'height');
+		if(this.onExpanding(duration)  ) {
+			this.removeClass('x-' + this.xType + '-collapsed');
+			this.container && this.container.show(duration === undefined ? this.collapseDuration : duration, Function.bind(this.onExpand, this), 'height');
+		}
 		return this;
 	},
 	
@@ -8535,7 +8540,7 @@ var ICollapsable = {
 	
 };
 /************************************
- * Milk.Core.IDropDownMenuContainer
+ * Controls.Core.IDropDownMenuContainer
  ************************************/
 var IDropDownMenuContainer = {
 	
@@ -8634,10 +8639,10 @@ var IDropDownMenuContainer = {
 	
 };
 /************************************
- * Milk.Core.Splitter
+ * Controls.Core.Splitter
  ************************************/
 /************************************
- * Milk.Button.Button
+ * Controls.Button.Button
  ************************************/
 var Button = ContentControl.extend({
 	
@@ -8674,7 +8679,7 @@ var Button = ContentControl.extend({
 });
 
 /************************************
- * Milk.Button.MenuButton
+ * Controls.Button.MenuButton
  ************************************/
 var MenuButton = Button.extend(IDropDownMenuContainer).implement({
 	
@@ -8721,7 +8726,7 @@ var MenuButton = Button.extend(IDropDownMenuContainer).implement({
 	
 });
 /************************************
- * Milk.Button.SplitButton
+ * Controls.Button.SplitButton
  ************************************/
 var SplitButton = MenuButton.extend({
 	
@@ -8748,16 +8753,16 @@ var SplitButton = MenuButton.extend({
 	
 });
 /************************************
- * Milk.Button.ButtonGroup
+ * Controls.Button.ButtonGroup
  ************************************/
 /************************************
- * Milk.Button.CloseButton
+ * Controls.Button.CloseButton
  ************************************/
 /************************************
- * Milk.Button.LinkButton
+ * Controls.Button.LinkButton
  ************************************/
 /************************************
- * Milk.Button.Menu-Alt
+ * Controls.Button.Menu-Alt
  ************************************/
 var MenuItem = ContentControl.extend({
 	
@@ -9015,7 +9020,7 @@ var Menu = ListControl.extend({
 
 
 /************************************
- * Milk.Button.ContextMenu
+ * Controls.Button.ContextMenu
  ************************************/
 var ContextMenu = Menu.extend({
 	
@@ -9039,7 +9044,7 @@ var ContextMenu = Menu.extend({
 	
 });
 /************************************
- * Milk.Form.IInput
+ * Controls.Form.IInput
  ************************************/
 var IInput = {
 	
@@ -9089,10 +9094,10 @@ var IInput = {
 	
 };
 /************************************
- * Milk.Form.Form
+ * Controls.Form.Form
  ************************************/
 /************************************
- * Milk.Form.ListBox
+ * Controls.Form.ListBox
  ************************************/
 var ListBox = ListControl.extend(IInput).implement({
 	
@@ -9252,7 +9257,7 @@ var ListBox = ListControl.extend(IInput).implement({
 });
 
 /************************************
- * Milk.Form.TextBox
+ * Controls.Form.TextBox
  ************************************/
 var TextBox = Control.extend({
 	
@@ -9274,10 +9279,10 @@ var TextBox = Control.extend({
 	
 }).implement(IInput);
 /************************************
- * Milk.Form.TextArea
+ * Controls.Form.TextArea
  ************************************/
 /************************************
- * Milk.Form.CombinedTextBox
+ * Controls.Form.CombinedTextBox
  ************************************/
 var CombinedTextBox = TextBox.extend({
 	
@@ -9341,7 +9346,7 @@ var CombinedTextBox = TextBox.extend({
 
 Control.delegate(CombinedTextBox, 'textBox', 'setReadOnly setName select', 'getDisabled getReadOnly getText getName getForm');
 /************************************
- * Milk.Form.ComboBox
+ * Controls.Form.ComboBox
  ************************************/
 var ComboBox = CombinedTextBox.extend(IDropDownMenuContainer).implement({
 	
@@ -9531,16 +9536,16 @@ var ComboBox = CombinedTextBox.extend(IDropDownMenuContainer).implement({
 
 }).addEvents({select:{}});
 /************************************
- * Milk.Form.Select
+ * Controls.Form.Select
  ************************************/
 /************************************
- * Milk.Form.CheckBox
+ * Controls.Form.CheckBox
  ************************************/
 /************************************
- * Milk.Form.RadioButton
+ * Controls.Form.RadioButton
  ************************************/
 /************************************
- * Milk.Form.SearchTextBox
+ * Controls.Form.SearchTextBox
  ************************************/
 var SearchTextBox = CombinedTextBox.extend({
 	
@@ -9560,11 +9565,11 @@ var SearchTextBox = CombinedTextBox.extend({
 
 
 /************************************
- * Milk.Form.Suggest
+ * Controls.Form.AutoComplete
  ************************************/
-var Suggest = Control.extend({
+var AutoComplete = Control.extend({
 	
-	xType: 'suggest',
+	xType: 'autocomplete',
 	
 	onKeyDown: function(e){
 		switch(e.keyCode) {
@@ -9674,13 +9679,13 @@ var Suggest = Control.extend({
 	
 }).implement(IDropDownMenuContainer);
 
-// Suggest.SuggestListBox = ListBox.extend({
+// AutoComplete.SuggestListBox = ListBox.extend({
 // 	
 	// xType: 'suggest'
 // 	
 // });
 /************************************
- * Milk.Container.Tabbable
+ * Controls.Container.Tabbable
  ************************************/
 var Tabbable = ListControl.extend({
 	
@@ -9694,10 +9699,10 @@ var Tabbable = ListControl.extend({
 
 });
 /************************************
- * Milk.Container.Stackable
+ * Controls.Container.Stackable
  ************************************/
 /************************************
- * Milk.Container.Accordion
+ * Controls.Container.Accordion
  ************************************/
 var Accordion = ScrollableControl.extend({
 	
@@ -9792,7 +9797,7 @@ Accordion.TabPage = ContainerControl.extend({
 	
 }).implement(ICollapsable);
 /************************************
- * Milk.Container.Panel
+ * Controls.Container.Panel
  ************************************/
 var Panel = ContainerControl.extend({
 	
@@ -9811,28 +9816,28 @@ var Panel = ContainerControl.extend({
 
 
 /************************************
- * Milk.DataView.Table
+ * Controls.DataView.Table
  ************************************/
 /************************************
- * Milk.Page.Scaffolding
+ * Controls.Page.Scaffolding
  ************************************/
 /************************************
- * Milk.Page.Grid-Fluid
+ * Controls.Page.Grid-Fluid
  ************************************/
 /************************************
- * Milk.Page.Grid
+ * Controls.Page.Grid
  ************************************/
 /************************************
- * Milk.Page.Breadcrumb
+ * Controls.Page.Breadcrumb
  ************************************/
 /************************************
- * Milk.Page.Pagination
+ * Controls.Page.Pagination
  ************************************/
 /************************************
- * Milk.Page.Pager
+ * Controls.Page.Pager
  ************************************/
 /************************************
- * Milk.Display.IToolTip
+ * Controls.Display.IToolTip
  ************************************/
 var IToolTip = {
 	
@@ -9984,31 +9989,31 @@ var IToolTip = {
 
 
 /************************************
- * Milk.Display.Thumbnail
+ * Controls.Display.Thumbnail
  ************************************/
 /************************************
- * Milk.Display.Icon
+ * Controls.Display.Icon
  ************************************/
 /************************************
- * Milk.Display.List
+ * Controls.Display.List
  ************************************/
 /************************************
- * Milk.Display.Arrow
+ * Controls.Display.Arrow
  ************************************/
 /************************************
- * Milk.Display.Tip
+ * Controls.Display.Tip
  ************************************/
 /************************************
- * Milk.Display.TipBox
+ * Controls.Display.TipBox
  ************************************/
 /************************************
- * Milk.Display.ProgressBar
+ * Controls.Display.ProgressBar
  ************************************/
 /************************************
- * Milk.Display.Bubble
+ * Controls.Display.Bubble
  ************************************/
 /************************************
- * Milk.Display.ToolTip
+ * Controls.Display.ToolTip
  ************************************/
 var ToolTip = ContentControl.extend(IToolTip).implement({
 	
@@ -10073,7 +10078,7 @@ ToolTip.show = function(ctrl, text, offsetY, offsetX){
 
 
 /************************************
- * Milk.Display.BalloonTip
+ * Controls.Display.BalloonTip
  ************************************/
 var BalloonTip = ContainerControl.extend(IToolTip).implement({
 	
@@ -10138,10 +10143,10 @@ BalloonTip.show = function(ctrl, text, offsetY, offsetX){
 
 
 /************************************
- * Milk.Display.Line
+ * Controls.Display.Line
  ************************************/
 /************************************
- * Milk.DataView.TreeView
+ * Controls.DataView.TreeView
  ************************************/
 var TreeNode = ScrollableControl.extend(ICollapsable).implement({
 	
@@ -10210,9 +10215,11 @@ var TreeNode = ScrollableControl.extend(ICollapsable).implement({
 	depth: 0,
 	
 	create: function(){
-		var div = Dom.create('div', 'x-' + this.xType);
-		div.append(Dom.create('span', ''));
-		return div.dom;
+		var a = document.createElement('a');
+		a.href = 'javascript:;';
+		a.className = 'x-' + this.xType;
+		a.innerHTML = '<span></span>';
+		return a;
 	},
 	
 	onDblClick: function(e){
@@ -10226,6 +10233,7 @@ var TreeNode = ScrollableControl.extend(ICollapsable).implement({
 		this.on('dblclick', this.onDblClick, this);
 		this.nodes = this.controls;
 		this.container = null;
+		JPlus.setData(this.dom, 'treenode', this);
 	},
 	
 	initChild: function(childControl){
@@ -10332,6 +10340,10 @@ var TreeNode = ScrollableControl.extend(ICollapsable).implement({
 		}
 	},
 	
+	setSelected: function(value){
+		this.toggleClass('x-treenode-selected', value);
+	},
+	
 	// 获取当前节点的占位 span 。 最靠近右的是 index == 0
 	getSpan: function(index){
 		return this.content.getPrevious(index);
@@ -10340,6 +10352,7 @@ var TreeNode = ScrollableControl.extend(ICollapsable).implement({
 	// 设置当前节点的深度。
 	setDepth: function(value){
 		
+		var me = this;
 	
 		var currentDepth = this.depth, span, elem = this.dom;
 		
@@ -10362,7 +10375,10 @@ var TreeNode = ScrollableControl.extend(ICollapsable).implement({
 		}
 		
 		if(elem.lastChild.previousSibling)
-			elem.lastChild.previousSibling.onclick = Function.bind(this.toggleCollapse, this);
+			elem.lastChild.previousSibling.onclick = function(){
+				me.toggleCollapse();
+				return !(/\bx-treenode-(minus|plus|loading|uninit)\b/.test(this.className));
+			};
 		
 		// 更新深度。
 		
@@ -10372,6 +10388,20 @@ var TreeNode = ScrollableControl.extend(ICollapsable).implement({
 		
 		// 对子节点设置深度+1
 		this.nodes.invoke('setDepth', [value + 1]);
+	},
+	
+	setHref: function(value){
+		this.setAttr('href', value);
+		return this;
+	},
+	
+	getTreeView: function(){
+		var n = this;
+		while(n && !(n instanceof TreeView))
+			n = n.parent;
+			
+		
+		return  n;
 	},
 	
 	toString: function(){
@@ -10389,6 +10419,13 @@ var TreeView = TreeNode.extend({
 	
 	xType: 'treeview',
 	
+	create: function(){
+		var div = document.createElement('div');
+		div.className = 'x-' + this.xType;
+		div.innerHTML = '<a href="javascript:;"></a>';
+		return div;
+	},
+	
 	isCollapsed: function () {
 		return this.nodes.each(function(value){return value.isCollapsed();});
 	},
@@ -10403,6 +10440,97 @@ var TreeView = TreeNode.extend({
 		this.nodes.invoke('expand', arguments);
 		this.onExpand();
 		return this;
+	},
+	
+	/**
+	 * 当用户点击一项时触发。
+	 */
+	onNodeClick: function (node) {
+		return this.trigger('nodeclick', node);
+	},
+	
+	init: function(){
+		this.base('init');
+		this.on('click', this.onClick);
+	},
+	
+	/**
+	 * 当一个选项被选中时触发。
+	 */
+	onSelect: function(node){
+		return this.trigger('select', node);
+	},
+	
+	/**
+	 * 点击时触发。
+	 */
+	onClick: function (e) {
+		
+		var target = e.target;
+		
+		//if(/\bx-treenode-(minus|plus|loading)\b/.test(target.className))
+		//	return;
+		
+		while(target && !Dom.hasClass(target, 'x-treenode')) {
+			target = target.parentNode;
+		}
+		
+		if(target){
+			target = JPlus.getData(target, 'treenode');
+			
+			if(target && !this.clickNode(target)){
+				e.stop();
+			}
+		}
+		
+		
+	},
+	
+	/**
+	 * 当选中的项被更新后触发。
+	 */
+	onChange: function (old, item){
+		return this.trigger('change', old);
+	},
+	
+	/**
+	 * 模拟点击一项。
+	 */
+	clickNode: function(node){
+		if(this.onNodeClick(node)){
+			this.setSelectedNode(node);
+			return true;
+		}
+		
+		return false;
+	},
+	
+	setSelectedNode: function(node){
+		
+		// 先反选当前选择项。
+		var old = this.getSelectedNode();
+		if(old)
+			old.setSelected(false);
+	
+		if(this.onSelect(node)){
+		
+			// 更新选择项。
+			this.selectedNode = node;
+			
+			if(node != null){
+				node.setSelected(true);
+			}
+			
+		}
+			
+		if(old !== node)
+			this.onChange(old, node);
+			
+		return this;
+	},
+	
+	getSelectedNode: function(){
+		return this.selectedNode;
 	}
 	
 });
