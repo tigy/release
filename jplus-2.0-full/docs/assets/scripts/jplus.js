@@ -1,5 +1,5 @@
 ﻿/*
- * This file is created by a tool at 2012/04/12 17:45:41
+ * This file is created by a tool at 2012/04/13 17:29:29
  */
 
 
@@ -7062,136 +7062,132 @@ Fx.compute = function(from, to, delta){
  ************************************/
 Control.implement((function(){
 	
-	var setter1 = {
-			
-			l: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl) {
-				var x = targetPosition.x - ctrlSize.x - offset;
-				if(x <= documentPosition.x) {
-					x = setter1.r(ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, false);
-				}
-				
-				return x;
-			},
-			
-			r: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, checkOutOfRange) {
-				var x = targetPosition.x + targetSize.x + offset;
-				if(x + ctrlSize.x >= documentPosition.x + documentSize.x) {
-					x = checkOutOfRange !== false ? setter1.l(ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl) : documentPosition.x;
-				}
-				
-				return x;
-			},
-			
-			c: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl) {
-				return targetPosition.x + (targetSize.x - ctrlSize.x) / 2 + offset;
-			},
-			
-			t: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl) {
-				var y = targetPosition.y - ctrlSize.y - offset;
-				if(y <= documentPosition.y) {
-					y = setter1.b(ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, false);
-				}
-				
-				return y;
-			},
-			
-			b: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, checkOutOfRange) {
-				var y = targetPosition.y + targetSize.y + offset;
-				if(y + ctrlSize.y >= documentPosition.y + documentSize.y) {
-					if(checkOutOfRange === false) {
-						if(ctrl.onOverflowY)
-							ctrl.onOverflowY(documentSize.y);
-						y = documentPosition.y;
-					} else {
-						y = setter1.t(ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl);
-					}
-				}
-				
-				return y;
+	var aligns = {
+		
+		ol: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, enableReset) {
+			var x = targetPosition.x - ctrlSize.x - offset;
+			if(enableReset && x <= documentPosition.x) {
+				x = aligns.or(ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, 1);
 			}
 			
+			return x;
 		},
 		
-		setter2 = {
-		
-			l: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, checkOutOfRange) {
-				var x = targetPosition.x + offset;
-				if(x <= documentPosition.x) {
-					x = checkOutOfRange !== false ? setter2.r(ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl) : documentPosition.x;
+		or: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, enableReset) {
+			var x = targetPosition.x + targetSize.x + offset;
+			if(enableReset && x + ctrlSize.x >= documentPosition.x + documentSize.x) {
+				if(ctrl.onOverflowX){
+					ctrl.onOverflowX(documentSize.x);  
 				}
-				
-				return x;
-			},
-			
-			r: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl) {
-				var x = targetPosition.x + targetSize.x - ctrlSize.x - offset;
-				if(x <= documentPosition.x) {
-					x = setter2.l(ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, false);
-				}
-				
-				return x;
-			},
-			
-			c: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl) {
-				return targetPosition.y + (targetSize.y - ctrlSize.y) / 2 + offset;
-			},
-			
-			t: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl) {
-				var y = targetPosition.y + offset;
-				if(y <= documentPosition.y) {
-					if(checkOutOfRange === false) {
-						if(ctrl.onOverflowY)
-							ctrl.onOverflowY(documentSize.y);
-						y = documentPosition.y;
-					} else {
-						y = setter2.b(ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl);
-					}
-				}
-				
-				return y;
-			},
-			
-			b: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl) {
-				var y = targetPosition.y + targetSize.y - ctrlSize.y - offset;
-				if(y <= documentPosition.y) {
-					y = setter2.t(ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl);
-				}
-				
-				return y;
+				x = aligns[enableReset === 1 ? 'xc' : 'ol'](ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, true);
 			}
 			
+			return x;
 		},
 		
-		setter = {
-			bl: [setter2.l, setter1.b],
-			rt: [setter1.r, setter2.t],
-			rb: [setter1.r, setter2.b],
-			lt: [setter1.l, setter2.t],
-			lb: [setter1.l, setter2.b],
-			br: [setter2.r, setter1.b],
-			tr: [setter2.r, setter1.t],
-			tl: [setter2.l, setter1.t],
-			rc: [setter1.r, setter2.c],
-			bc: [setter1.c, setter1.b],
-			tc: [setter1.c, setter1.t],
-			lc: [setter1.l, setter2.c],
-			cc: [setter1.c, setter2.c],
+		xc: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl) {
+			return targetPosition.x + (targetSize.x - ctrlSize.x) / 2 + offset;
+		},
+		
+		il: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, enableReset) {
+			var x = targetPosition.x + offset;
+			if(enableReset && x <= x + ctrlSize.x >= documentPosition.x + documentSize.x) {
+				x = aligns.ir(ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, true);
+			}
 			
-			'lb-': [setter2.l, setter2.b],
-			'rt-': [setter2.r, setter2.t],
-			'rb-': [setter2.r, setter2.b],
-			'lt-': [setter2.l, setter2.t],
-			'rc-': [setter2.r, setter2.c],
-			'bc-': [setter1.c, setter2.b],
-			'tc-': [setter1.c, setter2.t],
-			'lc-': [setter2.l, setter2.c],
+			return x;
+		},
+		
+		ir: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, enableReset) {
+			var x = targetPosition.x + targetSize.x - ctrlSize.x - offset;
+			if(enableReset && x <= documentPosition.x) {
+				x = aligns.il(ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl);
+			}
 			
-			'lb^': [setter1.l, setter1.b],
-			'rt^': [setter1.r, setter1.t],
-			'rb^': [setter1.r, setter1.b],
-			'lt^': [setter1.l, setter1.t]
+			return x;
+		},
+		
+		ot: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, enableReset) {
+			var y = targetPosition.y - ctrlSize.y - offset;
+			if(enableReset && y <= documentPosition.y) {
+				y = aligns.ob(ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, 1);
+			}
 			
-		};
+			return y;
+		},
+		
+		ob: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, enableReset) {
+			var y = targetPosition.y + targetSize.y + offset;
+			if(enableReset && y + ctrlSize.x >= documentPosition.y + documentSize.y) {
+				if(ctrl.onOverflowY){
+					ctrl.onOverflowY(documentSize.y);  
+				}
+				y = aligns[enableReset === 1 ? 'yc' : 'ot'](ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, true);
+			}
+			
+			return y;
+		},
+		
+		yc: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl) {
+			return targetPosition.y + (targetSize.y - ctrlSize.y) / 2 + offset;
+		},
+		
+		it: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, enableReset) {
+			var y = targetPosition.y + offset;
+			if(enableReset && y + ctrlSize.x >= documentPosition.y + documentSize.y) {
+				y = aligns.ib(ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, true);
+			}
+			
+			return y;
+		},
+		
+		ib: function (ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl, enableReset) {
+			var y = targetPosition.y + targetSize.y - ctrlSize.y - offset;
+			if(enableReset && y <= documentPosition.y) {
+				y = aligns.it(ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offset, ctrl);
+			}
+			
+			return y;
+		}
+		
+	},
+	
+	setter = Object.update({
+		bl: 'il ob',
+		bl: 'il ob',
+		rt: 'or it',
+		rb: 'or ib',
+		lt: 'ol it',
+		lb: 'ol ib',
+		br: 'ir ob',
+		tr: 'ir ot',
+		tl: 'il ot',
+		rc: 'or yc',
+		bc: 'xc ob',
+		tc: 'xc ot',
+		lc: 'ol yc',
+		cc: 'xc yc',
+		
+		'lb-': 'il ib',
+		'rt-': 'ir it',
+		'rb-': 'ir ib',
+		'lt-': 'il it',
+		'rc-': 'ir yc',
+		'bc-': 'xc ib',
+		'tc-': 'xc it',
+		'lc-': 'il yc',
+		
+		'lb^': 'ol ob',
+		'rt^': 'or ot',
+		'rb^': 'or ob',
+		'lt^': 'ol ot'
+		
+	}, function(value){
+		value = value.split(' ');
+		value[0] = aligns[value[0]];
+		value[1] = aligns[value[1]];
+		return value;
+	}, {});
 		
 		/*
 		 *      tl   tc   tr
@@ -7215,7 +7211,7 @@ Control.implement((function(){
 		 * @param {Number} offsetY 偏移的y大小。
 		 * @memberOf Control
 		 */
-		align: function (ctrl, position,  offsetX, offsetY) {
+		align: function (ctrl, position,  offsetX, offsetY, enableReset) {
 			var ctrlSize = this.getSize(),
 				targetSize = ctrl.getSize(),
 				targetPosition = ctrl.getPosition(),
@@ -7225,10 +7221,11 @@ Control.implement((function(){
 			assert(!position || position in setter, "Control.prototype.align(ctrl, position,  offsetX, offsetY): {position} 必须是 l r c 和 t b c 的组合。如 lt", position);
 				
 			position = setter[position] || setter.lb;
+			enableReset = enableReset !== false;
 			
 			this.setPosition(
-				position[0](ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offsetX || 0, this),
-				position[1](ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offsetY || 0, this)
+				position[0](ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offsetX || 0, this, enableReset),
+				position[1](ctrlSize, targetSize, targetPosition, documentSize, documentPosition, offsetY || 0, this, enableReset)
 			);
 		}
 		
@@ -7397,11 +7394,11 @@ var Draggable = Class({
 	
 	beforeDrag: function(e){
 		this.offset = this.proxy.getOffset();
-		document.body.style.cursor = this.target.getStyle('cursor');
-		if(document.body.setCapture)
-			document.body.setCapture();
-		else
+		document.documentElement.style.cursor = this.target.getStyle('cursor');
+		if('pointerEvents' in document.body.style)
 			document.body.style.pointerEvents = 'none';
+		else if(document.body.setCapture)
+			document.body.setCapture();
 	},
 	
 	doDrag: function(e){
@@ -7413,11 +7410,11 @@ var Draggable = Class({
 	},
 	
 	afterDrag: function(){
-		if(document.body.releaseCapture)
-			document.body.releaseCapture();
-		else
+		if(document.body.style.pointerEvents === 'none')
 			document.body.style.pointerEvents = '';
-		document.body.style.cursor = '';
+		else if(document.body.releaseCapture)
+			document.body.releaseCapture();
+		document.documentElement.style.cursor = '';
 		this.offset = null;
 	},
 	
@@ -8942,7 +8939,7 @@ var Menu = ListControl.extend({
 	 * 当前菜单依靠某个控件显示。
 	 * @param {Control} ctrl 方向。
 	 */
-	showBy: function(ctrl){
+	showBy: function(ctrl, pos, offsetX, offsetY, enableReset){
 		
 		if(!this.getParent('body')){
 			this.appendTo(ctrl.getParent());
@@ -8951,7 +8948,7 @@ var Menu = ListControl.extend({
 		// 显示节点。
 		this.showMenu();
 		
-		this.align(ctrl, 'rt', -5, -5);
+		this.align(ctrl, pos || 'rt', offsetX != null ? offsetX : -5, offsetY != null ? offsetY : -5, enableReset);
 		
 		return this;
 	},
@@ -8959,6 +8956,7 @@ var Menu = ListControl.extend({
 	onShow: function(){
 		this.floating = true;
 		document.one('mouseup', this.hideMenu, this);
+		this.trigger('show');
 	},
 	
 	/**
@@ -8968,6 +8966,7 @@ var Menu = ListControl.extend({
 		
 		// 先关闭子菜单。
 		this.hideSub();
+		this.trigger('hide');
 	},
 	
 	/**
@@ -10157,7 +10156,7 @@ var TreeNode = ScrollableControl.extend(ICollapsable).implement({
 		
 		var span = this.getSpan(0), current = this;
 		
-		while((current = current.parent) && (span = span.getPrevious())){
+		while((current = current.parentControl) && (span = span.getPrevious())){
 			
 			span.dom.className = current.isLastNode() ? 'x-treenode-space x-treenode-none' : 'x-treenode-space';
 		
@@ -10265,7 +10264,6 @@ var TreeNode = ScrollableControl.extend(ICollapsable).implement({
 	
 	onControlRemoved: function(childControl, index){
 		this.container.removeChild(childControl.getParent());
-		childControl.parent = null;
 		this.update();
 	},
 	
@@ -10330,7 +10328,7 @@ var TreeNode = ScrollableControl.extend(ICollapsable).implement({
 	},
 	
 	isLastNode: function(){
-		return this.parent &&  this.parent.lastNode === this;
+		return this.parentControl &&  this.parentControl.lastNode === this;
 	},
 	
 	onToggleCollapse: function(value){
@@ -10398,10 +10396,35 @@ var TreeNode = ScrollableControl.extend(ICollapsable).implement({
 	getTreeView: function(){
 		var n = this;
 		while(n && !(n instanceof TreeView))
-			n = n.parent;
+			n = n.parentControl;
 			
 		
 		return  n;
+	},
+	
+	ensureVisible: function(duration){
+		duration = duration === undefined ? 0 : duration;
+		var n = this;
+		n.scrollIntoView();
+		while(n = n.parentControl) {
+			n.expand(duration);
+		}
+	},
+	
+	/**
+	 * 展开当前节点，但折叠指定深度以后的节点。
+	 */
+	collapseTo: function(depth, duration){
+		duration = duration === undefined ? 0 : duration;
+		depth = depth === undefined ? 1 : depth;
+		
+		if(depth > 0){
+			this.expand(duration);
+		} else {
+			this.collapse(duration);
+		}
+		
+		this.nodes.invoke('collapseTo', [--depth, duration]);
 	},
 	
 	toString: function(){
@@ -10424,22 +10447,6 @@ var TreeView = TreeNode.extend({
 		div.className = 'x-' + this.xType;
 		div.innerHTML = '<a href="javascript:;"></a>';
 		return div;
-	},
-	
-	isCollapsed: function () {
-		return this.nodes.each(function(value){return value.isCollapsed();});
-	},
-	
-	collapse: function () {
-		this.nodes.invoke('collapse', arguments);
-		this.onCollapse();
-		return this;
-	},
-	
-	expand: function (duration) {
-		this.nodes.invoke('expand', arguments);
-		this.onExpand();
-		return this;
 	},
 	
 	/**

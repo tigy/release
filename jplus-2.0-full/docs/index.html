@@ -7,7 +7,6 @@
 		<link href="assets/styles/docplus.less" rel="stylesheet/less" type="text/css" />
 		<script src="assets/scripts/jplus.js" type="text/javascript"></script>
 		<script src="assets/scripts/docplus.js" type="text/javascript"></script>
-		<script src="assets/scripts/example.js" type="text/javascript"></script>
 		<script src="assets/scripts/less.min.js" type="text/javascript"></script>
 	</head>
 	<body>
@@ -22,39 +21,19 @@
 					<h1><a href="#">J+ UI Library 2</a></h1>
 				</div>
 				<div id="tab-container">
+					<div id="tabs-more">
+						<!-- <a href="#"> <i class="x-icon x-icon-white x-icon-plus"></i> </a>
+						<a href="#"> <i class="x-icon x-icon-white x-icon-star"></i> </a> -->
+						<a href="#"> <i class="x-icon x-icon-white x-icon-list"></i> </a>
+					</div>
 					<ul id="navbar">
 						<li>
-							<a href="" title="首页"><span class="x-icon x-icon-home"></span></a>
-						</li>
-						<li class="selected">
-							<a href="#a" title="API 文档">中文</a>
-						</li>
-						<li>
-							<a href="#b">中文</a>
-						</li>
-						<li>
-							<a href="#c">中文</a>
-						</li>
-						<li>
-							<a href="#d">中文</a>
+							<a href="#" title="首页"><span class="x-icon x-icon-home"></span></a>
 						</li>
 					</ul>
 					<div id="tab-container-split"></div>
 					<ul id="tabs">
-						<li onclick="Application.openTab('asdasd',{})">
-							<a class="x-closebutton" href="#">×</a>
-							<a href="#" title="首页">AAA</a>
-						</li>
-						<li class="selected" onclick="Application.openTab('asdas34d',{})">
-							<a class="x-closebutton" href="#">×</a>
-							<a href="#" title="API 文档"> BBBBBBBBBBBB </a>
-						</li>
 					</ul>
-					<div id="tabs-more">
-						<a href="#"> <i class="x-icon x-icon-white x-icon-plus"></i> </a>
-						<a href="#"> <i class="x-icon x-icon-white x-icon-star"></i> </a>
-						<a href="#"> <i class="x-icon x-icon-white x-icon-list"></i> </a>
-					</div>
 				</div>
 			</div>
 			<div id="body">
@@ -70,6 +49,9 @@
 				</div>
 				<div id="splitter" class="x-splitter x-splitter-left"></div>
 				<div id="content">
+					<div id="mask">
+						
+					</div>
 					<iframe class="content" style="display: none;" frameborder="0" src="_test/example.html"></iframe>
 					<div class="content" style="display: none;">
 						<div class="doc">

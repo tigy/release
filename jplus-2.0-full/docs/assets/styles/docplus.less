@@ -43,7 +43,6 @@ body {
 
 #tab-container {
    height: 29px;
-  overflow: hidden;
 	   
 	li{
 	  float: left;
@@ -92,6 +91,10 @@ body {
   height: 100%;
 }
 
+#tabs {
+  overflow: hidden;
+}
+
 #tabs li.selected{
 	border-bottom-color: @white;
 }
@@ -133,6 +136,13 @@ body {
   width: 100%;
   height: 100%;
   overflow: auto;
+}
+
+#mask {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  display: none;
 }
 
 // API Document
