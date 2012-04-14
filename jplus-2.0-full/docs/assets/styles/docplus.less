@@ -18,23 +18,20 @@ body {
 
 #header {
   #gradient > .vertical(#103E68, #085D91);
-  padding: 10px 5px 0;
+  padding: 5px 5px 0;
+  height: 60px;
 }
 
-#logo-container {
+#logo-container, #tabs {
+  height: 30px;
+  overflow: hidden;
+}
+  
+#logo-container h1 {
+  margin: 0;
+  line-height: 26px;
+  font-size: 18px;
   color: #ffffff; 
-  .clearfix();
-  
-  h1 {
-    margin: 0 0 8px;
-	line-height: 18px;
-    font-size: 18px;
-  }
-  
-  a {
-    color: #ffffff; 
-	text-decoration: none;
-  }
 }
 
 #toolbar {
@@ -42,10 +39,11 @@ body {
 }
 
 #tab-container {
-   height: 29px;
+   height: 30px;
 	   
 	li{
 	  float: left;
+	  height: 28px;
 	  .border-radius(5px 5px 0 0);
   	background-color: #f1f7fb;
     background-image: -moz-linear-gradient(top, #ffffff, #dcebf4);
@@ -57,7 +55,6 @@ body {
     background-repeat: repeat-x; 
   	
     border: 1px solid #7CA1D2;
-    text-align: center;
     margin-right: -1px;
     overflow: hidden;
     
@@ -68,31 +65,29 @@ body {
 	
 	a {
 	  font-size: 13px;
-	  line-height: 13px;
-	  height: 13px;
-	  display: inline-block;
-	  .ie7-inline-block(); 
-	  padding: 7px 15px;
+	  line-height: 28px;
+	  padding: 0 10px;
 	  color: #656565;
 	  font-weight: bold;
 	  text-decoration: none;
+	  display: block;
 	}
 	
 	.x-closebutton {
 		padding: 7px 5px;
-		margin-left: -10px;
-		*display: none;
+		margin-left: -13px;
+		line-height: 13px;
 	}
+}
+  
+#tabs a {
+  padding-right: 20px; 
 }
 
 #tab-container-split {
   float: left;
   width: 10px;
-  height: 100%;
-}
-
-#tabs {
-  overflow: hidden;
+  height: 30px;
 }
 
 #tabs li.selected{
@@ -103,7 +98,7 @@ body {
 	float: right;
 	
 	a {
-		padding: 7px 5px;
+		padding: 0 5px;
 	}
 }
 
