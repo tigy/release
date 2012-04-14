@@ -1,5 +1,5 @@
 ﻿/*
- * This file is created by a tool at 2012/04/13 17:29:29
+ * This file is created by a tool at 2012/04/14 11:38:09
  */
 
 
@@ -5397,6 +5397,10 @@ JPlus.resolveNamespace = function(ns, isStyle){
 	
 	Dom.prototype = Control.prototype;
 
+	Dom.window = new Dom(window);
+	
+	Dom.document = new Dom(document);
+	
 	document.dom = document.documentElement;
 		
 	// 初始化 wrapMap
@@ -5412,8 +5416,6 @@ JPlus.resolveNamespace = function(ns, isStyle){
 	textField.INPUT = textField.SELECT = textField.TEXTAREA = 'value';
 	
 	textField['#text'] = textField['#comment'] = 'nodeValue';
-	
-	p.namespace("JPlus.Events.control");
 
 	/**
 	 * @type Function
@@ -5437,8 +5439,8 @@ JPlus.resolveNamespace = function(ns, isStyle){
 		 * @type Object
 		 * @hide
 		 */
-		eventObj = {
-	
+		eventObj = p.namespace("JPlus.Events.control.$default", {
+			
 			/**
 			 * 创建当前事件可用的参数。
 			 * @param {Control} ctrl 事件所有者。
@@ -5484,7 +5486,7 @@ JPlus.resolveNamespace = function(ns, isStyle){
 				ctrl.dom.detachEvent('on' + type, fn);
 			}
 			
-		},
+		}),
 		
 		/**
 		 * 浏览器使用的真实的 DOMContentLoaded 事件名字。
@@ -5619,8 +5621,7 @@ JPlus.resolveNamespace = function(ns, isStyle){
 
 	map('on un trigger', function (name) {
 		Dom.Document.prototype[name] = function(){
-			var doc = new Dom(this);
-			doc[name].apply(doc, arguments);
+			Dom.document[name].apply(Dom.document, arguments);
 			return this;
 		};
 	});
@@ -5640,7 +5641,7 @@ JPlus.resolveNamespace = function(ns, isStyle){
 
 	map('ready load', function(readyOrLoad, isLoad) {
 
-		var isReadyOrIsLoad = isLoad ? 'isReady': 'isLoaded';
+		var isReadyOrIsLoad = isLoad ? 'isLoaded': 'isReady';
 
 		// 设置 ready load
 		Dom[readyOrLoad] = function(fn, bind) {
@@ -5653,7 +5654,7 @@ JPlus.resolveNamespace = function(ns, isStyle){
 			if(Dom[isReadyOrIsLoad]) {
 
 				if(fn)
-					fn.call(bind, Dom.get);
+					fn.call(bind);
 
 				// 如果参数是函数。
 			} else if(fn) {
@@ -5681,16 +5682,17 @@ JPlus.resolveNamespace = function(ns, isStyle){
 					dom: fn[0]
 				}, fn[1], arguments.callee);
 
-				// 触发事件。
-				if(document.trigger(readyOrLoad, Dom.get)) {
+				// 先设置为已经执行。
+				Dom[isReadyOrIsLoad] = true;
 
-					// 先设置为已经执行。
-					Dom[isReadyOrIsLoad] = true;
+				// 触发事件。
+				if(document.trigger(readyOrLoad)) {
 
 					// 删除事件。
 					document.un(readyOrLoad);
 
 				}
+				
 			} else {
 				setTimeout(arguments.callee, 1);
 			}
