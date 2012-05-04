@@ -1,9 +1,32 @@
 ﻿
 
-DocPlus.api = {
-	'Object': 'c',
-	'Object.extend': 'sm',
-	'String.prototype.trim': 'm'
+DocData.api = {
+
+	dom: {
+		'String': {
+			'prototype': {
+				'trim': 0
+			},
+			'format': 0
+		}
+	},
+
+	members: {
+		'String': {
+			type: 'C',
+			icon: 'PC'
+		},
+		'String.prototype.trim': {
+			type: 'M',
+			icon: 'PC'
+		},
+		'String.format': {
+			type: 'F',
+			icon: 'PC'
+		}
+
+
+	}
 };
 
 DocPlus.initTreeView('api', {
