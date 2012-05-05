@@ -1,6 +1,6 @@
 ﻿
 
-DocData.api = {
+jsonp({
 
 	dom: {
 		'String': {
@@ -8,6 +8,18 @@ DocData.api = {
 				'trim': 0
 			},
 			'format': 0
+		},
+		'Object': {
+			'extend': 0,
+			'extendIf': 0	
+		},
+		'System': {
+			'Base': {
+				'prototype': {
+					'on': 0
+				},
+				'implement': 0
+			}	
 		}
 	},
 
@@ -23,21 +35,32 @@ DocData.api = {
 		'String.format': {
 			type: 'F',
 			icon: 'PC'
+		},
+		'Object': {
+			type: 'C',
+			icon: 'PC'
+		},
+		'Object.extend': {
+			type: 'F',
+			icon: 'PC'
+		},
+		'Object.extendIf': {
+			type: 'F',
+			icon: 'PC'
+		},
+		'System.Base': {
+			type: 'C',
+			icon: 'PC'
+		},
+		'System.Base.prototype.on': {
+			type: 'F',
+			icon: 'PC'
+		},
+		'System.Base.implement': {
+			type: 'F',
+			icon: 'PC'
 		}
 
 
 	}
-};
-
-DocPlus.initTreeView('api', {
-	'Object::object/::1': {
-		'Object.extend::object/Object.extend::2': 0,
-		'多行文本框2::controls/form/form/textarea2::5': 0
-	},
-	'Array::button/::1': {
-		'多行文本框3::controls/form/form/textarea3::2': 0,
-		'多行文本框4::controls/form/form/textarea4::5': 0
-	}
-
-
 });

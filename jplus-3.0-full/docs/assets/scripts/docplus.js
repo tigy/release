@@ -65,6 +65,8 @@ var DocPlus = {
 		});
 
 		// 刷新页面显示。
+		
+		DocPlus.initControllers();
 
 		// 刷新历史记录的视图。
 		if (DocPlus.options.views)
@@ -195,7 +197,21 @@ var DocPlus = {
 
 	},
 
+	/**
+     * 刷新当前视图。
+     */
+	update: function () {
+		if(DocPlus.currentView) {
+			DocPlus.currentView.update();
+		}
+	},
+
 	// 视图
+	
+	/**
+	 * 所有可用的控制器。
+	 */
+	controllers: {},
 
 	/**
 	 * 当前打开的全部视图。
@@ -224,83 +240,13 @@ var DocPlus = {
 
 		// 如果控制器未载入，则先载入。
 		if(controller.dataJsPath) {
-			DocPlus.getJSONP(controller.dataJsPath, DocPlus.reload);
+			DocPlus.getJSONP(controller.dataJsPath, controller.init.bind(controller));
 			delete controller.dataJsPath;
 		}
 
 		// 用控制器创建真正的视图对象。
 		// 保存新打开的视图。
-		return controller.createView(hash, hash.substr(spa + 1));
-	},
-
-	// 控制器。
-	
-	/**
-	 * 所有可用的控制器。
-	 */
-	controllers: {},
-
-	/**
-	 * 注册一个类型的视图。
-	 * @param {String} prefix 前缀字符串，只有hash匹配此前缀时，才使用此视图类型来显示。
-	 * @param {String} [dataJsPath] 某个视图类型对应的初始化数据。
-	 * @param {Function/String} [createViewFn] 用来创建某个视图的函数。该函数参数是hash地址，返回值是一个 View 。
-	 */
-	registerGlobalView: function (prefix, text, title, dataJsPath, createViewFn) {
-		DocPlus.globalViews[prefix] = new DocPlus.HomeView(prefix, text, title, dataJsPath, createViewFn);
-	},
-
-	// 导航
-
-	/**
-       * 所有树节点的 hash -> TreeNode 的映射。
-       */
-	treeNodes: {},
-
-	currentTreeView: null,
-
-	toggleTreeView: function (treeView) {
-		if (DocPlus.currentTreeView) {
-			DocPlus.currentTreeView.tab.removeClass('selected');
-			DocPlus.currentTreeView.hide();
-		}
-		DocPlus.currentTreeView = treeView.show();
-		treeView.tab.addClass('selected');
-	},
-
-	compileTreeNode: function (data, parent, basePath) {
-
-		if (data) {
-			for (var n in data) {
-				var an = n.split('::'),
-					hash = basePath + an[1],
-					node = DocPlus.treeNodes[hash] = parent.nodes.add(an[0]).setHref('#!' + hash);
-				DocPlus.compileTreeNode(data[n], node, basePath);
-			}
-		}
-
-	},
-
-	createTreeView: function (hash, data) {
-		var treeView = DocPlus.treeNodes[hash] = new TreeView().addClass('x-treeview-plain').appendTo('doctree');
-		DocPlus.compileTreeNode(data, treeView, hash + '/');
-		treeView.tab = DocPlus.globalViews[hash].tab;
-		return treeView;
-	},
-
-	initTreeView: function (hash, data) {
-		Dom.ready(function () {
-			var treeView = DocPlus.createTreeView(hash, data);
-			treeView.collapseTo();
-			DocPlus.toggleTreeView(treeView);
-
-			// 菜单如果打开较慢，则更新当前的节点。
-
-
-			for (var view in DocPlus.views) {
-				DocPlus.views[view].update();
-			}
-		});
+		return controller.createView(hash, spa === -1 ? '' : hash.substr(spa + 1));
 	},
 
 	// 视图界面
@@ -350,57 +296,33 @@ var DocPlus = {
 	},
 
 	relayoutTab: function () {
-		var totalWidth = Dom.get('tabs').getSize().x - 10;
+		var totalWidth = DocPlus.tabs.getSize().x - 10;
 
 		this.setTabWidth(Math.min(totalWidth / this.viewCount, 200));
 	},
 
 	// 脚本动态载入。
 
-	_waitingList: [],
-
-	jsonp: function(data){
-		var fn = _waitingList.pop();
-		fn.call
-	},
-
-	jsonpNext: function (url) {
-		var d = DocPlus._waitingList.pop();
-		if (d) {
-			DocPlus.getJSONP(d[0], d[1]);
-		}
-
-		// 如果第一次打开，则先栽入其数据地址。
-		var script = document.createElement('script');
-		script.src = url;
-		script.type = 'text/javascript';
-
-		var h = document.getElementsByTagName('HEAD')[0];
-		h.insertBefore(script, h.lastChild);
-
-		setTimeout(DocPlus.jsonpTimeout, 3000);
-	},
-
-	jsonpTimeout: function () {
-
-		// 丢弃当前请求。
-		DocPlus._waitingList.pop();
-
-		// 执行下一个请求。
-		DocPlus.jsonpNext();
-	},
+	_jsonpObj: new Ajax.JSONP({
+		callback: 'jsonp',
+		link: 'cancel'
+	}),
 
 	getJSONP: function (url, callback) {
-
-		DocPlus._waitingList.push([url, callback]);
-
-		// 如果有正在载入的脚本，则等待当前脚本载入成功后，再继续执行。
-		if (DocPlus._waitingList.length > 1) {
-			return;
+		trace('request->',  url);
+		this._jsonpObj.once('complete', function () {
+			trace('send request->',  url);
+			
+			this.url = url;
+			this.onSuccess = callback || Function.empty;
+			this.send();
+			return false;
+		});
+		
+		// 如果现在不在执行，则手动触发 complete。
+		if(!this._jsonpObj.script) {
+			this._jsonpObj.trigger('complete');
 		}
-
-		DocPlus.jsonpNext();
-
 	}
 
 };
@@ -410,21 +332,52 @@ var DocPlus = {
  * @class
  */
 DocPlus.Controller = Class({
+	
+	dataLoaded: false,
 
 	/**
      * 控制器所需数据源。
      */
 	dataJsPath: null,
+	
+	/**
+	 * 当前控制器主页对应的资源。
+	 */
+	homeView: null,
+	
+	/**
+	 * 初始化当前控制器对应的导航菜单。
+	 */
+	init: function (data) {
+		trace(data);
+	},
+	
+	/**
+	 * 初始化当前控制器对应的视图。
+	 */
+	initView: function(view, pathInfo){
+		view.setContent('<div>aaaaa</div>');
+	},
+	
+	/**
+	 * 向用户展示指定视图管理的导航节点。
+	 */
+	showTreeNode: function(view){
+		
+	},
 
 	/**
      * 创建指定路径的视图。
      */
 	createView: function(hash, pathInfo){
+		
+		if(!pathInfo){
+			return this.homeView;
+		}
 
-		var view;
-
-
-
+		var view = new DocPlus.View(hash, pathInfo, this);
+		
+		this.initView(view, pathInfo);
 
 		DocPlus.tabs.append(view.tab);
 
@@ -493,26 +446,7 @@ DocPlus.Controller = Class({
 		view.tab.addClass('selected');
 		view.content.show();
 
-		return;
-		// 检查菜单。
-		var node = DocPlus.treeNodes[this.hash];
-
-		if (node) {
-
-			// 更新标题
-			this.setTitle(node.getText());
-
-			var treeView = node.getTreeView();
-
-			// 激活 treeView
-			DocPlus.toggleTreeView(treeView);
-
-			// 激活 treeNode
-			treeView.setSelectedNode(node);
-
-			// 展开节点。
-			node.ensureVisible(0);
-		}
+		this.updateView(view);
 
 	},
 
@@ -529,6 +463,19 @@ DocPlus.Controller = Class({
      */
 	updateView: function(view){
 		
+		// 如果当前树不是激活的，则激活树。
+		if (DocPlus.currentTreeView !== this.treeView) {
+			
+			if(DocPlus.currentTreeView) {
+				this.homeView.tab.removeClass('selected');
+				DocPlus.currentTreeView.hide();
+			}
+			
+			DocPlus.currentTreeView = this.treeView.show();
+			this.homeView.tab.addClass('selected');
+		}
+		
+		this.showTreeNode(view);
 	},
 
 	showTabContextMenu: function (veiw, e) {
@@ -555,39 +502,27 @@ DocPlus.Controller = Class({
 		e.stop();
 	},
 
-	constructor: function (dataJsPath) {
+	constructor: function (dataJsPath, dataPath, name, title, description) {
 
+		this.name = name;
 		this.dataJsPath = dataJsPath;
+		this.dataPath = dataPath;
 
+		this.homeView = new DocPlus.HomeView(name, this, title, description);
+		this.homeView.tab.appendTo('navbar');
+		this.homeView.setContent('<div>ddd55d</div>').deactive();
 
-
+		this.treeView = new TreeView()
+				.addClass('x-treeview-plain')
+				.appendTo(DocPlus.trees)
+				.hide();
+			
+		this.treeView.collapseTo();
+		
+		DocPlus.controllers[name] = this;
 	}
 
 });
-
-
-DocPlus.controllers.api = new DocPlus.Controller();
-
-
-initControls   = function () {
-	DocPlus.registerGlobalView('api', 'API', 'API', 'assets/data/api.js', function (hash) {
-		var view = new DocPlus.View(hash);
-		view.setContent("<div>" + hash + "</div>");
-		return view;
-	});
-
-	DocPlus.registerGlobalView('examples', '示例', '全部示例', 'assets/data/example.js', '../');
-};     
-
-
-/**
-	 * 生成并返回一个内容主题是 IFrame 的视图。
-	 */
-createIFrameView= function (hash, url) {
-	var view = new DocPlus.View(hash);
-	view.setContent(Dom.create('iframe', 'content').setAttr('frameborder', '0').setAttr('src', url));
-	return view;
-}
 
 
 /**
@@ -659,9 +594,10 @@ DocPlus.View = Class({
 		this.controller.showTabContextMenu(this, e);
 	},
 
-	constructor: function (hash, controller) {
+	constructor: function (hash, pathInfo, controller) {
 
 		this.hash = hash;
+		this.pathInfo = pathInfo;
 		this.controller = controller;
 
 		// 创建 tab 菜单。
@@ -670,16 +606,16 @@ DocPlus.View = Class({
 			.on('mouseup', this.onTabMouseUp, this)
 			.on('contextmenu', this.onTabContextMenu, this);
 
-		this.title = Dom.create('a')
-			.setAttr('href', '#!' + hash)
-			.setText(hash)
-			.appendTo(this.tab);
-
 		Dom.create('a', 'x-closebutton')
 			.setAttr('href', 'javascript://关闭选项卡')
 			.setAttr('title', '关闭')
 			.setText('×')
 			.on('click', this.close, this)
+			.appendTo(this.tab);
+
+		this.title = Dom.create('a')
+			.setAttr('href', '#!' + hash)
+			.setText(hash)
 			.appendTo(this.tab);
 	},
 
@@ -687,10 +623,12 @@ DocPlus.View = Class({
 
 	setTitle: function (value) {
 		this.title.setAttr('title', value).setText(value);
+		return this;
 	},
 
 	setContent: function (contentDom) {
-		this.content = DocPlus.contents.append(contentDom);
+		this.content = DocPlus.contents.append(contentDom).addClass('content');
+		return this;
 	},
 
 	/**
@@ -698,10 +636,12 @@ DocPlus.View = Class({
      */
 	active: function () {
 		this.controller.activeView(this);
+		return this;
 	},
 
 	deactive: function () {
 		this.controller.deactiveView(this);
+		return this;
 	},
 
 	/**
@@ -709,76 +649,193 @@ DocPlus.View = Class({
      */
 	update: function () {
 		this.controller.updateView(this);
+		return this;
 	},
 
 	close: function () {
 		this.controller.closeView(this);
+		return this;
 	}
 
 });
 
-DocPlus.HomeView = Class({
 
-	constructor: function (prefix, text, title, dataJsPath, createViewFn) {
-		this.hash = prefix;
-		this.dataJsPath = dataJsPath,
-			this.tab = Dom.create('li').setHtml('<a href="#!' + prefix + '" title="' + title + '">' + text + '</a>').appendTo('navbar'),
-	        this.createView = typeof createViewFn === 'string' ? function (hash) {
-	        	return DocPlus.createIFrameView(hash, createViewFn + hash + '.html');
-	        } : createViewFn;
-		this.content = Dom.create('div', 'content').hide().appendTo('content');
+DocPlus.HomeView = DocPlus.View.extend({
+	
+	pathInfo: '',
+	
+	constructor: function (hash, controller, value, title) {
 
+		this.hash = hash;
+		this.controller = controller;
+
+		// 创建 tab 菜单。
+
+		this.tab = Dom.create('li');
+
+		this.title = Dom.create('a')
+			.setAttr('href', '#!' + hash)
+			.setAttr('title', title || value)
+			.setHtml(value)
+			.appendTo(this.tab);
 	},
 
-	/**
-     * 同步当前视图所关联的节点菜单。
-     */
-	update: function () {
-
-		// 检查菜单。
-		var node = DocPlus.treeNodes[this.hash];
-
-		if (node) {
-
-			// 激活 treeView
-			DocPlus.toggleTreeView(node);
-		}
-
-	},
-
-	/**
-     * 激活当前视图。
-     */
-	active: function () {
-
-		var currentView = DocPlus.currentView;
-
-		if (currentView) {
-
-			// 如果视图相同，则不操作。
-			if (currentView === this)
-				return;
-
-			currentView.deactive();
-
-			currentView.nextView = this;
-			this.previousView = currentView;
-
-
-		}
-
-		DocPlus.currentView = this;
-
-		this.content.show();
-
-		this.controller.active(this);
-	},
-
-	deactive: function () {
-		this.content.hide();
-	}
-
+	close: Function.empty
+	
 });
+
+
+DocPlus.HomeController = DocPlus.Controller.extend({
+	
+	
+});
+
+DocPlus.APIController = DocPlus.Controller.extend({
+	
+	/**
+	 * 初始化当前控制器对应的导航菜单。
+	 */
+	init: function (data) {
+		this.dom = data.dom;
+		this.members = data.members;
+		
+		this.members[''] = {
+			treeNode: this.treeView
+		};
+		
+		for(var item in this.dom){
+			this.addChild(this.treeView, item, this.dom[item], item);
+		}
+		
+		DocPlus.update();
+	},
+	
+	/**
+	 * 初始化当前控制器对应的视图。
+	 */
+	initView: function(view, pathInfo){
+		view.setContent('<div>加载中...</div>'); 
+		DocPlus.getJSONP(this.dataPath + pathInfo + '.js', function(data){
+			DocPlus.APIRender.render(view, data);
+		});
+	},
+	
+	initChildren: function (node, domInfo, memberInfo, pathInfo, useName) {
+		for(var item in domInfo){
+			if(item === 'prototype' && memberInfo.type === 'C'){
+				this.initChildren(node, domInfo.prototype, memberInfo, pathInfo, true);	
+			} else {
+				var t = pathInfo + '.' + item;
+				this.addChild(node, t, domInfo[item], useName ? item : t);
+			}
+		}
+		
+		node.collapse(0);
+	},
+	
+	addChild: function(parent, pathInfo, domInfo, name){
+		
+		// 创建获取信息存储对象。
+		var memberInfo = this.members[pathInfo] || (this.members[pathInfo] = {});
+		
+		// 生成对应的树节点。
+		var treeNode = memberInfo.treeNode = new TreeNode();
+		this.initTreeNode(memberInfo, pathInfo, name);
+		parent.nodes.add(treeNode);
+		
+		for(var item in domInfo){
+			treeNode.setNodeType('plus');
+			treeNode.once('expanding', function(){
+				this.initChildren(treeNode, domInfo, memberInfo, pathInfo);
+			}, this);
+			break;
+		}
+	},
+	
+	initTreeNode: function (memberInfo, pathInfo, name) {
+		memberInfo.treeNode.setText(name).setHref('#!' + this.name + '/' + pathInfo);
+	},
+	
+	getTreeNode: function(pathInfo, hash, createIfNotExist){
+		var memberInfo = this.members[pathInfo];
+		if(!memberInfo){
+			if(createIfNotExist)
+				this.members[pathInfo] = memberInfo = {};
+			else
+				return ;
+		}
+		
+		if(!memberInfo.treeNode){
+			var spa = pathInfo.lastIndexOf('.'),
+				p;
+			if(spa >= 0){
+				p = this.getTreeNode(pathInfo.substring(0, spa), hash, true);
+			} else {
+				p = this.treeView;	
+			}
+			
+			p.trigger('expanding');
+		}
+		
+		return memberInfo.treeNode;
+	},
+	
+	/**
+	 * 向用户展示指定视图管理的导航节点。
+	 */
+	showTreeNode: function(view){
+		
+		// 菜单未载入，忽略操作。
+		if(!this.members)
+			return;
+		 
+		// 获取或创建树节点。
+		var treeNode = this.getTreeNode(view.pathInfo, view.hash);
+		
+		if(treeNode && treeNode !== this.treeView) {
+			
+			// 激活 treeNode
+			this.treeView.setSelectedNode(treeNode);
+			
+			// 展开节点。
+			treeNode.ensureVisible(0);
+			
+		}
+	}
+	
+});
+
+DocPlus.APIRender = {
+	
+	render: function(view, data){alert(data)
+		view.setContent('<div>' + JSON.encode(data) + '</div>');
+	}
+	
+	
+};
+
+DocPlus.initControllers = function(){
+
+	new DocPlus.HomeController(null, '', '', '<span class="x-icon x-icon-home"></span>', '首页');
+
+	new DocPlus.APIController('data/api.js', 'data/api/', 'api', 'API');
+	
+	new DocPlus.Controller('data/example.js', '../example/', 'example', '示例');
+
+};
+
+
+/**
+	 * 生成并返回一个内容主题是 IFrame 的视图。
+	 */
+createIFrameView= function (hash, url) {
+	var view = new DocPlus.View(hash);
+	view.setContent(Dom.create('iframe').setAttr('frameborder', '0').setAttr('src', url));
+	return view;
+}
+
+
+
 
 Dom.ready(DocPlus.init);
 

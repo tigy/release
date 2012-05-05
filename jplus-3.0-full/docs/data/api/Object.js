@@ -1,4 +1,4 @@
-﻿DocPlus.showApi({
+﻿jsonp({
 	
 	type: 'C',
 
@@ -9,7 +9,6 @@
 	},
 
 	fields: {
-		'name'
 
 	}
 

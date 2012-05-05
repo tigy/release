@@ -1,4 +1,4 @@
-﻿DocPlus.showApi({
+﻿jsonp({
 	name: 'Object.extend',
 	type: 'm'
 
