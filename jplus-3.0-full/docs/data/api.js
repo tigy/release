@@ -25,39 +25,39 @@ jsonp({
 
 	members: {
 		'String': {
-			type: 'C',
+			type: 'class',
 			icon: 'PC'
 		},
 		'String.prototype.trim': {
-			type: 'M',
+			type: 'method',
 			icon: 'PC'
 		},
 		'String.format': {
-			type: 'F',
+			type: 'function',
 			icon: 'PC'
 		},
 		'Object': {
-			type: 'C',
+			type: 'class',
 			icon: 'PC'
 		},
 		'Object.extend': {
-			type: 'F',
+			type: 'function',
 			icon: 'PC'
 		},
 		'Object.extendIf': {
-			type: 'F',
+			type: 'function',
 			icon: 'PC'
 		},
 		'System.Base': {
-			type: 'C',
+			type: 'class',
 			icon: 'PC'
 		},
 		'System.Base.prototype.on': {
-			type: 'F',
+			type: 'function',
 			icon: 'PC'
 		},
 		'System.Base.implement': {
-			type: 'F',
+			type: 'function',
 			icon: 'PC'
 		}
 

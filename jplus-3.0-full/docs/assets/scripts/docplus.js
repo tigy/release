@@ -339,14 +339,14 @@ DocPlus.Controller = Class({
 	 * 初始化当前控制器对应的导航菜单。
 	 */
 	init: function (data) {
-		trace(data);
+		//trace(data);
 	},
 	
 	/**
 	 * 初始化当前控制器对应的视图。
 	 */
 	initView: function(view, pathInfo){
-		view.setContent('<div>aaaaa</div>');
+		view.setContent('加载中...');
 	},
 	
 	/**
@@ -717,11 +717,17 @@ DocPlus.APIController = DocPlus.Controller.extend({
 	},
 	
 	initChildren: function (node, domInfo, memberInfo, pathInfo, useName) {
+		var isClass = memberInfo.type === 'class';
 		for(var item in domInfo){
-			if(item === 'prototype' && memberInfo.type === 'C'){
+			if(isClass && item === 'prototype'){
+				var t = pathInfo + '.prototype';
+				if(!this.members[t]) {
+					this.members[t] = {};	
+				}
+				this.members[t].treeNode = memberInfo.treeNode;
 				this.initChildren(node, domInfo.prototype, memberInfo, pathInfo, true);	
 			} else {
-				var t = pathInfo + '.' + item;
+				var t = pathInfo + (useName ? '.prototype.' : '.') + item;
 				this.addChild(node, t, domInfo[item], useName ? item : t);
 			}
 		}
@@ -802,31 +808,40 @@ DocPlus.APIController = DocPlus.Controller.extend({
 });
 
 DocPlus.APIRender = {
-	
-	render: function (view, data) {
-		trace('set  view', view, data);
 
-		var tpl = DocPlus.APIRender.tpls[data.type] || '';
-
-		tpl = Tpl.parse(tpl, data);
-
-		view.setTitle(DocPlus.APIRender.getReadableName(data.name, data.type));
-		view.setContent(tpl);
+	memberTypes: {
+		'class': '类',
+		'enum': '枚举',
+		'interface': '接口',
+		'method': '方法',
+		'field': '字段',
+		'property': '属性',
+		'function': '函数',
+		'object': '对象',
+		'config': '配置',
+		'module': '模块',
+		'event': '事件',
+		'category': '分类'
 	},
 
-	readableNames: {
-		'method': '方法',
-		'class': '类',
-		'field': '字段',
-		'property': '属性'
+	members: {
+		'configs': '配置',
+		'fields': '字段',
+		'properties': '属性',
+		'methods': '方法',
+		'events': '事件'
 	},
 
 	getReadableName: function (name, type) {
-		return name + ' ' + DocPlus.APIRender.readableNames[type];
+		return name + ' ' + (DocPlus.APIRender.memberTypes[type] || '对象');
+	},
+	
+	getMemberName: function(name){
+		return name.substr(name.lastIndexOf('.') + 1);
 	},
 
-	getTypeLink: function(type){
-		return type;
+	getTypeLink: function(name, isStaic){
+		return '<a href="#' + DocPlus.controllers.api.name + '/' + name + '">' + (isStaic === false ? DocPlus.APIRender.getMemberName(name) : name) + '</a>';
 	},
 
 	getSyntax: function (data) {
@@ -835,55 +850,116 @@ DocPlus.APIRender = {
 			data.memberAccess ? data.memberAccess + ' ' : '',
 			data.memberAttribute ? data.memberAttribute + ' ' : ''
 		];
-
-		if (data.type == 'method') {
-
-			var type = data.returns && data.returns.type;
-			if (!type || type == "Undefined" || type == "undefined") {
-				type = "void";
-			}
-			fn.push(
-			type,
-			' ',
-			data.name,
-			'(');
-
-			if (data.params) {
-				data.params.forEach(function (value, index) {
-					if (index) {
-						fn.push(', ');
-					}
-					fn.push('<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
-					fn.push(value.type);
-					fn.push(' ');
-					fn.push(value.name);
-
-					if (value.defaultValue) {
-						if (value.defaultValue.length == 0) {
-							fn.push(' = ?');
-						} else {
-							fn.push(' = ');
-							fn.push(value.defaultValue);
+		
+		var name = DocPlus.APIRender.getMemberName(data.name);
+		
+		switch(data.type){
+			case 'method':
+			case 'function':
+						
+				var type = data.returns && data.returns.type;
+				if (!type || type == "Undefined" || type == "undefined") {
+					type = "void";
+				}
+				fn.push(
+				type,
+				' ',
+				name,
+				'(');
+	
+				if (data.params) {
+					data.params.forEach(function (value, index) {
+						if (index) {
+							fn.push(', ');
 						}
-					}
-				});
-				fn.push('<br>');
-			}
+						fn.push('<br>&nbsp;&nbsp;&nbsp;&nbsp;');
+						fn.push(value.type);
+						fn.push(' ');
+						fn.push(value.name);
+	
+						if (value.defaultValue) {
+							if (value.defaultValue.length == 0) {
+								fn.push(' = ?');
+							} else {
+								fn.push(' = ');
+								fn.push(value.defaultValue);
+							}
+						}
+					});
+					fn.push('<br>');
+				}
+	
+	
+				fn.push(')');
+				break;
+			
+			case 'class':
+			case 'enum':
+			case 'interface':
+			case 'module':
+			case 'category':
+					
+				fn.push(data.type);
+				fn.push(' ');
+				fn.push(name);
+				break;
 
+			case 'field':
+			case 'property':
+			case 'config':
+						
+				var type = data.type;
+				if (!type || type == "Undefined" || type == "undefined") {
+					type = "Object";
+				}
+				fn.push(
+				type,
+				' ',
+				name);
 
-			fn.push(')');
+				if (value.defaultValue) {
+					fn.push(' = ');
+					fn.push(value.defaultValue);
+				}
+				break;
 
-		} else if (data.type == 'class') {
-
-			fn.push(data.type);
-			fn.push(' ');
-			fn.push(data.name);
-
-
-
+			case 'event':
+				fn.length = 0;
+				fn.push('obj.on("' + name + '", function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;// 回调函数<br>})');
+				break;
+				
+			case 'object':
+				fn.push(name);
+				fn.push(' = {}')
+				break;
+				
 		}
 
 		return fn.join('');
+	},
+	
+	render: function (view, data) {
+		trace('set  view', view, data);
+		
+		var tpl;
+		
+		switch(data.type) {
+			case 'class':
+			case 'interface':
+			case 'enum':
+				tpl = 'objects';	
+				break;
+			default:
+				tpl = 'members';	
+				break;
+		}
+
+		var tpl = DocPlus.APIRender.tpls[tpl] || '';
+
+		tpl = Tpl.parse(tpl, data);
+
+		view.setTitle(DocPlus.APIRender.getReadableName(data.name, data.type));
+		view.setContent(tpl);
 	},
 
 	tpls: {
@@ -1000,7 +1076,7 @@ DocPlus.APIRender = {
 	<br>\
 </div>',
 
-		'class': '\
+		'objects': '\
 <div class="doc">\
 	<div class="doc-func">\
 		<a type="button" id="a" href="#" class="x-button x-button-plain x-menubutton">显示 <span class="x-button-menu x-button-menu-down"> </span> </a>\
@@ -1040,9 +1116,9 @@ DocPlus.APIRender = {
 	<div class="doc-content">\
 		<code class="doc-syntax">{DocPlus.APIRender.getSyntax($data)}</code>\
 	</div>\
-	{for memberType in ["configs", "properties", "methods", "events"]}\
+	{for(var memberType in DocPlus.APIRender.members)}\
 	{if $data[memberType]}\
-	<h3>所有{memberType == "configs" ? "配置" : memberType == "properties" ? "属性" : memberType == "methods" ? "方法" : "事件"}</h3>\
+	<h3>所有{DocPlus.APIRender.members[memberType]}</h3>\
 	<div class="doc-content">\
 		<table class="x-table doc-members">\
 			<thead>\
@@ -1057,9 +1133,9 @@ DocPlus.APIRender = {
 				{for member in $data[memberType]}\
 				<tr>\
 					<td> {member.type} </td>\
-					<td> {DocPlus.APIRender.getTypeLink(member.name)} </td>\
+					<td> {DocPlus.APIRender.getTypeLink(member.name, member.isStaic)} </td>\
 					<td> {member.summary} </td>\
-					<td> {DocPlus.APIRender.getTypeLink(member.defines)} </td>\
+					<td> {member.defines ? DocPlus.APIRender.getTypeLink(member.defines) : ""} </td>\
 				</tr>\
 				{end}\
 			</tbody>\
@@ -1121,16 +1197,16 @@ DocPlus.APIRender = {
 	<br>\
 </div>',
 
-		'method': '\
+		'members': '\
 <div class="doc">\
 	<div class="doc-func">\
-		<a type="button" id="a" href="#" class="x-button x-button-plain x-menubutton">显示 <span class="x-button-menu x-button-menu-down"> </span> </a>\
+		<a type="button" href="javascript:;" class="x-button x-button-plain x-menubutton">显示 <span class="x-button-menu x-button-menu-down"> </span> </a>\
 	</div>\
 	<h1>\
-		{if deprecated}\
-	[已过时]\
-	{end}\
-	{DocPlus.APIRender.getReadableName(name, type)}<small>{className}</small></h1>\
+		{if deprecated}[已过时]{end}\
+		{DocPlus.APIRender.getReadableName(name, type)}\
+		<small>{className}</small>\
+	</h1>\
 	<hr>\
 	<div class="doc-attrs">\
 		<dl class="x-treeview-alt">\
@@ -1138,7 +1214,7 @@ DocPlus.APIRender = {
 				相关成员:\
 			</dt>\
 			<dd class="x-clear">\
-				<a href="#">{DocPlus.APIRender.getTypeLink(className)}</a>\
+				{DocPlus.APIRender.getTypeLink(className)}\
 			</dd>\
 			<dt>\
 				定义:\
@@ -1191,6 +1267,18 @@ DocPlus.APIRender = {
 		</dl>\
 	</div>\
 	{end}\
+	{if type}\
+	<h4>类型</h4>\
+	<div class="doc-content">\
+		{type}\
+	</div>\
+	{end}\
+	{if defaultValue}\
+	<h4>默认值</h4>\
+	<div class="doc-content">\
+		{defaultValue}\
+	</div>\
+	{end}\
 	{if remark}\
 	<h3>备注</h3>\
 	<div class="doc-content">\
@@ -1237,12 +1325,6 @@ DocPlus.APIRender = {
 		<br>\
 		<input type="submit" class="x-button" value="提交">\
 	</div>\
-	<br>\
-	<br>\
-	<br>\
-	<br>\
-	<br>\
-	<br>\
 </div>',
 
 
