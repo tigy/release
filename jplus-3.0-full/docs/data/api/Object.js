@@ -1,16 +1,47 @@
 ﻿jsonp({
 	
-	type: 'C',
+	type: 'class',
 
 	name: 'Object',
+
+	summary: 'summary',
+	remark: 'remark',
+	memberAccess: 'public',
+	memberAttribute: '',
+
+	see: [
+		'Object.extendIf'
+	],
+
+	example: 'example',
+
+	since: '1.0',
+
+	deprecated: '2.0',
+
+	sourceFile: 'sourceFile.html',
+
+	sourceLine: 'sourceLine',
 
 	family: {
 		
 	},
 
-	fields: {
+	properties: [
+		{
+			name: 'Object.length',
+			summary: 'summary',
+			defines: ''
+		}
+	],
 
-	}
+	methods: [
+		{
+			name: 'Object.extend',
+			summary: 'summary',
+			defines: ''
+		}
+	]
 
 
 

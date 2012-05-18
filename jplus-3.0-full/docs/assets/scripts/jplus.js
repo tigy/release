@@ -1,5 +1,5 @@
 /**********************************************
- * This file is created by a tool at 2012/5/5 11:6
+ * This file is created by a tool at 2012/5/18 18:13
  **********************************************/
 
 
@@ -211,7 +211,7 @@
 		 *         </p>
 		 *         <p>
 		 *         addEvents 函数的参数是一个事件信息，格式如: {click: { add: ..., remove: ...,
-		 *        trigger: ...} 。 其中 click 表示事件名。一般建议事件名是小写的。
+		 *        trigger: ..., initEvent: ...} 。 其中 click 表示事件名。一般建议事件名是小写的。
 		 *         </p>
 		 *         <p>
 		 *         一个事件有多个相应，分别是: 绑定(add), 删除(remove), 触发(trigger)
@@ -574,6 +574,8 @@
 
 		    }
 
+		    return obj;
+
 	    }
 
 	});
@@ -778,15 +780,14 @@
 	apply(navigator, (function(ua) {
 
 		// 检查信息
-		var match = ua.match(/(IE|Firefox|Chrome|Safari|Opera|Navigator).((\d+)\.?[\d.]*)/i) || ["", "Other", 0, 0],
-	
-			// 版本信息。
-			version = ua.match(/(Version).((\d+)\.?[\d.]*)/i) || match,
+		var match = ua.match(/(IE|Firefox|Chrome|Safari|Opera).([\w\.]*)/i) || ua.match(/(WebKit|Gecko).([\w\.]*)/i) || [0, "", 0],
 	
 			// 浏览器名字。
-			browser = match[1];
+			browser = match[1],
+			
+			isStd = eval("-[1,]");
 
-		navigator["is" + browser] = navigator["is" + browser + version[3]] = true;
+		navigator["is" + browser] = navigator["is" + browser + parseInt(match[2])] = true;
 
 		/**
 		 * 获取一个值，该值指示是否为 IE 浏览器。
@@ -821,13 +822,15 @@
 		// 结果
 		return {
 
-		    /// #if CompactMode
+			/// #if CompactMode
+
+			isStd: isStd,
 
 		    /**
 			 * 获取一个值，该值指示当前浏览器是否支持标准事件。就目前浏览器状况， IE6，7 中 isQuirks = true 其它浏览器都为 false 。
 			 * @type Boolean 此处认为 IE6,7 是怪癖的。
 			 */
-		    isQuirks: eval("!-[1,]") && !Object.isObject(document.constructor),
+			isQuirks: !isStd && !Object.isObject(document.constructor),
 
 		    /// #endif
 
@@ -842,7 +845,7 @@
 			 * @type String 输出的格式比如 6.0.0 。 这是一个字符串，如果需要比较版本，应该使用
 			 *       parseFloat(navigator.version) < 4 。
 			 */
-		    version: version[2]
+		    version: match[2]
 
 		};
 
@@ -1007,18 +1010,16 @@
 			        return true;
 				};
 
-				// 当前事件的全部函数。
-		        evt.handlers = [];
-
 		        // 获取事件管理对象。
 		        d = getMgr(me, type);
+
+				// 当前事件的全部函数。
+		        evt.handlers = d.initEvent ? [[d.initEvent, me]] : [];
 
                 // 添加事件。
                 if(d.add) {
                 	d.add(me, type, evt);
-
-                	evt.min = evt.handlers.length;
-                }
+				}
 
 	        }
 
@@ -1068,7 +1069,9 @@
 					        if (handlers[i][0] === listener) {
 						        handlers.splice(i, 1);
 						        
-						        listener = handlers.length > (evt.min || 0);
+						        if (!i || (i === 1 && handlers[0] === d.initEvent)) {
+						        	listener = 0;
+						        }
 								
 						        break;
 					        }
@@ -1592,11 +1595,11 @@ function assert(bValue, msg) {
         }
 
         // 错误源
-        val = arguments.callee.caller;
+        val = val.callee.caller;
 
         if (assert.stackTrace) {
 
-            while (val.debugStepThrough)
+            while (val && val.debugStepThrough)
                 val = val.caller;
 
             if (val && val.caller) {
@@ -2666,7 +2669,7 @@ function imports(ns){
 		/**
 		 * 指示当前浏览器是否为标签浏览器。
 		 */
-		isStandard = eval("-[1,]"),
+		isStandard = navigator.isStd,
 	
 		/**
 		 * 用于测试的元素。
@@ -2826,6 +2829,11 @@ function imports(ns){
 
 				}
 
+			},
+
+			item: function(index){
+				var elem = this[index < 0 ? this.length + index : index];
+				return elem ? new Dom(elem) : null;
 			},
 			
 			/**
@@ -3077,8 +3085,6 @@ function imports(ns){
 		 */
 		eventObj = {
 
-			init: Function.empty,
-
 			/**
 			 * 创建当前事件可用的参数。
 			 * @param {Dom} ctrl 事件所有者。
@@ -3107,9 +3113,10 @@ function imports(ns){
 			 * @param {String} type 类型。
 			 * @param {Function} fn 函数。
 			 */
-			add: function (ctrl, type, fn) {
-				Dom.addListener(ctrl.dom, type, fn);
-				fn.handlers.push([this.init, ctrl]);
+			add: div.addEventListener ? function (elem, type, fn) {
+				elem.dom.addEventListener(type, fn, false);
+			} : function (elem, type, fn) {
+				elem.dom.attachEvent('on' + type, fn);
 			},
 
 			/**
@@ -3118,8 +3125,10 @@ function imports(ns){
 			 * @param {String} type 类型。
 			 * @param {Function} fn 函数。
 			 */
-			remove: function (ctrl, type, fn) {
-				Dom.removeListener(ctrl.dom, type, fn);
+			remove: div.removeEventListener ? function (elem, type, fn) {
+				elem.dom.removeEventListener(elem, fn, false);
+			} : function (elem, type, fn) {
+				elem.dom.detachEvent('on' + type, fn);
 			}
 
 		},
@@ -3345,18 +3354,6 @@ function imports(ns){
 					return true;
 
 			return false;
-		},
-
-		addListener: div.addEventListener ? function (elem, type, fn) {
-			elem.addEventListener(type, fn, false);
-		} : function (elem, type, fn) {
-			elem.attachEvent('on' + type, fn);
-		},
-
-		removeListener: div.removeEventListener ? function (elem, type, fn) {
-			elem.removeEventListener(elem, fn, false);
-		} : function (elem, type, fn) {
-			elem.detachEvent('on' + type, fn);
 		},
 		
 		/**
@@ -5120,14 +5117,7 @@ function imports(ns){
 
 	t = DomList.prototype;
 
-	map("shift pop item", function (value) {
-		t[value] = function() {
-			var elem = ap[value].apply(this, arguments);
-			return elem ? new Dom(elem) : null;
-		};
-	});
-
-	map("unshift push include indexOf each forEach", function (value) {
+	map("shift pop unshift push include indexOf each forEach", function (value) {
 		t[value] = ap[value];
 	});
 
@@ -5155,7 +5145,7 @@ function imports(ns){
 		if (div.onmouseenter !== null) {
 
 			Dom.addEvent('mouseenter mouseleave', {
-				init: function (e) {
+				initEvent: function (e) {
 					return this !== e.relatedTarget && !Dom.hasChild(this.dom, e.relatedTarget);
 				}
 			});
@@ -5165,7 +5155,7 @@ function imports(ns){
 		/// #if CompactMode
 	} else {
 
-		eventObj.init = function (e) {
+		eventObj.initEvent = function (e) {
 			if (!e.stop) {
 				e.target = e.srcElement;
 				e.stop = pep.stop;
@@ -5178,7 +5168,7 @@ function imports(ns){
 		Dom.addEvent("click dblclick mousedown mouseup mouseover mouseenter mousemove mouseleave mouseout contextmenu selectstart selectend", {
 			init: function (e) {
 				if(!e.stop) {
-					eventObj.init(e);
+					eventObj.initEvent(e);
 					e.relatedTarget = e.fromElement === e.target ? e.toElement: e.fromElement;
 					var dom = getDocument(e.target).dom;
 					e.pageX = e.clientX + dom.scrollLeft;
@@ -5195,7 +5185,7 @@ function imports(ns){
 		Dom.addEvent("keydown keypress keyup",  {
 			init: function (e) {
 				if(!e.stop) {
-					eventObj.init(e);
+					eventObj.initEvent(e);
 					e.which = e.keyCode;
 				}
 			}
@@ -5276,26 +5266,26 @@ function imports(ns){
 	 * @member document.onLoad
 	 */
 
+	Dom.addEvent('domready domload', {});
 
 	map('ready load', function(readyOrLoad, isLoad) {
 
 		var isReadyOrIsLoad = isLoad ? 'isLoaded': 'isReady';
 
 		// 设置 ready load
-		Dom[readyOrLoad] = function(fn, bind) {
-
+		Dom[readyOrLoad] = function (fn, bind) {
+			
 			// 忽略参数不是函数的调用。
-			if(!Function.isFunction(fn))
-				fn = 0;
+			var isFn = Function.isFunction(fn);
 
 			// 如果已载入，则直接执行参数。
 			if(Dom[isReadyOrIsLoad]) {
 
-				if(fn)
+				if (isFn)
 					fn.call(bind);
 
-				// 如果参数是函数。
-			} else if(fn) {
+			// 如果参数是函数。
+			} else if (isFn) {
 
 				document.on(readyOrLoad, fn, bind);
 
@@ -5303,30 +5293,28 @@ function imports(ns){
 				// 如果存在 JS 之后的 CSS 文件， 肯能导致 document.body 为空，此时延时执行 DomReady
 			} else if (document.body) {
 
-				var t;
-
 				// 如果 isReady, 则删除
 				if(isLoad) {
 
 					// 使用系统文档完成事件。
-					t = window;
+					isFn = Dom.window;
 					fn = readyOrLoad;
 
 					// 确保 ready 触发。
 					Dom.ready();
 
 				} else {
-					t = document;
+					isFn = Dom.document;
 					fn = domReady;
 				}
 
-				Dom.removeListener(t, fn, arguments.callee);
+				eventObj.remove(isFn, fn, arguments.callee);
 
 				// 先设置为已经执行。
 				Dom[isReadyOrIsLoad] = true;
 
 				// 触发事件。
-				if(document.trigger(readyOrLoad)) {
+				if (document.trigger(readyOrLoad, fn)) {
 
 					// 删除事件。
 					document.un(readyOrLoad);
@@ -5339,15 +5327,17 @@ function imports(ns){
 
 			return document;
 		};
+
+		readyOrLoad = 'dom' + readyOrLoad;
 	});
 	
 	// 如果readyState 不是 complete, 说明文档正在加载。
 	if(document.readyState !== "complete") {
 
 		// 使用系统文档完成事件。
-		Dom.addListener(document, domReady, Dom.ready);
+		eventObj.add(Dom.document, domReady, Dom.ready);
 
-		Dom.addListener(window, 'load', Dom.load, false);
+		eventObj.add(Dom.window, 'load', Dom.load, false);
 
 		/// #if CompactMode
 		
@@ -6294,18 +6284,21 @@ Object.extend(JSON, {
 		return JSON.specialChars[chr] || '\\u00' + Math.floor(chr.charCodeAt() / 16).toString(16) + (chr.charCodeAt() % 16).toString(16);
 	},
 
-	encode: JSON.stringify || function(obj){
-		switch (Object.type(obj)){
+	encode: function(obj){
+		switch (typeof obj){
 			case 'string':
 				return '"' + obj.replace(/[\x00-\x1f\\"]/g, JSON.replaceChars) + '"';
-			case 'array':
-				return '[' + String(Object.map(obj, JSON.encode, [])) + ']';
 			case 'object':
-				var string = [];
-				for(var key in obj) {
-					string.push(JSON.encode(key) + ':' + JSON.encode(obj[key]));
+				if (obj) {
+					if (Array.isArray(obj)) {
+						return '[' + String(Object.map(obj, JSON.encode, [])) + ']';
+					}
+					var s = [];
+					for (var key in obj) {
+						s.push(JSON.encode(key) + ':' + JSON.encode(obj[key]));
+					}
+					return '{' + s + '}';
 				}
-				return '{' + string + '}';
 			default:
 				return String(obj);
 		}
@@ -6313,9 +6306,6 @@ Object.extend(JSON, {
 
 	decode: function(string){
 		if (typeof string != 'string' || !string.length) return null;
-		
-		if (JSON.parse)
-			return JSON.parse(string);
 		
 		// 摘自 json2.js
 		if (/^[\],:{}\s]*$/
@@ -6332,8 +6322,10 @@ Object.extend(JSON, {
 
 });
 
-
-
+Object.extendIf(JSON, {
+	stringify: JSON.encode,
+	parse: JSON.decode
+});
 
 
 /**********************************************
@@ -6399,7 +6391,7 @@ Browser.setCookie = function (name, value, expires, props) {
 /** * @author  */Object.extend(Browser, {		setData: window.localStorage ? function(name, value){		localStorage[name] = value;	} : Browser.setCookie,		getData: window.localStorage ? function (name) {		return localStorage[name];	} : Cookies.get,		setJSON: function (name, value) {		Browser.setData(name, JSON.encode(value));	},		getJSON: function (name) {		name = Browser.getData(name);		if(name)			try{				return JSON.decode(name);			}catch(e){}							return null;	}	});/**********************************************
  * System.Dom.HashChange
  **********************************************/
-/** * @author xuld *//** * Convert certain characters (&, <, >, and ") to their HTML character equivalents for literal display in web pages. * @param {String} value The string to encode * @return {String} The encoded text * @method */String.htmlEncode = (function() {    var entities = {        '&': '&amp;',        '>': '&gt;',        '<': '&lt;',        '"': '&quot;'    };        function match(match, capture){    	return entities[capture];    }        return function(value) {        return value ? value.replace(/[&><"]/g, match) : '';    };})();location.getHash = function() {	var href = location.href,	i = href.indexOf("#");	return i >= 0 ? href.substr(i + 1) : '';};(function() {	var hashchange = 'hashchange',		document = window.document,		win = new Dom(window),		getHash = location.getHash;	/**	 * 当 hashchange 事件发生时，执行函数。	 */	Dom[hashchange] = function(fn) {		fn ? win.on(hashchange, fn) && fn.call(win) : win.trigger(hashchange);	};		// 并不是所有浏览器都支持 hashchange 事件，	// 当浏览器不支持的时候，使用自定义的监视器，每隔50ms监听当前hash是否被修改。	if ('on' + hashchange in window && !(document.documentMode < 8)) return;	var currentHash, 			timer, 				onChange = function() {			win.trigger(hashchange);		},				poll = function() {			var newToken = getHash();				if (currentHash !== newToken) {				currentHash = newToken;				onChange();			}			timer = setTimeout(poll, 50);			},				start = function() {			currentHash = getHash();			timer = setTimeout(poll, 50);		},				stop = function() {			clearTimeout(timer);		};			// 如果是 IE6/7，使用 iframe 模拟成历史记录。	if (navigator.isQuirks) {		var iframe;		// 初始化的时候，同时创建 iframe		start = function() {			if (!iframe) {				Dom.ready(function(){					iframe = Dom.parse('<iframe style="display: none" height="0" width="0" tabindex="-1" title="empty"/>');					iframe.once('load', function() {												// 绑定当 iframe 内容被重写后处理。						this.on("load", function() {							// iframe 的 load 载入有 2 个原因：							//	1. hashchange 重写 iframe							//	2. 用户点击后退按钮														// 获取当前保存的 hash							var newHash = iframe.contentWindow.document.body.innerText,								oldHash = getHash();																					// 如果是用户点击后退按钮导致的iframe load， 则 oldHash !== newHash							if (oldHash != newHash) {																// 将当前的 hash 更新为旧的 newHash								location.hash = currentHash = newHash;																// 手动触发 hashchange 事件。								win.trigger(hashchange);							}													});												// 首次执行，先保存状态。						currentHash = getHash();						poll();					});										iframe = iframe.dom;					document.dom.appendChild(iframe);									});			} else {								// 开始监听。				currentHash = getHash();				poll();			}		};		// iframe: onChange 时，保存状态到 iframe 。		onChange = function() {			var hash = getHash();						// 将历史记录存到 iframe 。			var html = "<html><body>" + String.htmlEncode(hash) + "</body></html>";			try {				var doc = iframe.contentWindow.document;				doc.open();				doc.write(html);				doc.close();			} catch(e) {}			win.trigger(hashchange);		};			}	Control.addEvents({		hashchange: {			add: start,			remove: stop		}	});})();/**********************************************
+/** * @author xuld *//** * Convert certain characters (&, <, >, and ") to their HTML character equivalents for literal display in web pages. * @param {String} value The string to encode * @return {String} The encoded text * @method */String.htmlEncode = (function() {    var entities = {        '&': '&amp;',        '>': '&gt;',        '<': '&lt;',        '"': '&quot;'    };        function match(match, capture){    	return entities[capture];    }        return function(value) {        return value ? value.replace(/[&><"]/g, match) : '';    };})();location.getHash = function() {	var href = location.href,	i = href.indexOf("#");	return i >= 0 ? href.substr(i + 1) : '';};(function() {	var hashchange = 'hashchange',		document = window.document,		win = Dom.window,		getHash = location.getHash;	/**	 * 当 hashchange 事件发生时，执行函数。	 */	Dom[hashchange] = function(fn) {		fn ? win.on(hashchange, fn) && fn.call(win) : win.trigger(hashchange);	};		// 并不是所有浏览器都支持 hashchange 事件，	// 当浏览器不支持的时候，使用自定义的监视器，每隔50ms监听当前hash是否被修改。	if ('on' + hashchange in window && !(document.documentMode < 8)) return;	var currentHash, 			timer, 				onChange = function() {			win.trigger(hashchange);		},				poll = function() {			var newToken = getHash();				if (currentHash !== newToken) {				currentHash = newToken;				onChange();			}			timer = setTimeout(poll, 50);			},				start = function() {			currentHash = getHash();			timer = setTimeout(poll, 50);		},				stop = function() {			clearTimeout(timer);		};			// 如果是 IE6/7，使用 iframe 模拟成历史记录。	if (navigator.isQuirks) {		var iframe;		// 初始化的时候，同时创建 iframe		start = function() {			if (!iframe) {				Dom.ready(function(){					iframe = Dom.parse('<iframe style="display: none" height="0" width="0" tabindex="-1" title="empty"/>');					iframe.once('load', function() {												// 绑定当 iframe 内容被重写后处理。						this.on("load", function() {							// iframe 的 load 载入有 2 个原因：							//	1. hashchange 重写 iframe							//	2. 用户点击后退按钮														// 获取当前保存的 hash							var newHash = iframe.contentWindow.document.body.innerText,								oldHash = getHash();																					// 如果是用户点击后退按钮导致的iframe load， 则 oldHash !== newHash							if (oldHash != newHash) {																// 将当前的 hash 更新为旧的 newHash								location.hash = currentHash = newHash;																// 手动触发 hashchange 事件。								win.trigger(hashchange);							}													});												// 首次执行，先保存状态。						currentHash = getHash();						poll();					});										iframe = iframe.dom;					document.dom.appendChild(iframe);									});			} else {								// 开始监听。				currentHash = getHash();				poll();			}		};		// iframe: onChange 时，保存状态到 iframe 。		onChange = function() {			var hash = getHash();						// 将历史记录存到 iframe 。			var html = "<html><body>" + String.htmlEncode(hash) + "</body></html>";			try {				var doc = iframe.contentWindow.document;				doc.open();				doc.write(html);				doc.close();			} catch(e) {}			win.trigger(hashchange);		};			}	Dom.addEvent('hashchange', {		add: start,		remove: stop	});})();/**********************************************
  * System.Dom.Drag
  **********************************************/
 //===========================================
@@ -6848,13 +6840,129 @@ Dom.implement((function(){
  * Controls.Button.Menu-Alt
  **********************************************/
 /** * @author  */var MenuItem = ContentControl.extend({		xtype: 'menuitem',		tpl: '<a class="x-menuitem"><span class="x-icon x-icon-none"></span></a>',		subMenu: null,		/**	 * 	 */	init: function(){		this.base('init');		this.unselectable();		this.on('mouseover', this.onMouseEnter);		this.on('mouseout', this.onMouseLeave);				var subMenu = this.find('.x-menu');		if(subMenu){			this.setSubMenu(new Menu(subMenu));		}	},		setSubMenu: function(menu){		if (menu) {			this.subMenu = menu.hide();			menu.floating = false;			this.addClass('x-menuitem-menu');			this.on('mouseup', this._cancelHideMenu);		} else {			menu.floating = true;			this.removeClass('x-menuitem-menu');			this.un('mouseup', this._cancelHideMenu);		}	},		_cancelHideMenu: function(e){		e.stopPropagation();	},		toggleIcon: function(icon, val){		this.icon.toggleClass(icon, val);		return this;	},		onMouseEnter: function(){				// 使用父菜单打开本菜单，显示子菜单。		this.parentControl && this.parentControl.showSub(this);	},		_hideTargetMenu: function(e){		var tg = e.relatedTarget;		while(tg && tg.className != 'x-menu') {			tg = tg.parentNode;		}				if (tg) {   			var dt = System.data(tg, 'menu');									tg.hideSub();		}			},		onMouseLeave: function(e){				// 没子菜单，需要自取消激活。		// 否则，由父菜单取消当前菜单的状态。		// 因为如果有子菜单，必须在子菜单关闭后才能关闭激活。				if(!this.subMenu)			 this.setSelected(false);			 	},		setSelected: function(value){		this.getParent().toggleClass('x-menuitem-selected', value);		this.toggleClass('x-menuitem-selected', value);		return this;	},		getSelected: function(){		return this.hasClass('x-menuitem x-menuitem-selected');	},		setChecked: function(value){		this.find('.x-icon').dom.className = 'x-icon x-icon-' + (value === false ? 'unchecked' : value !== null ? 'checked' : 'none');		return this;	},		getChecked: function(){		return this.hasClass('x-menuitem x-menuitem-checked');	},		setDisabled: function(value){		this.getParent().toggleClass('x-menuitem-disabled', value);		this.toggleClass('x-menuitem-disabled', value);		return this;	},		getDisabled: function(){		return this.hasClass('x-menuitem x-menuitem-disabled');	}});var MenuSeperator = Control.extend({		tpl: '<div class="x-menu-seperator"></div>',		init: Function.empty	});var Menu = ListControl.extend({		xtype: 'menu',		initChild: function (item) {		if(item instanceof MenuItem || item instanceof MenuSeperator){			return item;		}		if(item === '-'){			return new 	MenuSeperator();		}				if(item instanceof Control && item.hasClass('x-menuitem')){			return new MenuItem(item);		}				var menu = new MenuItem();		menu.append(item);		return menu;	},		init: function(){		var me = this;		me.base('init');				// 绑定节点和控件，方便发生事件后，根据事件源得到控件。		System.setData(this.dom, 'menu', this);	},		showMenu: function(){		this.show();		this.onShow();	},		hideMenu: function(){		this.hide();		this.onHide();	},		/**	 * 当前菜单依靠某个控件显示。	 * @param {Control} ctrl 方向。	 */	showAt: function(x, y){				if(!this.getParent('body')){			this.appendTo();		}				// 显示节点。		this.showMenu();				this.setPosition(x, y);				return this;	},		/**	 * 当前菜单依靠某个控件显示。	 * @param {Control} ctrl 方向。	 */	showBy: function(ctrl, pos, offsetX, offsetY, enableReset){				if(!this.getParent('body')){			this.appendTo(ctrl.getParent());		}				// 显示节点。		this.showMenu();				this.align(ctrl, pos || 'rt', offsetX != null ? offsetX : -5, offsetY != null ? offsetY : -5, enableReset);				return this;	},		onShow: function(){		this.floating = true;		document.once('mouseup', this.hideMenu, this);		this.trigger('show');	},		/**	 * 关闭本菜单。	 */	onHide: function(){				// 先关闭子菜单。		this.hideSub();		this.trigger('hide');	},		/**	 * 打开本菜单子菜单。	 * @protected	 */	showSub: function(item){				// 如果不是右键的菜单，在打开子菜单后监听点击，并关闭此子菜单。		if(!this.floating)			document.once('mouseup', this.hideSub, this);				// 隐藏当前项子菜单。		this.hideSub();				// 激活本项。		item.setSelected(true);				if (item.subMenu) {						// 设置当前激活的项。			this.currentSubMenu = item;						// 显示子菜单。			item.subMenu.showBy(item);					}	},		/**	 * 关闭本菜单打开的子菜单。	 * @protected	 */	hideSub: function(){				// 如果有子菜单，就隐藏。		if(this.currentSubMenu) {						// 关闭子菜单。			this.currentSubMenu.subMenu.hide();						// 取消激活菜单。			this.currentSubMenu.setSelected(false);			this.currentSubMenu = null;		}	}	});/**********************************************
+ * System.Utils.Deferrable
+ **********************************************/
+/**
+ * @author
+ */
+
+/**
+ * 用于异步执行任务时保证任务是串行的。
+ */
+var Deferrable = Class({
+
+	chain: function (deferrable, args) {
+		var lastTask = [deferrable, args];
+
+		if (this._firstTask) {
+			this._lastTask[2] = lastTask;
+		} else {
+			this._firstTask = lastTask;
+		}
+		this._lastTask = lastTask;
+	},
+
+	progress: function () {
+
+		var firstTask = this._firstTask;
+		this.isRunning = false;
+
+		if (firstTask) {
+			this._firstTask = firstTask[2];
+			
+			firstTask[0].run(firstTask[1]);
+		}
+
+		
+	},
+
+	/**
+	 * 多个请求同时发生后的处理方法。
+	 * wait - 等待上个操作完成。
+	 * ignore - 忽略当前操作。
+	 * stop - 正常中断上个操作，上个操作的回调被立即执行，然后执行当前操作。
+	 * abort - 非法停止上个操作，上个操作的回调被忽略，然后执行当前操作。
+	 * replace - 替换上个操作为新的操作，上个操作的回调将被复制。
+	 */
+	defer: function (args, link) {
+
+		var isRunning = this.isRunning;
+		this.isRunning = true;
+
+		if (!isRunning)
+			return false;
+
+		switch (link) {
+			case undefined:
+				break;
+			case "abort":
+			case "stop":
+				this[link]();
+				this.isRunning = true;
+				return false;
+			case "ignore":
+				return true;
+			default:
+				assert(!link || link === 'wait', "Deferred.prototype.defer(args, link): 成员 {link} 必须是 wait、cancel、ignore 之一。", link);
+		}
+
+		this.chain(this, args);
+		return true;
+	},
+
+	/**
+	 * 让当前队列等待指定的 deferred 全部执行完毕后执行。
+	 */
+	wait: function (deferred) {
+		if (this.isRunning) {
+			this.stop();
+		}
+
+		this.defer = deferred.defer.bind(deferred);
+		this.progress = deferred.progress.bind(deferred);
+		return this;
+	},
+
+	then: function (callback, args) {
+		if (this.isRunning) {
+			this.chain({
+				owner: this,
+				run: function (args) {
+					if(callback.call(this.owner, args) !== false)
+						this.owner.progress();
+				}
+			}, args);
+		} else {
+			callback.call(this, args);
+		}
+		return this;
+	},
+	
+	skip: function(){
+		this.pause();
+		this.progress();
+		return this;
+	},
+	
+	abort: function(){
+		this.pause();
+		this._firstTask = this._lastTask = null;
+		this.isRunning = false;
+		return this;
+	},
+
+	stop: function () {
+		return this.abort();
+	}
+
+});
+/**********************************************
  * System.Fx.Base
  **********************************************/
 /**
  * @fileOverview 提供底层的 特效算法支持。
  * @author xuld
- */
-
+ */
 
 var Fx = Fx || {};
 
@@ -6884,7 +6992,7 @@ Fx.Base = (function(){
 	/**
 	 * @namespace Fx
 	 */
-	return Class({
+	return Deferrable.extend({
 	
 		/**
 		 * 每秒的运行帧次。
@@ -6899,33 +7007,10 @@ Fx.Base = (function(){
 		duration: 500,
 		
 		/**
-		 * 在特效运行时，第二个特效的执行方式。 可以为 'ignore' 'cancel' 'wait' 'restart' 'replace'
-		 * @type {String}
-		 */
-		link: 'ignore',
-		
-		/**
 		 * xtype
 		 * @type {String}
 		 */
 		xtype: 'fx',
-		
-		/**
-		 * 初始化当前特效。
-		 * @param {Object} options 选项。
-		 */
-		constructor: function() {
-			this._competeListeners = [];
-		},
-		
-		/**
-		 * 实现变化。
-		 * @param {Object} p 值。
-		 * @return {Object} p 变化值。
-		 */
-		transition: function(p) {
-			return -(Math.cos(Math.PI * p) - 1) / 2;
-		},
 		
 		/**
 		 * 当被子类重写时，实现生成当前变化所进行的初始状态。
@@ -6933,25 +7018,7 @@ Fx.Base = (function(){
 		 * @param {Object} to 结束位置。
 		 * @return {Base} this
 		 */
-		compile: function(from, to) {
-			var me = this;
-			me.from = from;
-			me.to = to;
-			return me;
-		},
-		
-		/**
-		 * 进入变换的下步。
-		 */
-		step: function() {
-			var me = this, time = Date.now() - me.time;
-			if (time < me.duration) {
-				me.set(me.transition(time / me.duration));
-			}  else {
-				me.set(1);
-				me.complete();
-			}
-		},
+		init: Function.empty,
 		
 		/**
 		 * @event step 当进度改变时触发。
@@ -6963,78 +7030,27 @@ Fx.Base = (function(){
 		 * @param {Number} delta 变化量。 0 - 1 。
 		 * @abstract
 		 */
-		set: function(value){
-			this.trigger('step', Fx.compute(this.from, this.to, value));
+		set: Function.empty,
+		
+		/**
+		 * 实现变化。
+		 * @param {Object} p 值。
+		 * @return {Object} p 变化值。
+		 */
+		transition: function(p) {
+			return -(Math.cos(Math.PI * p) - 1) / 2;
 		},
 		
 		/**
-		 * 增加完成后的回调工具。
-		 * @param {Function} fn 回调函数。
+		 * 进入变换的下步。
 		 */
-		ready: function(fn){
-			assert.isFunction(fn, "Fx.Base.prototype.ready(fn): 参数 {fn} ~。    ");
-			this._competeListeners.unshift(fn);	
-			return this;
-		},
-		
-		/**
-		 * 检查当前的运行状态。
-		 * @param {Object} from 开始位置。
-		 * @param {Object} to 结束位置。
-		 * @param {Number} duration=-1 变化的时间。
-		 * @param {Function} [onStop] 停止回调。
-		 * @param {Function} [onStart] 开始回调。
-		 * @param {String} link='wait' 变化串联的方法。 可以为 wait, 等待当前队列完成。 reset 柔和转换为目前渐变。 cancel 强制关掉已有渐变。 ignore 忽视当前的效果。 replace 直接替换成新的渐变。
-		 * @return {Boolean} 是否可发。
-		 */
-		delay: function() {
-			var me = this, args = arguments;
-			
-			//如正在运行。
-			if(me.timer){
-				switch (args[5] || me.link) {
-					
-					// 链式。
-					case 'wait':
-						this._competeListeners.unshift(function() {
-							
-							this.start.apply(this, args);
-							return false;
-						});
-						
-						//  如当前fx完成， 会执行 _competeListeners 。
-						
-						//  [新任务开始2, 新任务开始1]
-						
-						//  [新任务开始2, 回调函数] 
-						
-						//  [新任务开始2]
-						
-						//  []
-						
-						return false;
-						
-					case 'reset':
-						me.pause();
-						while(me._competeListeners.pop());
-						break;
-						
-					// 停掉目前项。
-					case 'cancel':
-						me.stop();
-						break;
-						
-					case 'replace':
-						me.pause();
-						break;
-						
-					// 忽视新项。
-					default:
-						return false;
-				}
+		step: function() {
+			var me = this, time = Date.now() - me.time;
+			if (time < me.duration) {
+				me.set(me.transition(time / me.duration));
+			}  else {
+				me.done();
 			}
-			
-			return true;
 		},
 		
 		/**
@@ -7047,58 +7063,38 @@ Fx.Base = (function(){
 		 * @param {String} link='wait' 变化串联的方法。 可以为 wait, 等待当前队列完成。 restart 柔和转换为目前渐变。 cancel 强制关掉已有渐变。 ignore 忽视当前的效果。
 		 * @return {Base} this
 		 */
-		start: function() {
-			var me = this, args = arguments;
-			
-			if (!me.timer || me.delay.apply(me, args)) {
-				
-				// 如果 duration > 0  更新。
-				if (args[2] > 0) this.duration = args[2];
-				else if(args[2] < -1) this.duration /= -args[2];
-				
-				// 存储 onStop
-				if (args[3]) {
-					assert.isFunction(args[3], "Fx.Base.prototype.start(from, to, duration, onStop, onStart, link): 参数 {callback} ~。      ");
-					me._competeListeners.push(args[3]);
-				}
-				
-				// 执行 onStart
-				if (args[4] && args[4].apply(me, args) === false) {
-					return me.complete();
-				}
-			
-				// 设置时间
-				me.time = 0;
-				
-				me.compile(args[0], args[1]).set(0);
-				me.resume();
+		run: function (options, link) {
+			var me = this;
+            if (me.defer(options, link))
+                return me;
+			me.init(options);
+			me.set(0);
+			me.time = 0;
+
+			if (me.start) {
+				me.start(options);
 			}
+			
+			me.resume();
 			return me;
 		},
 		
-		/**
-		 * 完成当前效果。
-		 */
-		complete: function() {
-			var me = this;
-			me.pause();
-			var handlers = me._competeListeners;
-			while(handlers.length)  {
-				if(handlers.pop().call(me) === false)
-					return me;
+		done: function(){
+			this.pause();
+			this.set(1);
+			if(this.complete){
+				this.complete();
 			}
-			
-			return me;
+			this.progress();
 		},
 		
 		/**
 		 * 中断当前效果。
 		 */
 		stop: function() {
-			var me = this;
-			me.set(1);
-			me.pause();
-			return me;
+			this.abort();
+			this.done();
+			return this;
 		},
 		
 		/**
@@ -7114,7 +7110,7 @@ Fx.Base = (function(){
 					clearInterval(me.timer);
 					delete cache[fps];
 				}
-				me.timer = undefined;
+				me.timer = 0;
 			}
 			return me;
 		},
@@ -7130,7 +7126,7 @@ Fx.Base = (function(){
 				if(value){
 					value.push(me);
 					me.timer = value[0].timer;
-				}else{
+				} else {
 					me.timer = setInterval(interval.bind(cache[fps] = [me]), Math.round(1000 / fps ));
 				}
 			}
@@ -7243,45 +7239,11 @@ Fx.compute = function(from, to, delta){
 	 * @param {Object} delta 变化。
 	 * @return {Object} 结果。
 	 */
-	var c = Fx.compute,
+	var compute = Fx.compute,
 	
 		Dom = window.Dom,
-		
-		/**
-		 * 缓存已解析的属性名。
-		 */
-		cache = {
-			opacity: {
-				set: function(target, name, from, to, delta){
-					target.setOpacity(c(from, to, delta));
-				},
-				parse: self,
-				get: function(target){
-					return target.getOpacity();
-				}
-			},
-			
-			scrollTop:{
-				set: function (target, name, from, to, delta) {
-					target.setScroll(null, c(from, to, delta));
-				},
-				parse: self,
-				get: function(target){
-					return target.getScroll().y;
-				}
-			},
-			
-			scrollLeft:{
-				set: function (target, name, from, to, delta) {
-					target.setScroll(c(from, to, delta));
-				},
-				parse: self,
-				get: function(target){
-					return target.getScroll().x;
-				}
-			}
-			
-		},
+
+		emptyObj = {},
 	
 		/**
 		 * @class Animate
@@ -7304,12 +7266,6 @@ Fx.compute = function(from, to, delta){
 			current: null,
 			
 			/**
-			 * 链接方式。
-			 * @type String
-			 */
-			link: "wait",
-			
-			/**
 			 * 初始化当前特效。
 			 * @param {Object} options 选项。
 			 * @param {Object} key 键。
@@ -7317,8 +7273,6 @@ Fx.compute = function(from, to, delta){
 			 */
 			constructor: function(target){
 				this.target = target;
-				
-				this._competeListeners = [];
 			},
 			
 			/**
@@ -7342,16 +7296,27 @@ Fx.compute = function(from, to, delta){
 			 * @param {Object} from 开始。
 			 * @param {Object} to 结束。
 			 */
-			compile: function(from, to){
-				assert.notNull(from, "Fx.Animate.prototype.start(from, to, duration, callback, link): 参数 {from} ~。");
-				assert.notNull(to, "Fx.Animate.prototype.start(from, to, duration, callback, link): 参数 {to} ~。");
+			init: function (options) {
+			//	assert.notNull(from, "Fx.Animate.prototype.run(from, to, duration, callback, link): 参数 {from} ~。");
+			//	assert.notNull(to, "Fx.Animate.prototype.run(from, to, duration, callback, link): 参数 {to} ~。");
 					
 				// 对每个设置属性
 				var me = this,
+					form,
+					to,
 					key;
+
+				Object.extend(this, options);
 				
 				// 生成新的 current 对象。
 				me.current = {};
+
+				if (this.start) {
+					this.start(options);
+				}
+
+				from = this.from || emptyObj;
+				to = this.to;
 				
 				for (key in to) {
 					
@@ -7402,10 +7367,46 @@ Fx.compute = function(from, to, delta){
 			}
 		
 		}),
+
+		/**
+		 * 缓存已解析的属性名。
+		 */
+		cache = Animate.props = {
+			opacity: {
+				set: function (target, name, from, to, delta) {
+					target.setOpacity(compute(from, to, delta));
+				},
+				parse: self,
+				get: function (target) {
+					return target.getOpacity();
+				}
+			},
+
+			scrollTop: {
+				set: function (target, name, from, to, delta) {
+					target.setScroll(null, compute(from, to, delta));
+				},
+				parse: self,
+				get: function (target) {
+					return target.getScroll().y;
+				}
+			},
+
+			scrollLeft: {
+				set: function (target, name, from, to, delta) {
+					target.setScroll(compute(from, to, delta));
+				},
+				parse: self,
+				get: function (target) {
+					return target.getScroll().x;
+				}
+			}
+
+		},
 		
 		numberParser = {
 			set: function(target, name, from, to, delta){
-				target.dom.style[name] = c(from, to, delta);
+				target.dom.style[name] = compute(from, to, delta);
 			},
 			parse: function(value){
 				return typeof value == "number" ? value : parseFloat(value);
@@ -7422,14 +7423,14 @@ Fx.compute = function(from, to, delta){
 		 */
 		length: {
 			
-			set: eval("-[1,]") ? function(target, name, from, to, delta){
+			set: navigator.isStd ? function (target, name, from, to, delta) {
 				
-				target.dom.style[name] = c(from, to, delta) + 'px';
+				target.dom.style[name] = compute(from, to, delta) + 'px';
 			} : function(target, name, from, to, delta){
 				try {
 					
 					// ie 对某些负属性内容报错
-					target.dom.style[name] = c(from, to, delta);
+					target.dom.style[name] = compute(from, to, delta);
 				}catch(e){}
 			},
 			
@@ -7446,9 +7447,9 @@ Fx.compute = function(from, to, delta){
 			
 			set: function set(target, name, from, to, delta){
 				target.dom.style[name] = String.arrayToHex([
-					Math.round(c(from[0], to[0], delta)),
-					Math.round(c(from[1], to[1], delta)),
-					Math.round(c(from[2], to[2], delta))
+					Math.round(compute(from[0], to[0], delta)),
+					Math.round(compute(from[1], to[1], delta)),
+					Math.round(compute(from[2], to[2], delta))
 				]);
 			},
 			
@@ -7510,26 +7511,31 @@ Fx.compute = function(from, to, delta){
 		 * @param {Number} duration=-1 变化的时间。
 		 * @param {Function} [onStop] 停止回调。
 		 * @param {Function} [onStart] 开始回调。
-		 * @param {String} link='wait' 变化串联的方法。 可以为 wait, 等待当前队列完成。 restart 柔和转换为目前渐变。 cancel 强制关掉已有渐变。 ignore 忽视当前的效果。
+		 * @param {String} link='wait' 变化串联的方法。 可以为 wait, 等待当前队列完成。 rerun 柔和转换为目前渐变。 cancel 强制关掉已有渐变。 ignore 忽视当前的效果。
 		 * @return this
 		 */
-		animate: function(){
-			var args = arguments, value = args[1];
-			if(typeof args[0] === 'string'){
-				(args[1] = {})[args[0]] = value;
-				args[0] = {};
-			} else if(typeof value !== 'object'){
-				Array.prototype.unshift.call(args, {});
+		animate: function (from, to, duration, onstop, onstart, link) {
+			if (typeof to === 'string') {
+				var t = {};
+				t[from] = to;
+				to = t;
+				from = null;
+			} else if (typeof to !== 'object') {
+				link = onstart;
+				onstart = onstop;
+				onstop = duration;
+				to = from;
+				from = null;
 			}
-			
-			if (args[2] !== 0) {
-				value = this.fx();
-				value.start.apply(value, args);
-			} else {
-				this.set(args[0], args[1]);
-				if(args[4]) args[4].call(this);
-				if(args[3]) args[3].call(this);
-			}
+
+			this.fx().run({
+				target: this,
+				duration: duration === undefined ? Fx.Base.prototype.duration : duration,
+				complete: onstop,
+				start: onstart,
+				from: from,
+				to: to
+			}, link);
 			
 			return this;
 		},
@@ -7541,33 +7547,41 @@ Fx.compute = function(from, to, delta){
 		 * @param {String} [type] 方式。
 		 * @return {Element} this
 		 */
-		show: function(duration, callBack, type){
+		show: function(duration, callBack, type, link){
 			var me = this;
 			if (duration) {
 				var elem = me.dom, savedStyle = {};
 		       
-				me.fx().start(getAnimate(type),  {}, duration, function(){
-					Dom.setStyles(elem, savedStyle);
+				me.fx().run({
+					from: getAnimate(type),
+					to: {},
+					duration: duration,
+					start: function () {
+						var from = this.from,
+							to = this.to;
+						if (!Dom.isHidden(elem))
+							return false;
+						Dom.show(elem);
+
+						if (from.$slide) {
+							initSlide(from, elem, type, savedStyle);
+						} else {
+							savedStyle.overflow = elem.style.overflow;
+							elem.style.overflow = 'hidden';
+						}
+
+						for (var style in from) {
+							savedStyle[style] = elem.style[style];
+							to[style] = Dom.styleNumber(elem, style);
+						}
+					},
+					complete:  function(){
+						Dom.setStyles(elem, savedStyle);
 					
-					if(callBack)
-						callBack.call(me, true);
-				}, function(from, to){
-					if(!Dom.isHidden(elem))
-						return false;
-					Dom.show(elem);
-					
-					if(from.$slide){
-						initSlide(from, elem, type, savedStyle);
-					} else {
-						savedStyle.overflow = elem.style.overflow;
-						elem.style.overflow = 'hidden';
+						if(callBack)
+							callBack.call(me, true);
 					}
-					
-					for(var style in from){
-						savedStyle[style] = elem.style[style];
-						to[style] = Dom.styleNumber(elem, style);
-					}
-				});
+				}, link);
 			} else {
 				show.apply(me, arguments);
 			}
@@ -7581,26 +7595,33 @@ Fx.compute = function(from, to, delta){
 		 * @param {String} [type] 方式。
 		 * @return {Element} this
 		 */
-		hide: function(duration, callBack, type){
+		hide: function (duration, callBack, type) {
 			var me = this;
 			if (duration) {
 				var  elem = me.dom || me, savedStyle = {};
-				me.fx().start({}, getAnimate(type), duration, function(){  
-					Dom.hide(elem);
-					Dom.setStyles(elem, savedStyle);
-					if(callBack)
-						callBack.call(me, false);
-				}, function (from, to) {
-					if(Dom.isHidden(elem))
-						return false;
-					if(to.$slide) {
-						initSlide(to, elem, type, savedStyle);
-					} else {
-						savedStyle.overflow = elem.style.overflow;
-						elem.style.overflow = 'hidden';
-					}
-					for(var style in to){
-						savedStyle[style] = elem.style[style];
+				me.fx().run({
+					from: null,
+					to: getAnimate(type),
+					duration: duration,
+					start: function () {
+						var to = this.to;
+						if (Dom.isHidden(elem))
+							return false;
+						if (to.$slide) {
+							initSlide(to, elem, type, savedStyle);
+						} else {
+							savedStyle.overflow = elem.style.overflow;
+							elem.style.overflow = 'hidden';
+						}
+						for (var style in to) {
+							savedStyle[style] = elem.style[style];
+						}
+					},
+					complete: function () {
+						Dom.hide(elem);
+						Dom.setStyles(elem, savedStyle);
+						if (callBack)
+							callBack.call(me, false);
 					}
 				});
 			}else{
@@ -7625,9 +7646,9 @@ Fx.compute = function(from, to, delta){
 			
 			duration /= 2;
 			
-			this.fx().start(from, to, duration, null, function (from) {
+			this.animate(from, to, duration, null, function (from) {
 				from.backgroundColor = Dom.getStyle(this.target.dom, 'backgroundColor');
-			}).start(to, from, duration, callBack);
+			}).animate(to, from, duration, callBack);
 			return this;
 		}
 	});
@@ -7687,142 +7708,130 @@ Fx.compute = function(from, to, delta){
  * System.Request.Base
  **********************************************/
 /**
- * @fileOverview 提供最底层的 AJAX 辅助函数。
- */
+ * @fileOverview 提供最底层的请求底层辅助函数。
+ */
 
-var Ajax = Ajax || {};
+var Request = Request || {};
+
+// errorNo
+//  0 - 无错误
+//  1 - 服务器响应错误 (404, 500, etc)
+//  2 - 客户端出现异常
+//  -1 - 服务器超时
+//  -2 - 用户主动结束请求
 
 /**
  * 提供一个请求的基本功能。
- * @class Request
+ * @class Request.Base
  * @abstract
  */
-Ajax.Request = Class({
+Request.Base = Deferrable.extend({
 	
 	/**
-	 * 返回变量的地址形式。
-	 * @param { Base} obj 变量。
-	 * @return {String} 字符串。
-	 * @example <code>
-	 * String.param({a: 4, g: 7}); //  a=4&g=7
-	 * </code>
+	 * 当前 AJAX 发送的地址。
+	 * @field url
 	 */
-	toParam: function (obj) {
-		if (!obj)
-	        return "";
-	    var s = [], e = encodeURIComponent;
-	    Object.each(obj, function(value, key) {
-	        s.push(e(key) + '=' + e(value));
-	    });
-	
-	    // %20 -> + 。
-	    return s.join('&').replace(/%20/g, '+');
-	},
-	
-	combineUrl: function (url, param) {
-		return url + (url.indexOf('?') >= 0 ? '&' : '?') + param;
-	},
-	
-	onStart: function(data){
-		this.trigger("start", data);
-	},
-	
-	onSuccess: function(response){
-		this.trigger("success", response);
-	},
-	
-	onError: function(errorMessage){
-		this.trigger("error", errorMessage);
-	},
-	
-	onTimeout: function(){
-		this.trigger("timeout");
-	},
-	
-	onComplete: function(status){
-		this.trigger("complete", status);
-	},
-
-	onAbort: function(){
-		this.trigger("abort");
-	},
-	
-	/**
-	 * 多个请求同时发生后的处理方法。 wait - 等待上个请求。 cancel - 中断上个请求。 ignore - 忽略新请求。
-	 */
-	link: 'wait',
-
-	/**
-	 * 初始化当前请求。
-	 * @param {Object} obj 配置对象。
-	 * @constructor Ajax
-	 */
-	constructor: function(obj) {
-		Object.extend(this, obj);
-	},
-	
-	/**
-	 * 发送请求前检查。
-	 * @param {Object} data 数据。
-	 * @return {Boolean} 是否可发。
-	 * @protected virtual
-	 */
-	delay: function(data) {
-		var me = this;
-		
-		switch (me.link) {
-			case 'wait':
-			
-				// 在 complete 事件中处理下一个请求。
-				me.once('complete', function() {
-					this.send(data, true);
-					return false;
-				});
-				return false;
-			case 'cancel':
-			
-				// 中止请求。
-				me.abort();
-				return true;
-			default:
-				assert(!link || link == 'ignore', "Ajax.prototype.send(data): 成员 {link} 必须是 wait、cancel、ignore 之一。", me.link);
-				return false;
-		}
-		return true;
-	},
 	
 	/**
 	 * 超时的时间大小。 (单位: 毫秒)
 	 * @property timeouts
 	 * @type Number
 	 */
-	 
-	 /**
-	  * 是否允许缓存。
-	  * @property enableCache
-	  * @type Boolean
-	  */
-	
+
+	url: null,
+
 	/**
-	 * 发送请求。
-	 * @param {Object} [data] 发送的数据。
-	 * @method send
-	 * @abstract
+	 * 是否允许缓存。
+	 * @type Boolean
 	 */
-	
+	cache: true,
+
+	data: null,
+
+	timeout: -1,
+
+	start: null,
+
+	success: null,
+
+	error: null,
+
+	complete: null,
+
+	initData: function (data) {
+		return !data ? null : typeof data === 'string' ? data : Request.param(data);
+	},
+
+	initUrl: function (url) {
+		assert.notNull(url, "Request.Base.prototype.initUrl(url): {url} ~。", url);
+		url = url.replace(/#.*$/, '');
+
+		// 禁止缓存，为地址加上随机数。
+		return this.cache ? url : Request.combineUrl(url, '_=' + Date.now());
+	},
+
+	constructor: function (options) {
+		Object.extend(this, options);
+	},
+
+	/**
+	 * @param options
+	 * url - 请求的地址。
+	 * data - 请求的数据。
+	 * cache - 是否允许缓存。默认为 true 。
+	 * start - 请求开始时的回调。参数是 data, xhr
+	 * error - 请求失败时的回调。参数是 errorNo, message, xhr
+	 * success - 请求成功时的回调。参数是 content, message, xhr
+	 * complete - 请求完成时的回调。参数是 xhr, message, errorNo
+	 * timeout - 请求超时时间。单位毫秒。默认为 -1 无超时 。
+	 */
+	run: function(options, link){
+    	if(this.defer(options, link)){
+    		return this;
+		}
+
+    	this.constructor(options);
+    	return this.send();
+	},
+
 	/**
 	 * 停止当前的请求。
 	 * @return this
-	 * @method abort
-	 * @abstract
 	 */
-	
-	/**
-	 * xtype。
-	 */
-	xtype: "request"
+	pause: function () {
+		this.onStateChange(-2);
+		return this;
+	}
 	
 });
+
+/**
+ * 返回变量的地址形式。
+ * @param { Base} obj 变量。
+ * @return {String} 字符串。
+ * @example <code>
+ * Request.param({a: 4, g: 7}); //  a=4&g=7
+ * </code>
+ */
+Request.param = function (obj, name) {
+
+	var s;
+	if (Object.isObject(obj)) {
+		s = [];
+		Object.each(obj, function (value, key) {
+			s.push(Request.param(value, name ? name + "[" + key + "]" : key));
+		});
+		s = s.join('&');
+	} else {
+		s = encodeURIComponent(name) + "=" + encodeURIComponent(obj);
+	}
+
+	return s.replace(/%20/g, '+');
+};
+
+Request.combineUrl = function (url, param) {
+	return url + (url.indexOf('?') >= 0 ? '&' : '?') + param;
+};
 
 
 /**********************************************
@@ -7830,14 +7839,18 @@ Ajax.Request = Class({
  **********************************************/
 /**
  * @fileOverview 请求处理JSON-P数据。
- * @author aki xuld
+ * @author xuld
  */
 
-Ajax.JSONP = Ajax.Request.extend({
+Request.JSONP = Request.Base.extend({
 
-    onReadyStateChange: function(exception){
-        var me = this, script = me.script;
-        if (script && (exception || !/in/.test(script.readyState))) {
+	jsonp: 'callback',
+
+	success: Function.empty,
+
+    onStateChange: function(errorNo, message){
+    	var me = this, script = me.script;
+    	if (script && (errorNo || !script.readyState || !/in/.test(script.readyState))) {
         
             // 删除全部绑定的函数。
             script.onerror = script.onload = script.onreadystatechange = null;
@@ -7845,45 +7858,39 @@ Ajax.JSONP = Ajax.Request.extend({
             // 删除当前脚本。
             script.parentNode.removeChild(script);
             
-            // 删除回调。
-            delete window[me.callback];
+    		// 删除回调。
+			delete window[me.callback];
             
             me.script = null;
             
             try {
             
-                if (exception === true) {
-                    me.onTimeout(script);
-                    exception = 'Request Timeout';
-                }
+            	if (errorNo && me.error) {
+					me.error(errorNo, message, script);
+				}
                 
-                me.onComplete(script);
+            	if (me.complete) {
+            		me.complete(script, message, errorNo);
+            	}
                 
             } finally {
             
                 script = null;
-                
+
+				me.progress();
             }
         }
     },
     
-    jsonp: 'callback',
-    
-    send: function(data){
-        var me = this, url = me.url, script, t;
+    send: function(){
+    	
+    	var me = this,
+			url = me.initUrl(me.url),
+			data = me.initData(me.data),
+			script,
+			t;
         
-        if (me.script && !me.delay(data)) 
-            return me;
-        
-        me.onStart(data);
-        
-        // 改成字符串。
-        if (typeof data !== 'string') {
-            
-            data = me.toParam(data);
-        }
-        
-        url = me.combineUrl(url, data);
+    	url = Request.combineUrl(url, data);
         
         // 处理 callback=?
         var callback = me.callback || ( 'jsonp' + System.id++ );
@@ -7891,50 +7898,173 @@ Ajax.JSONP = Ajax.Request.extend({
         if(url.indexOf(me.jsonp + '=?') >= 0){
         	url = url.replace(me.jsonp + '=?', me.jsonp + '=' + callback);
         } else {
-      		url = me.combineUrl(url, me.jsonp + "=" + callback);
+        	url = Request.combineUrl(url, me.jsonp + "=" + callback);
       	}
         
         script = me.script = document.createElement("script");
-        t = document.getElementsByTagName("script")[0];
+
+        if (me.start)
+        	me.start(data, me.script);
         
         window[callback] = function(){
         	delete window[callback];
-            me.onSuccess.apply(me, arguments);
+
+        	return me.success.apply(me, arguments);
         };
         
         script.src = url;
         script.type = "text/javascript";
+
+        script.onload = script.onreadystatechange = function () {
+        	me.onStateChange();
+        };
         
         script.onerror = function(){
-            me.onReadyStateChange(true);
+        	me.onStateChange(1);
         };
         
         if (me.timeouts > 0) {
-            setTimeout(script.onerror, me.timeouts);
+        	setTimeout(function () {
+        		me.onStateChange(-1);
+			}, me.timeouts);
         }
-        
-        script.onload = script.onreadystatechange = function(){
-            me.onReadyStateChange();
-        };
-        
+
+        t = document.getElementsByTagName("script")[0];
         t.parentNode.insertBefore(script, t);
-    },
-    
-    abort: function(){
-        this.onAbort();
-        this.onReadyStateChange('Aborted');
     }
 });
+/**********************************************
+ * System.Utils.Tpl
+ **********************************************/
+//===========================================
+//  模板引擎
+//   A: xuld
+//===========================================
 
-Ajax.getJSONP = function(url, data, onsuccess, timeouts, ontimeout, oncomplete){
-    assert.isString(url, "Ajax.getJSONP(url, data, onsuccess, timeouts, ontimeout): 参数{url} 必须是一个地址。如果需要提交至本页，使用 location.href。");
-    var emptyFn = Function.empty;
-    new Ajax.JSONP({
-        url: url,
-        onSuccess: onsuccess || emptyFn,
-        timeouts: timeouts,
-        onTimeout: ontimeout || emptyFn,
-        onComplete: oncomplete || emptyFn
-    }).send(data);
+
+/**
+ * @class Tpl
+ * @example Tpl.parse("{if a}OK{end}", {a:1}); //=> OK
+ * 模板解析字符串语法:
+ * 模板字符串由静态数据和解析单元组成。
+ * 普通的内容叫静态的数据，解析前后，静态数据不变。
+ * 解析单元由 { 开始， } 结束。解析单元可以是:
+ * 1. Javascript 变量名: 这些变量名来自 Tpl.parse 的第2个参数， 比如第二个参数是 {a:[1]} ，那 {a[0]}将返回 1 。
+ * 2. if/for/end/else/eval 语句，这5个是内置支持的语法。
+ * 2.1 if: {if a} 或  {if(a)} 用来判断一个变量，支持全部Javascript表达式，如 {if a==1} 。语句 {if} 必须使用 {end} 关闭。
+ * 2.2 else 等价于 Javascript 的 else， else后可同时有 if语句，比如: {else if a}
+ * 2.3 for: {for a in data} for用来遍历对象或数组。  语句 {for} 必须使用 {end} 关闭。
+ * 2.4 eval: eval 后可以跟任何 Javascript 代码。 比如 {eval nativeFn(1)}
+ * 2.5 其它数据，将被处理为静态数据。
+ * 3 如果需要在模板内输出 { 或 }，使用 {\{} 和 {\}} 。
+ * 4 特殊变量，模板解析过程中将生成4个特殊变量，这些变量将可以方便操作模板
+ * 4.1 $output 模板最后将编译成函数，这个函数返回最后的内容， $output表示这个函数的组成代码。
+ * 4.2 $data 表示  Tpl.parse 的第2个参数。
+ * 4.3 $index 在 for 循环中，表示当前循环的次号。
+ * 4.4 $value 在 for 循环中，表示当前被循环的目标。
+ */
+var Tpl = {
+	
+	cache: {},
+
+	_blockStack: [],
+	
+	encodeJs: function(input){
+		return input.replace(/[\r\n]/g, '\\n').replace(/"/g, '\\"');
+	},
+	
+	processCommand: function(command){
+		var c = command.match(/^(if|for|end|else|eval|var|\$|\W+)(\b[\s\S]*)?$/);
+		if(c) {
+			command = c[2];
+			switch(c[1]) {
+				case "end":
+					return this._blockStack.pop() === "foreach" ? "});" : "}";
+				case 'if':
+					this._blockStack.push('if');
+					assert(command, "Tpl.processCommand(command): 无法处理命令{if " + command + " } (if 命名的格式为 {if condition}");
+					return "try{$tpl_tmp=" + command + ";if(Array.isArray($tpl_tmp))$tpl_tmp=$tpl_tmp.length}catch(e){$tpl_tmp=''}if($tpl_tmp) {";
+				case 'eval':
+					return command;
+				case 'else':
+					return /^\s*if ([\s\S]*)$/.exec(command) ? '} else if(' + RegExp.$1 + ') {' : '} else {';
+				case 'for':
+					if(/^\s*\(/.test(command)) {
+						this._blockStack.push('for');
+						return "for " + command + "{";
+					}
+					
+					// if(command.indexOf(';') >= 0) {
+						// this._blockStack.push('for');
+						// return "for (" + command + "){";
+					// }
+					
+					this._blockStack.push('foreach');
+					command = command.split(/\s*\bin\b\s*/);
+					assert(command.length === 2 && command[0] && command[1], "Tpl.processCommand(command): 无法处理命令{for " + c[2] + " } (for 命名的格式为 {for var_name in obj}");
+					return 'try{$tpl_tmp=' + command[1] + '}catch(e){$tpl_tmp=null};Object.each($tpl_tmp, function(' + command[0].replace('var ', '') + ', $index, $value){';
+				case 'var':
+					return 'var ' + c[0] + ';';
+				case '$':
+					command = '$' + command;
+					break;
+				default:
+					return '$tpl+="' + this.encodeJs(c[0]) + '";';
+			}
+		}
+			
+		return command ? 'try{$tpl_tmp=' + command + ';if($tpl_tmp!=undefined) $tpl += $tpl_tmp;}catch(e){}' : '';
+	},
+	
+	/**
+	 * 把一个模板编译为函数。
+	 * @param {String} tpl 表示模板的字符串。
+	 * @return {Function} 返回的函数。
+	 */
+	compile: function(tpl){
+		
+		var output = 'var $tpl="",$tpl_tmp;with($data){',
+			
+			// 块的开始位置。
+			blockStart = -1,
+			
+			// 块的结束位置。
+			blockEnd;
+		
+		while((blockStart = tpl.indexOf('{', blockStart + 1)) >= 0) {
+			output += '$tpl+="' + this.encodeJs(tpl.substring(blockEnd + 1, blockStart)) + '";';
+			
+			// 从  blockStart 处搜索 }
+			blockEnd = blockStart;
+			
+			// 找到第一个前面不是 \ 的  } 字符。
+			do {
+				blockEnd = tpl.indexOf('}', blockEnd + 1);
+			} while(tpl.charAt(blockEnd - 1) === '\\');
+			
+			if(blockEnd == -1) {
+				blockEnd = blockStart++;
+				assert(false, "Tpl.compile(tpl): {tpl} 出现了未关闭的标签。");
+			} else {
+				output += this.processCommand(tpl.substring(blockStart + 1, blockStart = blockEnd).trim());
+			}
+		}
+		
+		output += '$tpl+="' + this.encodeJs(tpl.substring(blockEnd + 1, tpl.length)) + '";}return $tpl';
+
+		assert(this._blockStack.length === 0, "Tpl.compile(tpl): {tpl} 中 if/for 和 end 数量不匹配。");
+		
+		return new Function("$data", output);
+	},
+	
+	/**
+	 * 使用指定的数据解析模板，并返回生成的内容。
+	 * @param {String} tpl 表示模板的字符串。
+	 * @param {Object} data 数据。
+	 * @return {String} 处理后的字符串。 
+	 */
+	parse: function(tpl, data) {
+		return (Tpl.cache[tpl] || (Tpl.cache[tpl] = Tpl.compile(tpl)))(data);
+	}
+	
 };
-
