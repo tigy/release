@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'trace.dir',"summary":'<p>\u904d\u5386\u5bf9\u8c61\u6bcf\u4e2a\u5143\u7d20\u3002</p>\n',"param":'{Object} obj \u5bf9\u8c61\u3002\r\n',"name":'dir',"memberOf":'trace',"memberType":'field'});

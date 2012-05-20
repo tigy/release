@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'System.Base',"summary":'<p>\u6240\u6709\u7c7b\u7684\u57fa\u7c7b\u3002</p>\n',"memberType":'class',"name":'Base',"memberOf":'System'});

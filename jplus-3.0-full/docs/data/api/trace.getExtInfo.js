@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'trace.getExtInfo',"summary":'<p>\u83b7\u53d6\u7c7b\u7684\u7ee7\u627f\u5173\u7cfb\u3002</p>\n',"name":'getExtInfo',"memberOf":'trace',"memberType":'field'});

@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'trace',"summary":'<p>\u8c03\u8bd5\u8f93\u51fa\u6307\u5b9a\u7684\u4fe1\u606f\u3002</p>\n',"param":'{Object} ... \u8981\u8f93\u51fa\u7684\u53d8\u91cf\u3002\r\n',"name":'trace',"memberOf":'',"return":{"type":'',"summary":''},"type":'Function',"memberType":'field'});

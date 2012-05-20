@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'navigator.isStd',"summary":'<p>\u5224\u65ad\u5f53\u524d\u6d4f\u89c8\u5668\u662f\u5426\u7b26\u5408W3C\u6807\u51c6\u3002</p>\n',"type":'Boolean',"remark":'<p>\u6b64\u5904\u8ba4\u4e3a IE6,7 \u662f\u602a\u7656\u7684\u3002</p>\n',"name":'isStd',"memberOf":'navigator',"memberType":'field'});

@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'trace.inspect',"summary":'<p>\u83b7\u53d6\u5bf9\u8c61\u7684\u5b57\u7b26\u4e32\u5f62\u5f0f\u3002</p>\n',"param":'{Object} obj \u8981\u8f93\u51fa\u7684\u5185\u5bb9\u3002\r\n{Number/undefined} deep = 0 \u9012\u5f52\u7684\u5c42\u6570\u3002\r\n',"returns":'String \u6210\u5458\u3002',"name":'inspect',"memberOf":'trace',"memberType":'field'});

@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'assert.stackTrace',"summary":'<p>\u662f\u5426\u5728 assert \u5931\u8d25\u65f6\u663e\u793a\u51fd\u6570\u8c03\u7528\u5806\u6808\u3002</p>\n',"memberType":'config',"type":'Boolean',"name":'stackTrace',"memberOf":'assert',"defaultValue":'true'});

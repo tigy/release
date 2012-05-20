@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'Function',"memberType":'class',"name":'Function'});

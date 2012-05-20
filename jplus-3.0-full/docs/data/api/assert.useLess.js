@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'assert.useLess',"summary":'<p>\u662f\u5426\u4f7f\u7528 lesscss</p>\n',"memberType":'config',"name":'useLess',"memberOf":'assert',"defaultValue":'true'});

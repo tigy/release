@@ -946,7 +946,7 @@ DocPlus.APIRender = {
 
 		tpl = Tpl.parse(DocPlus.APIRender.tpl, data);
 
-		view.setTitle(DocPlus.APIRender.getShortReadableName(data.name, data.type));
+		view.setTitle(DocPlus.APIRender.getShortReadableName(data.fullName, data.type));
 		view.setContent(tpl);
 	},
 
@@ -957,7 +957,7 @@ DocPlus.APIRender = {
 	</div>\
 	<h1>\
 		{if deprecated}[已过时]{end}\
-		{DocPlus.APIRender.getReadableName(name, type)}\
+		{DocPlus.APIRender.getReadableName(fullName, type)}\
 		<small>{className}</small>\
 	</h1>\
 	<hr>\
