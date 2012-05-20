@@ -23,9 +23,9 @@
 
 	sourceLine: 'sourceLine',
 
-	family: {
-		
-	},
+	baseClasses: ['Object', 'Base'],
+	
+	subClasses: ['Object', 'Base', 'CCCC'],
 
 	properties: [
 		{

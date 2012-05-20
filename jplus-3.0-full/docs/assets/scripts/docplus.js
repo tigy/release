@@ -159,6 +159,10 @@ var DocPlus = {
 	},
 
 	// 页面
+	
+	redirect: function(hash){
+		location.hash = '!' + hash;
+	},
 
 	/**
 	 * 根据页面上当前哈希值，重新加载页面。
@@ -222,6 +226,8 @@ var DocPlus = {
        * 当前打开的视图数目。
        */
 	viewCount: 0,
+	
+	viewHistory: [],
 
 	/**
        * 创建指定名的视图。
@@ -240,7 +246,7 @@ var DocPlus = {
 
 		// 如果控制器未载入，则先载入。
 		if(controller.dataJsPath) {
-			DocPlus.getJSONP(controller.dataJsPath, controller.init.bind(controller));
+			DocPlus.getJSONP(controller.dataJsPath, controller.init.bind(controller), controller.initError);
 			delete controller.dataJsPath;
 		}
 
@@ -307,11 +313,11 @@ var DocPlus = {
 		callback: 'jsonp'
 	}),
 
-	getJSONP: function (url, callback) {
-		trace('request->', url);
+	getJSONP: function (url, callback, onerror) {
 		DocPlus._jsonpObj.run({
 			url: url,
-			success: callback
+			success: callback,
+			error: onerror
 		});
 	}
 
@@ -382,24 +388,16 @@ DocPlus.Controller = Class({
 
 	closeView: function (view) {
 
-		var p = view.previousView, n = view.nextView;
-
 		view.tab.remove();
 		view.content.remove();
-
-		if (n)
-			n.previousTabPage = p;
-
-		if (p) {
-			p.nextTabPage = n;
-		}
+		
+		DocPlus.viewHistory.remove(view);
 
 		if (DocPlus.currentView === view) {
 			DocPlus.currentView = null;
-			if (p) {
-				p.active();
-				location.hash = p.hash;
-			}
+			var topView = DocPlus.viewHistory.item(-1) || view.controller.homeView;
+			topView.active();
+			DocPlus.redirect(topView.hash);
 		}
 
 		// 保存视图状态。
@@ -427,12 +425,12 @@ DocPlus.Controller = Class({
 
 			currentView.deactive();
 
-			currentView.nextView = view;
-			view.previousView = currentView;
-
 		}
 
 		DocPlus.currentView = view;
+		
+		DocPlus.viewHistory.remove(view);
+		DocPlus.viewHistory.push(view);
 
 
 		// 显示当前选项卡。
@@ -553,16 +551,6 @@ DocPlus.View = Class({
 	 * 当前视图对应的控制器。
 	 */
 	controller: null,
-	
-	/**
-	 * 浏览历史上当前视图对应的下一个视图。
-	 */
-	nextView: null,
-
-	/**
-	 * 浏览历史上当前视图对应的上一个视图。
-	 */
-	previousView: null,
 
 	onTabMouseUp: function (e) {
 
@@ -711,8 +699,11 @@ DocPlus.APIController = DocPlus.Controller.extend({
 	 */
 	initView: function(view, pathInfo){
 		view.setContent('加载中...'); 
-		DocPlus.getJSONP(this.dataPath + pathInfo + '.js', function(data){
+		var dataPath = this.dataPath + pathInfo + '.js';
+		DocPlus.getJSONP(dataPath, function(data){
 			DocPlus.APIRender.render(view, data);
+		}, function(){
+			view.setContent('无法载入数据: ' + dataPath);
 		});
 	},
 	
@@ -808,20 +799,23 @@ DocPlus.APIController = DocPlus.Controller.extend({
 });
 
 DocPlus.APIRender = {
-
-	memberTypes: {
+	
+	objectTypes: {
 		'class': '类',
 		'enum': '枚举',
 		'interface': '接口',
+		'object': '对象',
+		'module': '模块',
+		'category': '分类'
+	},
+
+	memberTypes: {
 		'method': '方法',
 		'field': '字段',
 		'property': '属性',
 		'function': '函数',
-		'object': '对象',
 		'config': '配置',
-		'module': '模块',
-		'event': '事件',
-		'category': '分类'
+		'event': '事件'
 	},
 
 	members: {
@@ -832,8 +826,18 @@ DocPlus.APIRender = {
 		'events': '事件'
 	},
 
+	getShortReadableName: function (name, type) {
+		if(type in DocPlus.APIRender.objectTypes || type === 'function'){
+			return DocPlus.APIRender.getReadableName(name, type);
+		}
+		
+		var n = DocPlus.APIRender.getMemberName(name);
+		var p = name.replace(/\.prototype\.\w+$/, "");
+		return n + ' ' + (DocPlus.APIRender.memberTypes[type] || '成员') + ' (' + p + ')';
+	},
+
 	getReadableName: function (name, type) {
-		return name + ' ' + (DocPlus.APIRender.memberTypes[type] || '对象');
+		return name + ' ' + (DocPlus.APIRender.memberTypes[type] || DocPlus.APIRender.objectTypes[type] || '对象');
 	},
 	
 	getMemberName: function(name){
@@ -939,168 +943,78 @@ DocPlus.APIRender = {
 	},
 	
 	render: function (view, data) {
-		trace('set  view', view, data);
-		
-		var tpl;
-		
-		switch(data.type) {
-			case 'class':
-			case 'interface':
-			case 'enum':
-				tpl = 'objects';	
-				break;
-			default:
-				tpl = 'members';	
-				break;
-		}
 
-		var tpl = DocPlus.APIRender.tpls[tpl] || '';
+		tpl = Tpl.parse(DocPlus.APIRender.tpl, data);
 
-		tpl = Tpl.parse(tpl, data);
-
-		view.setTitle(DocPlus.APIRender.getReadableName(data.name, data.type));
+		view.setTitle(DocPlus.APIRender.getShortReadableName(data.name, data.type));
 		view.setContent(tpl);
 	},
 
-	tpls: {
-
-		_tpl: '\
+	tpl: '\
 <div class="doc">\
 	<div class="doc-func">\
-		<a type="button" id="a" href="#" class="x-button x-button-plain x-menubutton"> 显示 <span class="x-button-menu x-button-menu-down"> </span> </a>\
+		<a type="button" href="javascript:;" class="x-button x-button-plain x-menubutton">显示 <span class="x-button-menu x-button-menu-down"> </span> </a>\
 	</div>\
-	<h1>Class 类<small>System.Dom.Element</small></h1>\
+	<h1>\
+		{if deprecated}[已过时]{end}\
+		{DocPlus.APIRender.getReadableName(name, type)}\
+		<small>{className}</small>\
+	</h1>\
 	<hr>\
 	<div class="doc-attrs">\
 		<dl class="x-treeview-alt">\
+			{if $data.baseClassses || $data.subClasses}\
 			<dt>\
 				继承关系:\
 			</dt>\
-			<dd class="x-clear">\
-				<a href="#">JPlus.Object</a>\
-			</dd>\
+			{for baseClass in baseClasses}\
 			<dd class="x-treenode-last x-clear">\
+				{for(var i = 1; i < $index; i++)}\
+					<span class="x-treenode-space x-treenode-none"> </span>\
+				{end}\
+				{if $index}\
 				<span class="x-treenode-space x-treenode-normal"> </span>\
-				<a href="#">JPlus.Control</a>\
+				{end}\
+				{DocPlus.APIRender.getTypeLink(baseClass)}\
 			</dd>\
-			<dd>\
-				<span class="x-treenode-space"> </span>\
-				<span class="x-treenode-space x-treenode-normal x-clear"> </span>\
-				<a href="#">JPlus.ScrollableControl</a>\
-			</dd>\
-			<dd class="x-treenode-last">\
+			{end}\
+			<dd class="x-treenode-last x-clear">\
+				{if baseClasses}\
+				{for(var i = 1; i < baseClasses.length; i++)}\
+					<span class="x-treenode-space x-treenode-none"> </span>\
+				{end}\
+				{end}\
+				{if baseClasses.length}\
 				<span class="x-treenode-space x-treenode-normal"> </span>\
-				<a href="#">JPlus.ContentControl</a>\
+				{end}\
+				<strong>{name}</strong>\
 			</dd>\
-			<dt>\
-				定义:\
-			</dt>\
-			<dd>\
-				<a href="#">aaa.js</a>\
+			{for subClass in subClasses}\
+			<dd class="{if $index == subClasses.length - 1}x-treenode-last {end}x-clear">\
+				{for(var i = 1; i <= baseClasses.length; i++)}\
+					<span class="x-treenode-space x-treenode-none"> </span>\
+				{end}\
+				<span class="x-treenode-space x-treenode-normal"> </span>\
+				{DocPlus.APIRender.getTypeLink(subClass)}\
 			</dd>\
-			<dd>\
-				<a href="#">aaa.js</a>\
-			</dd>\
-			<dd>\
-				<a href="#">aaa.js</a>\
-			</dd>\
-			<dt>\
-				版本:\
-			</dt>\
-			<dd>\
-				1.0\
-			</dd>\
-		</dl>\
-	</div>\
-	<p>\
-		summary 								<pre><ol><li>代码 pre</li><li>pre</li><li>ol</li></ol></pre>\
-	</p>\
-	<h3>属性</h3>\
-	<table class="x-table doc-members">\
-		<thead>\
-			<tr>\
-				<th></th>\
-				<th>名称 </th>\
-				<th>说明</th>\
-				<th>继承</th>\
-			</tr>\
-		</thead>\
-		<tbody>\
-			<tr>\
-				<td> 1 </td>\
-				<td> Td 1 </td>\
-				<td> Td 2 </td>\
-				<td> Td 3 </td>\
-			</tr>\
-			<tr>\
-				<td> 2 </td>\
-				<td> Td 1 </td>\
-				<td> Td 2 </td>\
-				<td> Td 3 </td>\
-			</tr>\
-		</tbody>\
-	</table>\
-	<h3>备注</h3>\
-	<p>\
-		使用由 Data 属性返回的 System.Collections  对象来存储和检索与异常相关的补充信息。\
-\
-		信息的形式为任意数目的用户定义的键/值对。键/值对中的键通常是一个标识字符串，而键/值对中的值则可以是任何对象类型。\
-	</p>\
-	<h5>诶住</h5>\
-	<p>\
-		aaa\
-	</p>\
-	<div class="x-bubble">\
-		<h4>注意:</h4>\
-		<div>\
-			aaaaaaaa\
-		</div>\
-	</div>\
-	<div class="x-panel">\
-		<div class="x-panel-header">\
-			<h4>注意:</h4>\
-		</div>\
-		<div class="x-panel-body">\
-			AAAA\
-		</div>\
-	</div>\
-	<h3>社区</h3>\
-	<textarea class="x-textbox"></textarea>\
-	<br>\
-	<input type="submit" class="x-button" value="提交">\
-	<br>\
-	<br>\
-	<br>\
-	<br>\
-	<br>\
-	<br>\
-</div>',
-
-		'objects': '\
-<div class="doc">\
-	<div class="doc-func">\
-		<a type="button" id="a" href="#" class="x-button x-button-plain x-menubutton">显示 <span class="x-button-menu x-button-menu-down"> </span> </a>\
-	</div>\
-	<h1>\
-		{if deprecated}\
-	[已过时]\
-	{end}\
-	{DocPlus.APIRender.getReadableName(name)}<small>{className}</small></h1>\
-	<hr>\
-	<div class="doc-attrs">\
-		<dl class="x-treeview-alt">\
+			{end}\
+			{end}\
+			{if className}\
 			<dt>\
 				相关成员:\
 			</dt>\
 			<dd class="x-clear">\
-				<a href="#">{DocPlus.APIRender.getTypeLink(className)}</a>\
+				{DocPlus.APIRender.getTypeLink(className)}\
 			</dd>\
+			{end}\
+			{if sourceFile}\
 			<dt>\
 				定义:\
 			</dt>\
 			<dd>\
 				<a href="{sourceFile}{sourceLine}">{sourceFile}</a>\
 			</dd>\
+			{end}\
 			{if since}\
 			<dt>\
 				版本:\
@@ -1116,6 +1030,48 @@ DocPlus.APIRender = {
 	<div class="doc-content">\
 		<code class="doc-syntax">{DocPlus.APIRender.getSyntax($data)}</code>\
 	</div>\
+	{if params}\
+	<h4>参数</h4>\
+	<div class="doc-content">\
+		<dl class="doc-params">\
+			{for param in params}\
+				<dt>\
+					<strong>{param.name}</strong>\
+					{if param.defaultValue==""}(可选的){else if param.defaultValue}(默认为{param.defaultValue}){end}\
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{DocPlus.APIRender.getTypeLink(param.type)}\
+				</dt>\
+				<dd>\
+					{param.summary}\
+				</dd>\
+			{end}\
+		</dl>\
+	</div>\
+	{end}\
+	{if returns}\
+	<h4>返回值</h4>\
+	<div class="doc-content">\
+		<dl class="doc-params">\
+			<dt>\
+				{DocPlus.APIRender.getTypeLink(returns.type)}\
+			</dt>\
+			<dd>\
+				{returns.summary}\
+			</dd>\
+		</dl>\
+	</div>\
+	{end}\
+	{if type}\
+	<h4>类型</h4>\
+	<div class="doc-content">\
+		{type}\
+	</div>\
+	{end}\
+	{if defaultValue}\
+	<h4>默认值</h4>\
+	<div class="doc-content">\
+		{defaultValue}\
+	</div>\
+	{end}\
 	{for(var memberType in DocPlus.APIRender.members)}\
 	{if $data[memberType]}\
 	<h3>所有{DocPlus.APIRender.members[memberType]}</h3>\
@@ -1189,147 +1145,7 @@ DocPlus.APIRender = {
 		<br>\
 		<input type="submit" class="x-button" value="提交">\
 	</div>\
-	<br>\
-	<br>\
-	<br>\
-	<br>\
-	<br>\
-	<br>\
-</div>',
-
-		'members': '\
-<div class="doc">\
-	<div class="doc-func">\
-		<a type="button" href="javascript:;" class="x-button x-button-plain x-menubutton">显示 <span class="x-button-menu x-button-menu-down"> </span> </a>\
-	</div>\
-	<h1>\
-		{if deprecated}[已过时]{end}\
-		{DocPlus.APIRender.getReadableName(name, type)}\
-		<small>{className}</small>\
-	</h1>\
-	<hr>\
-	<div class="doc-attrs">\
-		<dl class="x-treeview-alt">\
-			<dt>\
-				相关成员:\
-			</dt>\
-			<dd class="x-clear">\
-				{DocPlus.APIRender.getTypeLink(className)}\
-			</dd>\
-			<dt>\
-				定义:\
-			</dt>\
-			<dd>\
-				<a href="{sourceFile}{sourceLine}">{sourceFile}</a>\
-			</dd>\
-			{if since}\
-			<dt>\
-				版本:\
-			</dt>\
-			<dd>\
-				{since}\
-			</dd>\
-			{end}\
-		</dl>\
-	</div>\
-	{summary}\
-	<h3>语法</h3>\
-	<div class="doc-content">\
-		<code class="doc-syntax">{DocPlus.APIRender.getSyntax($data)}</code>\
-	</div>\
-	{if params}\
-	<h4>参数</h4>\
-	<div class="doc-content">\
-		<dl class="doc-params">\
-			{for param in params}\
-				<dt>\
-					<strong>{param.name}</strong>\
-					{if param.defaultValue==""}(可选的){else if param.defaultValue}(默认为{param.defaultValue}){end}\
-					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{DocPlus.APIRender.getTypeLink(param.type)}\
-				</dt>\
-				<dd>\
-					{param.summary}\
-				</dd>\
-			{end}\
-		</dl>\
-	</div>\
-	{end}\
-	{if returns}\
-	<h4>返回值</h4>\
-	<div class="doc-content">\
-		<dl class="doc-params">\
-			<dt>\
-				{DocPlus.APIRender.getTypeLink(returns.type)}\
-			</dt>\
-			<dd>\
-				{returns.summary}\
-			</dd>\
-		</dl>\
-	</div>\
-	{end}\
-	{if type}\
-	<h4>类型</h4>\
-	<div class="doc-content">\
-		{type}\
-	</div>\
-	{end}\
-	{if defaultValue}\
-	<h4>默认值</h4>\
-	<div class="doc-content">\
-		{defaultValue}\
-	</div>\
-	{end}\
-	{if remark}\
-	<h3>备注</h3>\
-	<div class="doc-content">\
-		{remark}\
-	</div>\
-	{end}\
-	{if example}\
-	<h3>示例</h3>\
-	<div class="doc-content">\
-		{example}\
-	</div>\
-	{end}\
-	{if exceptions}\
-	<h3>异常</h3>\
-	<div class="doc-content">\
-		<dl class="doc-params">\
-			{for exception in exceptions}\
-				<dt>\
-					{DocPlus.APIRender.getTypeLink(exception.type)}\
-				</dt>\
-				<dd>\
-					{exception.summary}\
-				</dd>\
-			{end}\
-		</dl>\
-	</div>\
-	{end}\
-	{if sees}\
-	<h3>参考</h3>\
-	<div class="doc-content">\
-		<ul>\
-			{for see in sees}\
-				<li>\
-					{DocPlus.APIRender.getTypeLink(see)}\
-				</li>\
-			{end}\
-		</ul>\
-	</div>\
-	{end}\
-	<h3>社区</h3>\
-	<div class="doc-content">\
-		<textarea class="x-textbox"></textarea>\
-		<br>\
-		<br>\
-		<input type="submit" class="x-button" value="提交">\
-	</div>\
-</div>',
-
-
-
-	}
+</div>'
 	
 	
 };

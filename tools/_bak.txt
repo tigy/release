@@ -1,0 +1,113 @@
+
+
+		_tpl: '\
+<div class="doc">\
+	<div class="doc-func">\
+		<a type="button" id="a" href="#" class="x-button x-button-plain x-menubutton"> 显示 <span class="x-button-menu x-button-menu-down"> </span> </a>\
+	</div>\
+	<h1>Class 类<small>System.Dom.Element</small></h1>\
+	<hr>\
+	<div class="doc-attrs">\
+		<dl class="x-treeview-alt">\
+			<dt>\
+				继承关系:\
+			</dt>\
+			<dd class="x-clear">\
+				<a href="#">JPlus.Object</a>\
+			</dd>\
+			<dd class="x-treenode-last x-clear">\
+				<span class="x-treenode-space x-treenode-normal"> </span>\
+				<a href="#">JPlus.Control</a>\
+			</dd>\
+			<dd>\
+				<span class="x-treenode-space"> </span>\
+				<span class="x-treenode-space x-treenode-normal x-clear"> </span>\
+				<a href="#">JPlus.ScrollableControl</a>\
+			</dd>\
+			<dd class="x-treenode-last">\
+				<span class="x-treenode-space x-treenode-normal"> </span>\
+				<a href="#">JPlus.ContentControl</a>\
+			</dd>\
+			<dt>\
+				定义:\
+			</dt>\
+			<dd>\
+				<a href="#">aaa.js</a>\
+			</dd>\
+			<dd>\
+				<a href="#">aaa.js</a>\
+			</dd>\
+			<dd>\
+				<a href="#">aaa.js</a>\
+			</dd>\
+			<dt>\
+				版本:\
+			</dt>\
+			<dd>\
+				1.0\
+			</dd>\
+		</dl>\
+	</div>\
+	<p>\
+		summary 								<pre><ol><li>代码 pre</li><li>pre</li><li>ol</li></ol></pre>\
+	</p>\
+	<h3>属性</h3>\
+	<table class="x-table doc-members">\
+		<thead>\
+			<tr>\
+				<th></th>\
+				<th>名称 </th>\
+				<th>说明</th>\
+				<th>继承</th>\
+			</tr>\
+		</thead>\
+		<tbody>\
+			<tr>\
+				<td> 1 </td>\
+				<td> Td 1 </td>\
+				<td> Td 2 </td>\
+				<td> Td 3 </td>\
+			</tr>\
+			<tr>\
+				<td> 2 </td>\
+				<td> Td 1 </td>\
+				<td> Td 2 </td>\
+				<td> Td 3 </td>\
+			</tr>\
+		</tbody>\
+	</table>\
+	<h3>备注</h3>\
+	<p>\
+		使用由 Data 属性返回的 System.Collections  对象来存储和检索与异常相关的补充信息。\
+\
+		信息的形式为任意数目的用户定义的键/值对。键/值对中的键通常是一个标识字符串，而键/值对中的值则可以是任何对象类型。\
+	</p>\
+	<h5>诶住</h5>\
+	<p>\
+		aaa\
+	</p>\
+	<div class="x-bubble">\
+		<h4>注意:</h4>\
+		<div>\
+			aaaaaaaa\
+		</div>\
+	</div>\
+	<div class="x-panel">\
+		<div class="x-panel-header">\
+			<h4>注意:</h4>\
+		</div>\
+		<div class="x-panel-body">\
+			AAAA\
+		</div>\
+	</div>\
+	<h3>社区</h3>\
+	<textarea class="x-textbox"></textarea>\
+	<br>\
+	<input type="submit" class="x-button" value="提交">\
+	<br>\
+	<br>\
+	<br>\
+	<br>\
+	<br>\
+	<br>\
+</div>',
