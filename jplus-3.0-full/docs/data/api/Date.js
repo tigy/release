@@ -1,1 +1,1 @@
-﻿jsonp({"fullName":'',"memberType":'Object'});
+﻿jsonp({"fullName":'Date',"methods":[{"name":'now',"icon":'M',"fullName":'Date.now',"summary":'<p>\u83b7\u53d6\u5f53\u524d\u65f6\u95f4\u3002</p>\n',"isStatic":true,"defines":''}],"summary":'<p>\u65e5\u671f\u3002</p>\n',"memberType":'class',"name":'Date'});

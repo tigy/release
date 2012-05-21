@@ -1,1 +1,1 @@
-﻿jsonp({"fullName":'assert.loadStyle',"summary":'<p>\u5f02\u6b65\u8f7d\u5165\u6837\u5f0f\u3002</p>\n',"param":'{String} uri \u5730\u5740\u3002\r\n',"example":'<p><code>\nSystem.loadStyle(\'./v.css\');\n</code></p>\n',"name":'loadStyle',"memberOf":'assert',"memberType":'field'});
+﻿jsonp({"fullName":'assert.loadStyle',"summary":'<p>\u5f02\u6b65\u8f7d\u5165\u6837\u5f0f\u3002</p>\n',"example":'<p><code>\nSystem.loadStyle(\'./v.css\');\n</code></p>\n',"name":'loadStyle',"memberOf":'assert',"memberType":'function'});

@@ -1,1 +1,1 @@
-﻿jsonp({"fullName":'trace.time',"summary":'<p>\u8f93\u51fa\u4e00\u4e2a\u51fd\u6570\u6267\u884c\u6307\u5b9a\u6b21\u4f7f\u7528\u7684\u65f6\u95f4\u3002</p>\n',"param":'{Function} fn \u51fd\u6570\u3002\r\n{Number} times = 1000 \u8fd0\u884c\u6b21\u6570\u3002\r\n',"name":'time',"memberOf":'trace',"memberType":'field'});
+﻿jsonp({"fullName":'trace.time',"summary":'<p>\u8f93\u51fa\u4e00\u4e2a\u51fd\u6570\u6267\u884c\u6307\u5b9a\u6b21\u4f7f\u7528\u7684\u65f6\u95f4\u3002</p>\n',"name":'time',"memberOf":'trace',"memberType":'function'});

@@ -826,26 +826,26 @@ DocPlus.APIRender = {
 		'events': '事件'
 	},
 
-	getShortReadableName: function (name, type) {
-		if(type in DocPlus.APIRender.objectTypes || type === 'function'){
-			return DocPlus.APIRender.getReadableName(name, type);
-		}
-		
-		var n = DocPlus.APIRender.getMemberName(name);
-		var p = name.replace(/\.prototype\.\w+$/, "");
-		return n + ' ' + (DocPlus.APIRender.memberTypes[type] || '成员') + ' (' + p + ')';
+	getIcon: function (icon, isStatic) {
+
 	},
 
-	getReadableName: function (name, type) {
-		return name + ' ' + (DocPlus.APIRender.memberTypes[type] || DocPlus.APIRender.objectTypes[type] || '对象');
+	getShortReadableName: function (name, memberType, memberOf) {
+		var n = DocPlus.APIRender.getReadableName(name, memberType);
+		return memberOf ? n + ' (' + memberOf + ')' : n;
+	},
+
+	getReadableName: function (name, memberType) {
+		var typeName = DocPlus.APIRender.memberTypes[memberType] || DocPlus.APIRender.objectTypes[memberType];
+		return typeName ? name + ' ' + typeName : name;
 	},
 	
 	getMemberName: function(name){
 		return name.substr(name.lastIndexOf('.') + 1);
 	},
 
-	getTypeLink: function(name, isStaic){
-		return '<a href="#' + DocPlus.controllers.api.name + '/' + name + '">' + (isStaic === false ? DocPlus.APIRender.getMemberName(name) : name) + '</a>';
+	getTypeLink: function(name, displayName){
+		return '<a href="#' + DocPlus.controllers.api.name + '/' + name + '">' + (displayName || name) + '</a>';
 	},
 
 	getSyntax: function (data) {
@@ -944,9 +944,9 @@ DocPlus.APIRender = {
 	
 	render: function (view, data) {
 
-		tpl = Tpl.parse(DocPlus.APIRender.tpl, data);
 
-		view.setTitle(DocPlus.APIRender.getShortReadableName(data.fullName, data.type));
+		tpl = Tpl.parse(DocPlus.APIRender.tpl, data);
+		view.setTitle(DocPlus.APIRender.getShortReadableName(data.name, data.memberType, data.memberOf));
 		view.setContent(tpl);
 	},
 
@@ -957,8 +957,8 @@ DocPlus.APIRender = {
 	</div>\
 	<h1>\
 		{if deprecated}[已过时]{end}\
-		{DocPlus.APIRender.getReadableName(fullName, type)}\
-		<small>{className}</small>\
+		{DocPlus.APIRender.getReadableName(fullName, memberType)}\
+		<small>{memberOf}</small>\
 	</h1>\
 	<hr>\
 	<div class="doc-attrs">\
@@ -1072,9 +1072,9 @@ DocPlus.APIRender = {
 		{defaultValue}\
 	</div>\
 	{end}\
-	{for(var memberType in DocPlus.APIRender.members)}\
-	{if $data[memberType]}\
-	<h3>所有{DocPlus.APIRender.members[memberType]}</h3>\
+	{for(var $memberType in DocPlus.APIRender.members)}\
+	{if $data[$memberType]}\
+	<h3>所有{DocPlus.APIRender.members[$memberType]}</h3>\
 	<div class="doc-content">\
 		<table class="x-table doc-members">\
 			<thead>\
@@ -1086,10 +1086,10 @@ DocPlus.APIRender = {
 				</tr>\
 			</thead>\
 			<tbody>\
-				{for member in $data[memberType]}\
+				{for member in $data[$memberType]}\
 				<tr>\
-					<td> {member.type} </td>\
-					<td> {DocPlus.APIRender.getTypeLink(member.name, member.isStaic)} </td>\
+					<td> {DocPlus.APIRender.getIcon(member.icon, member.isStatic)} </td>\
+					<td> {DocPlus.APIRender.getTypeLink(member.fullName, member.name)} </td>\
 					<td> {member.summary} </td>\
 					<td> {member.defines ? DocPlus.APIRender.getTypeLink(member.defines) : ""} </td>\
 				</tr>\
