@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'A.prototype.a',"source":'test.js',"sourceFile":'data/source/test.html#A-prototype-a',"name":'a',"memberOf":'A',"memberType":'field'});

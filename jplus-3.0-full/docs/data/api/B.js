@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'B',"source":'test.js',"sourceFile":'data/source/test.html#B',"fields":[{"name":'a',"icon":'field',"fullName":'A.prototype.a',"summary":'',"isStatic":false,"defines":'A'},{"name":'b',"icon":'field',"fullName":'A.prototype.b',"summary":'',"isStatic":false,"defines":'A'}],"baseClasses":['A'],"memberType":'class',"name":'B',"extends":'A'});

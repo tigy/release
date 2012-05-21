@@ -86,11 +86,11 @@
 		 * @param {String} name 数据类型名。
 		 * @return {Object} 返回对应的值。如果数据不存在，则返回 undefined。
 		 * @see System.setData
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 		 * var obj = {};
 		 * var a = System.getData(obj, 'a'); // 获取 a 字段的数据。 
 		 * trace( a )
-		 * &lt;/code&gt;
+		 * &lt;/pre&gt;
 		 */</span>
 		getData: function(obj, name) {
 
@@ -109,11 +109,11 @@
 		 * @param {Object} data 要设置的数据内容。
 		 * @return {Object} data 返回 data 本身。
 		 * @see System.getData
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 		 * var obj = {};
 		 * System.setData(obj, 'a', 5);    // 设置 a 字段的数据值为 5。 
 		 * var val = System.getData(obj, 'a'); // 获取值， 返回 5
-		 * &lt;/code&gt;
+		 * &lt;/pre&gt;
 		 */</span>
 		setData: function (obj, name, data) {
 
@@ -152,9 +152,9 @@
 		<span id="System-id">/**
 		 * id种子 。
 		 * @type Number
-		 * @example 下例演示了 System.id 的用处。&lt;code&gt;
+		 * @example 下例演示了 System.id 的用处。&lt;pre&gt;
 		 *		var uid = System.id++;  // 每次使用之后执行 ++， 保证页面内的 id 是唯一的。
-		 * &lt;/code&gt;
+		 * &lt;/pre&gt;
 		 */</span>
 		id: 1
 
@@ -170,7 +170,7 @@
 		 * @param {Object} members 用于扩展的成员列表。
 		 * @return this
 		 * @see #implementIf
-		 * @example 以下示例演示了如何扩展 Number 类的成员。&lt;code&gt;
+		 * @example 以下示例演示了如何扩展 Number 类的成员。&lt;pre&gt;
 	     * Number.implement({
 	     *   sin: function () {
 	     * 	    return Math.sin(this);
@@ -178,7 +178,7 @@
 	     * });
 	     * 
 	     * (1).sin();  //  Math.sin(1);
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    implement: function(members) {
 
@@ -248,11 +248,11 @@
 		 *         &lt;p&gt;
 		 *         add 表示 事件被绑定时的操作。 原型为:
 		 *         &lt;/p&gt;
-		 *         &lt;code&gt;
+		 *         &lt;pre&gt;
 	     * function add(elem, type, fn) {
 	     * 	   // 对于标准的 DOM 事件， 它会调用 elem.addEventListener(type, fn, false);
 	     * }
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 *         &lt;p&gt;
 		 *         elem表示绑定事件的对象，即类实例。 type 是事件类型， 它就是事件名，因为多个事件的 add 函数肯能一样的，
 		 *         因此 type 是区分事件类型的关键。fn 则是绑定事件的函数。
@@ -266,7 +266,7 @@
 		 *         &lt;p&gt;
 		 *         如果你不知道其中的几个参数功能，特别是 trigger ，请不要自定义。
 		 *         &lt;/p&gt;
-		 * @example 下面代码演示了如何给一个类自定义事件，并创建类的实例，然后绑定触发这个事件。 &lt;code&gt;
+		 * @example 下面代码演示了如何给一个类自定义事件，并创建类的实例，然后绑定触发这个事件。 &lt;pre&gt;
 	     * 
 	     * // 创建一个新的类。
 	     * var MyCls = new Class();
@@ -286,7 +286,7 @@
 	     * 
 	     * m.trigger('click', 2);
 	     * 
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    addEvent: function(eventName, properties) {
 
@@ -333,7 +333,7 @@
 		 *         &lt;p&gt;
 		 *         你也可以把动态成员的定义放到 构造函数， 如: this.c = []; 这是最好的解决方案。
 		 *         &lt;/p&gt;
-		 * @example 下面示例演示了如何创建一个子类。&lt;code&gt;
+		 * @example 下面示例演示了如何创建一个子类。&lt;pre&gt;
 		 * var MyClass = new Class(); //创建一个类。
 		 * 
 		 * var Child = MyClass.extend({  // 创建一个子类。
@@ -341,7 +341,7 @@
 		 * });
 		 * 
 		 * var obj = new Child(); // 创建子类的实例。
-		 * &lt;/code&gt;
+		 * &lt;/pre&gt;
 		 */</span>
 	    extend: function(members) {
 
@@ -388,11 +388,11 @@
 		 * @param {Object} obj 要复制的内容。
 		 * @return {Object} 复制后的对象 (dest)。
 		 * @see Object.extendIf
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 	     * var a = {v: 3}, b = {g: 2};
 	     * Object.extend(a, b);
 	     * trace(a); // {v: 3, g: 2}
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    extend: (function() {
 		    for ( var item in {
@@ -421,11 +421,12 @@
 		 * @param {Object} dest 复制目标。
 		 * @param {Object} obj 要复制的内容。
 		 * @return {Object} 复制后的对象 (dest)。
-		 * @see Object.extend &lt;code&gt;
+		 * @see Object.extend 
+		 * @example &lt;pre&gt;
 	     * var a = {v: 3, g: 5}, b = {g: 2};
 	     * Object.extendIf(a, b);
 	     * trace(a); // {v: 3, g: 5}  b 未覆盖 a 任何成员。
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    extendIf: applyIf,
 
@@ -438,12 +439,12 @@
 		 *            如果中止循环， 返回 false。}
 		 * @param {Object} bind 函数执行时的作用域。
 		 * @return {Boolean} 如果已经遍历完所传的所有值， 返回 true， 如果遍历被中断过，返回 false。
-		 * @example &lt;code&gt; 
+		 * @example &lt;pre&gt; 
 	     * Object.each({a: '1', c: '3'}, function (value, key) {
 	     * 		trace(key + ' : ' + value);
 	     * });
 	     * // 输出 'a : 1' 'c : 3'
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    each: function(iterable, fn, bind) {
 
@@ -479,9 +480,9 @@
 		 * @param {Object} bind=iterable 函数执行时的作用域。
 		 * @param { Base/Boolean} [args] 参数/是否间接传递。
 		 * @return {Object} 返回的对象。
-		 * @example 该函数支持多个功能。主要功能是将一个对象根据一个关系变成新的对象。 &lt;code&gt;
+		 * @example 该函数支持多个功能。主要功能是将一个对象根据一个关系变成新的对象。 &lt;pre&gt;
 	     * Object.map([&quot;aa&quot;,&quot;aa23&quot;], function(a){return a.length} , []); // =&gt; [2, 4];
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    map: function(iterable, fn, dest) {
 	    	
@@ -508,10 +509,10 @@
 		 * 判断一个变量是否是引用变量。
 		 * @param {Object} object 变量。
 		 * @return {Boolean} 所有对象变量返回 true, null 返回 false 。
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 	     * Object.isObject({}); // true
 	     * Object.isObject(null); // false
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    isObject: function(obj) {
 
@@ -527,7 +528,7 @@
 		 *            检查，如果存在就调用: obj.key(value) 否则， 检查，如果存在就调用:
 		 *            obj.key.set(value) 否则，检查，如果存在就调用: obj.set(value) 否则，执行
 		 *            obj.key = value;
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 	     * document.setA = function (value) {
 	     * 	  this._a = value;
 	     * };
@@ -536,7 +537,7 @@
 	     * 
 	     * // 这样会调用     document.setA(3);
 	     * 
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    set: function(obj, options) {
 		
@@ -600,6 +601,7 @@
 	    <span id="Function-returnTrue">/**
 		 * 一个返回 true 的函数。
 		 * @property
+		 * @return {Boolean} true
 		 * @type Function
 		 */</span>
 	    returnTrue: from(true),
@@ -607,6 +609,7 @@
 	    <span id="Function-returnFalse">/**
 		 * 一个返回 false 的函数。
 		 * @property
+		 * @return {Boolean} false
 		 * @type Function
 		 */</span>
 	    returnFalse: from(false),
@@ -615,11 +618,11 @@
 		 * 判断一个变量是否是函数。
 		 * @param {Object} obj 要判断的变量。
 		 * @return {Boolean} 如果是函数，返回 true， 否则返回 false。
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 	     * Function.isFunction(function () {}); // true
 	     * Function.isFunction(null); // false
 	     * Function.isFunction(new Function); // true
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    isFunction: function(obj) {
 
@@ -632,9 +635,9 @@
 		 * @param {Object} v 需要返回的参数。
 		 * @return {Function} 执行得到参数的一个函数。
 		 * @hide
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 	     * Function.from(0)()    ; // 0
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    from: from
 
@@ -651,14 +654,14 @@
 		 * @param {String} format 字符。
 		 * @param {Object} ... 参数。
 		 * @return {String} 格式化后的字符串。
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 	     *  String.format(&quot;{0}转换&quot;, 1); //  &quot;1转换&quot;
 	     *  String.format(&quot;{1}翻译&quot;,0,1); // &quot;1翻译&quot;
 	     *  String.format(&quot;{a}翻译&quot;,{a:&quot;也可以&quot;}); // 也可以翻译
 	     *  String.format(&quot;{{0}}不转换, {0}转换&quot;, 1); //  &quot;{0}不转换1转换&quot;
 	     *  格式化的字符串{}不允许包含空格。
 	     *  不要出现{{{ 和  }}} 这样将获得不可预知的结果。
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    format: function(format, args) {
 
@@ -684,9 +687,9 @@
 		 * 把字符串转为指定长度。
 		 * @param {String} value 字符串。
 		 * @param {Number} len 需要的最大长度。
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 	     * String.ellipsis(&quot;123&quot;, 2); //   '1...'
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    ellipsis: function(value, len) {
 		    assert.isString(value, &quot;String.ellipsis(value, len): 参数  {value} ~&quot;);
@@ -706,11 +709,11 @@
 		 * 判断一个变量是否是数组。
 		 * @param {Object} obj 要判断的变量。
 		 * @return {Boolean} 如果是数组，返回 true， 否则返回 false。
-		 * @example &lt;code&gt; 
+		 * @example &lt;pre&gt; 
 	     * Array.isArray([]); // true
 	     * Array.isArray(document.getElementsByTagName(&quot;div&quot;)); // false
 	     * Array.isArray(new Array); // true
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    isArray: function(obj) {
 
@@ -723,9 +726,9 @@
 		 * @param {Object} iterable 可迭代的实例。
 		 * @param {Number} startIndex=0 开始的位置。
 		 * @return {Array} 复制得到的数组。
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 	     * Array.create([4,6], 1); // [6]
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    create: function(iterable, startIndex) {
 		    // if(!iterable)
@@ -761,9 +764,9 @@
 		 * 获取当前时间。
 		 * @static
 		 * @return {Number} 当前的时间点。
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 		 * Date.now(); //   相当于 new Date().getTime()
-		 * &lt;/code&gt;
+		 * &lt;/pre&gt;
 		 */</span>
 		now: function() {
 			return +new Date;
@@ -873,7 +876,7 @@
 		 * @return {Class} 返回创建的类。
 		 * @see System.Object.extend
 		 * @example 以下代码演示了如何创建一个类:
-		 * &lt;code&gt;
+		 * &lt;pre lang=&quot;js&quot;&gt;
 		 * var MyCls = Class({
 		 * 
 		 *    constructor: function (g, h) {
@@ -889,7 +892,7 @@
 		 * 
 		 * var c = new MyCls(4, ' g');  // 创建类。
 		 * c.say();  //  调用 say 方法。
-		 * &lt;/code&gt;
+		 * &lt;/pre&gt;
 		 */</span>
 		Class: function(members){
 			return Base.extend(members);
@@ -898,9 +901,9 @@
 		<span id="execScript">/**
 		 * 在全局作用域运行一个字符串内的代码。
 		 * @param {String} statement Javascript 语句。
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 		 * execScript('alert(&quot;hello&quot;)');
-		 * &lt;/code&gt;
+		 * &lt;/pre&gt;
 		 */</span>
 		execScript: window.execScript || function(statements) {
 
@@ -929,7 +932,7 @@
 	     * @param {Object} [...] 调用的参数数组。
 	     * @return {Object} 父类返回。 注意只能从子类中调用父类的同名成员。
 	     * @protected
-	     * @example &lt;code&gt;
+	     * @example &lt;pre&gt;
 	     *
 	     * var MyBa = new Class({
 	     *    a: function (g, b) {
@@ -944,7 +947,7 @@
 	     * });
 	     *
 	     * new MyCls().a();
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 	     */</span>
     	base: function(methodName) {
 	
@@ -992,11 +995,11 @@
 		 * @param {Function} listener 调用函数。
 		 * @param {Object} bind=this listener 执行时的作用域。
 		 * @return  Base this
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
          * elem.on('click', function (e) {
          * 		return true;
          * });
-         * &lt;/code&gt;
+         * &lt;/pre&gt;
 		 */</span>
         on: function(type, listener, bind) {
 
@@ -1044,20 +1047,20 @@
 		 * @param {String} [type] 监听名字。
 		 * @param {Function} [listener] 回调器。
 		 * @return  Base this 注意: function () {} !== function () {},
-		 *         这意味着这个代码有问题: &lt;code&gt;
+		 *         这意味着这个代码有问题: &lt;pre&gt;
          * elem.on('click', function () {});
          * elem.un('click', function () {});
-         * &lt;/code&gt;
-		 *         你应该把函数保存起来。 &lt;code&gt;
+         * &lt;/pre&gt;
+		 *         你应该把函数保存起来。 &lt;pre&gt;
          * var c =  function () {};
          * elem.on('click', c);
          * elem.un('click', c);
-         * &lt;/code&gt;
-		 * @example &lt;code&gt;
+         * &lt;/pre&gt;
+		 * @example &lt;pre&gt;
          * elem.un('click', function (e) {
          * 		return true;
          * });
-         * &lt;/code&gt;
+         * &lt;/pre&gt;
 		 */</span>
         un: function(type, listener) {
 
@@ -1114,9 +1117,9 @@
 		 * @param {String} type 监听名字。
 		 * @param {Object} [e] 事件参数。
 		 * @return  Base this trigger 只是手动触发绑定的事件。
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
          * elem.trigger('click');
-         * &lt;/code&gt;
+         * &lt;/pre&gt;
 		 */</span>
         trigger: function(type, e) {
 
@@ -1134,14 +1137,14 @@
 		 * @param {Function} listener 调用函数。
 		 * @param {Object} bind=this listener 执行时的作用域。
 		 * @return  Base this
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
          * elem.once('click', function (e) {
          * 		trace('a');  
          * });
          * 
          * elem.trigger('click');   //  输出  a
          * elem.trigger('click');   //  没有输出 
-         * &lt;/code&gt;
+         * &lt;/pre&gt;
 		 */</span>
         once: function(type, listener, bind) {
 
@@ -1172,9 +1175,9 @@
 	    <span id="String-prototype-trim">/**
 		 * 去除字符串的首尾空格。
 		 * @return {String} 处理后的字符串。
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 	     * &quot;   g h   &quot;.trim(); //  返回     &quot;g h&quot;
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    trim: function() {
 
@@ -1188,9 +1191,9 @@
 		 * 转为骆驼格式。
 		 * @param {String} value 内容。
 		 * @return {String} 返回的内容。
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 	     * &quot;font-size&quot;.toCamelCase(); //     &quot;fontSize&quot;
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    toCamelCase: function() {
 		    return this.replace(/-(\w)/g, toUpperCase);
@@ -1199,9 +1202,9 @@
 	    <span id="String-prototype-capitalize">/**
 		 * 将字符首字母大写。
 		 * @return {String} 大写的字符串。
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 	     * &quot;bb&quot;.capitalize(); //     &quot;Bb&quot;
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    capitalize: function() {
 
@@ -1221,9 +1224,9 @@
 		 * @param {Function} fn 函数。
 		 * @param {Object} bind 位置。 注意，未来 Function.prototype.bind 是系统函数，
 		 *            因此这个函数将在那个时候被 替换掉。
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 	     * (function () {trace( this );}).bind(0)()    ; // 0
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    bind: function(bind) {
 		
@@ -1249,13 +1252,13 @@
 		 * @return {Boolean} 有无执行完。
 		 * @method
 		 * @see #forEach
-		 * @example &lt;code&gt; 
+		 * @example &lt;pre&gt; 
 	     * [2, 5].each(function (value, key) {
 	     * 		trace(value);
 	     * 		return false
 	     * });
 	     * // 输出 '2'
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    each: each,
 
@@ -1263,10 +1266,10 @@
 		 * 包含一个元素。元素存在直接返回。
 		 * @param {Object} value 值。
 		 * @return {Boolean} 是否包含元素。
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 	     * [&quot;&quot;, &quot;aaa&quot;, &quot;zzz&quot;, &quot;qqq&quot;].include(&quot;&quot;); //   true
 	     * [false].include(0);	//   false
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    include: function(value) {
 
@@ -1281,9 +1284,9 @@
 		 * 在指定位置插入项。
 		 * @param {Number} index 插入的位置。
 		 * @param {Object} value 插入的内容。
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 	     * [&quot;&quot;, &quot;aaa&quot;, &quot;zzz&quot;, &quot;qqq&quot;].insert(3, 4); //   [&quot;&quot;, &quot;aaa&quot;, &quot;zzz&quot;, 4, &quot;qqq&quot;]
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    insert: function(index, value) {
 		    assert.isNumber(index, &quot;Array.prototype.insert(index, value): 参数 index ~&quot;);
@@ -1305,9 +1308,9 @@
 		 * @param {String} func 调用的成员名。
 		 * @param {Array} args 调用的参数数组。
 		 * @return {Array} 结果。
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 	     * [&quot;vhd&quot;].invoke('charAt', [0]); //    ['v']
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    invoke: function(func, args) {
 		    assert(args &amp;&amp; typeof args.length === 'number', &quot;Array.prototype.invoke(func, args): {args} 必须是数组, 无法省略。&quot;, args);
@@ -1323,9 +1326,9 @@
 	    <span id="Array-prototype-unique">/**
 		 * 删除数组中重复元素。
 		 * @return {Array} 结果。
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 	     * [1,7,8,8].unique(); //    [1, 7, 8]
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    unique: function() {
 
@@ -1345,9 +1348,9 @@
 		 * 删除元素, 参数为元素的内容。
 		 * @param {Object} value 值。
 		 * @return {Number} 删除的值的位置。
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 	     * [1,7,8,8].remove(7); //   1
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    remove: function(value, startIndex) {
 
@@ -1362,11 +1365,11 @@
 		 * 获取指定索引的元素。如果 index &lt; 0， 则获取倒数 index 元素。
 		 * @param {Number} index 元素。
 		 * @return {Object} 指定位置所在的元素。
-		 * @example &lt;code&gt;
+		 * @example &lt;pre&gt;
 	     * [1,7,8,8].item(0); //   1
 	     * [1,7,8,8].item(-1); //   8
 	     * [1,7,8,8].item(5); //   undefined
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    item: function(index) {
 		    return this[index &lt; 0 ? this.length + index : index];
@@ -1378,7 +1381,7 @@
 		 * 返回数组某个值的第一个位置。值没有,则为-1 。
 		 * @param {Object} item 成员。
 		 * @param {Number} start=0 开始查找的位置。
-		 * @return Number 位置，找不到返回 -1 。 现在大多数浏览器已含此函数.除了 IE8- 。
+		 * @return {Number} 位置，找不到返回 -1 。 现在大多数浏览器已含此函数.除了 IE8- 。
 		 */</span>
 	    indexOf: function(item, startIndex) {
 		    startIndex = startIndex || 0;
@@ -1394,9 +1397,9 @@
 		 * @param {Object} bind 绑定的对象。
 		 * @return {Array} 新的数组。
 		 * @seeAlso Array.prototype.select
-		 * @example &lt;code&gt; 
+		 * @example &lt;pre&gt; 
 	     * [1, 7, 2].filter(function (key) {return key &amp;lt; 5 })   [1, 2]
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    filter: function(fn, bind) {
 		    var r = [];
@@ -1419,12 +1422,12 @@
 		 *            当前变量的索引} {@param {Array} array 数组本身}
 		 * @param {Object} bind 函数执行时的作用域。
 		 * @seeAlso Array.prototype.each
-		 * @example &lt;code&gt; 
+		 * @example &lt;pre&gt; 
 	     * [2, 5].forEach(function (value, key) {
 	     * 		trace(value);
 	     * });
 	     * // 输出 '2' '5'
-	     * &lt;/code&gt;
+	     * &lt;/pre&gt;
 		 */</span>
 	    forEach: each
 
@@ -1585,9 +1588,9 @@ function trace() {
  * @param {Object} bValue 值。
  * @param {String} msg=&quot;断言失败&quot; 错误后的提示。
  * @return {Boolean} 返回 bValue 。
- * @example &lt;code&gt;
+ * @example &lt;pre&gt;
  * assert(true, &quot;{value} 错误。&quot;, value);
- * &lt;/code&gt;
+ * &lt;/pre&gt;
  */</span>
 function assert(bValue, msg) {
     if (!bValue) {
@@ -1631,9 +1634,9 @@ function assert(bValue, msg) {
 <span id="using">/**
  * 使用一个名空间。
  * @param {String} ns 名字空间。
- * @example &lt;code&gt;
+ * @example &lt;pre&gt;
  * using(&quot;System.Dom.Keys&quot;);
- * &lt;/code&gt;
+ * &lt;/pre&gt;
  */</span>
 function using(ns, isStyle) {
 
@@ -2290,9 +2293,9 @@ function imports(ns){
          * @param {Object} bValue 值。
          * @param {String} msg=&quot;断言失败&quot; 错误后的提示。
          * @return {Boolean} 返回 bValue 。
-         * @example &lt;code&gt;
+         * @example &lt;pre&gt;
          * assert.isFunction(a, &quot;a ~&quot;);
-         * &lt;/code&gt;
+         * &lt;/pre&gt;
          */</span>
         isFunction: function(value, msg) {
             return assertInternal(typeof value == 'function', msg, value, &quot;必须是函数。&quot;);
@@ -2439,9 +2442,9 @@ function imports(ns){
         <span id="assert-loadScript">/**
          * 同步载入代码。
          * @param {String} uri 地址。
-         * @example &lt;code&gt;
+         * @example &lt;pre&gt;
          * System.loadScript('./v.js');
-         * &lt;/code&gt;
+         * &lt;/pre&gt;
          */</span>
         loadScript: function(url) {
             return using.loadText(url, window.execScript || function(statements){
@@ -2455,9 +2458,9 @@ function imports(ns){
         <span id="assert-loadStyle">/**
          * 异步载入样式。
          * @param {String} uri 地址。
-         * @example &lt;code&gt;
+         * @example &lt;pre&gt;
          * System.loadStyle('./v.css');
-         * &lt;/code&gt;
+         * &lt;/pre&gt;
          */</span>
         loadStyle: function(url) {
 
@@ -2496,9 +2499,9 @@ function imports(ns){
          * @param {String} uri 地址。
          * @param {Function} [callback] 对返回值的处理函数。
          * @return {String} 载入的值。 因为同步，所以无法跨站。
-         * @example &lt;code&gt;
+         * @example &lt;pre&gt;
          * trace(  System.loadText('./v.html')  );
-         * &lt;/code&gt;
+         * &lt;/pre&gt;
          */</span>
         loadText: function(url, callback) {
 

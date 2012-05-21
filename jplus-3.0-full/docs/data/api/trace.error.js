@@ -1,1 +1,1 @@
-﻿jsonp({"fullName":'trace.error',"source":'base.js',"sourceFile":'data/source/base.html#trace-error',"summary":'<p>\u8f93\u51fa\u4e00\u4e2a\u9519\u8bef\u4fe1\u606f\u3002</p>\n',"name":'error',"memberOf":'trace',"memberType":'function'});
+﻿jsonp({"fullName":'trace.error',"source":'base.js',"sourceFile":'data/source/base.html#trace-error',"summary":'<p>\u8f93\u51fa\u4e00\u4e2a\u9519\u8bef\u4fe1\u606f\u3002</p>\n',"params":[{"type":'Object',"name":'msg',"defaultValue":'',"summary":'\u5185\u5bb9\u3002'}],"name":'error',"memberOf":'trace',"memberType":'function'});
