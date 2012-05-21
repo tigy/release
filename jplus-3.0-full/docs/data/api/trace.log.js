@@ -1,1 +1,1 @@
-﻿jsonp({"fullName":'trace.log',"summary":'<p>\u8f93\u51fa\u65b9\u5f0f\u3002 {pparam {String} message \u4fe1\u606f\u3002}</p>\n',"type":'Function',"name":'log',"memberOf":'trace',"memberType":'function'});
+﻿jsonp({"fullName":'trace.log',"source":'base.js',"sourceFile":'data/source/base.html#trace-log',"summary":'<p>\u8f93\u51fa\u65b9\u5f0f\u3002 {pparam {String} message \u4fe1\u606f\u3002}</p>\n',"type":'Function',"name":'log',"memberOf":'trace',"memberType":'function'});

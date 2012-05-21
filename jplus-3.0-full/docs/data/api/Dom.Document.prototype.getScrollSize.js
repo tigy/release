@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'Dom.Document.prototype.getScrollSize',"summary":'<p>\u83b7\u53d6\u6eda\u52a8\u533a\u57df\u5927\u5c0f\u3002</p>\n',"returns":{"type":'Point',"summary":'\u4f4d\u7f6e\u3002'},"name":'getScrollSize',"memberOf":'Dom.Document',"memberType":'method'});

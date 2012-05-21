@@ -1,1 +1,1 @@
-﻿jsonp({"fullName":'assert.isNumber',"summary":'<p>\u786e\u8ba4\u4e00\u4e2a\u503c\u4e3a\u6570\u5b57\u3002</p>\n',"returns":{"type":'Boolean',"summary":'\u8fd4\u56de bValue \u3002'},"name":'isNumber',"memberOf":'assert',"memberType":'function'});
+﻿jsonp({"fullName":'assert.isNumber',"source":'base.js',"sourceFile":'data/source/base.html#assert-isNumber',"summary":'<p>\u786e\u8ba4\u4e00\u4e2a\u503c\u4e3a\u6570\u5b57\u3002</p>\n',"returns":{"type":'Boolean',"summary":'\u8fd4\u56de bValue \u3002'},"name":'isNumber',"memberOf":'assert',"memberType":'function'});

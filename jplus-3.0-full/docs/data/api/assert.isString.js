@@ -1,1 +1,1 @@
-﻿jsonp({"fullName":'assert.isString',"summary":'<p>\u786e\u8ba4\u4e00\u4e2a\u503c\u662f\u5b57\u7b26\u4e32\u3002</p>\n',"returns":{"type":'Boolean',"summary":'\u8fd4\u56de bValue \u3002'},"name":'isString',"memberOf":'assert',"memberType":'function'});
+﻿jsonp({"fullName":'assert.isString',"source":'base.js',"sourceFile":'data/source/base.html#assert-isString',"summary":'<p>\u786e\u8ba4\u4e00\u4e2a\u503c\u662f\u5b57\u7b26\u4e32\u3002</p>\n',"returns":{"type":'Boolean',"summary":'\u8fd4\u56de bValue \u3002'},"name":'isString',"memberOf":'assert',"memberType":'function'});

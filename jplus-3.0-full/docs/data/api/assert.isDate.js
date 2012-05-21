@@ -1,1 +1,1 @@
-﻿jsonp({"fullName":'assert.isDate',"summary":'<p>\u786e\u8ba4\u4e00\u4e2a\u503c\u662f\u65e5\u671f\u3002</p>\n',"returns":{"type":'Boolean',"summary":'\u8fd4\u56de bValue \u3002'},"name":'isDate',"memberOf":'assert',"memberType":'function'});
+﻿jsonp({"fullName":'assert.isDate',"source":'base.js',"sourceFile":'data/source/base.html#assert-isDate',"summary":'<p>\u786e\u8ba4\u4e00\u4e2a\u503c\u662f\u65e5\u671f\u3002</p>\n',"returns":{"type":'Boolean',"summary":'\u8fd4\u56de bValue \u3002'},"name":'isDate',"memberOf":'assert',"memberType":'function'});

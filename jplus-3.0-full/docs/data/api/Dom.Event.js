@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'Dom.Event',"summary":'<p>\u8868\u793a\u4e8b\u4ef6\u7684\u53c2\u6570\u3002</p>\n',"memberType":'class',"memberOf":'Dom',"name":'Event'});

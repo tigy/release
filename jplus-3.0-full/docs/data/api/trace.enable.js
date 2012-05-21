@@ -1,1 +1,1 @@
-﻿jsonp({"fullName":'trace.enable',"summary":'<p>\u662f\u5426\u6253\u5f00\u8c03\u8bd5\u8f93\u51fa\u3002</p>\n',"memberType":'config',"type":'Boolean',"name":'enable',"memberOf":'trace',"defaultValue":'true'});
+﻿jsonp({"fullName":'trace.enable',"source":'base.js',"sourceFile":'data/source/base.html#trace-enable',"summary":'<p>\u662f\u5426\u6253\u5f00\u8c03\u8bd5\u8f93\u51fa\u3002</p>\n',"memberType":'config',"type":'Boolean',"name":'enable',"memberOf":'trace',"defaultValue":'true'});

@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'Point',"summary":'<p>\u8868\u793a\u4e00\u4e2a\u70b9\u3002\u5305\u542b x \u5750\u6807\u548c y \u5750\u6807\u3002</p>\n',"memberType":'class',"name":'Point'});

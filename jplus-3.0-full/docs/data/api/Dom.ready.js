@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'Dom.ready',"summary":'<p>\u9875\u9762\u52a0\u8f7d\u65f6\u6267\u884c\u3002</p>\n',"memberType":'function',"memberOf":'Dom',"name":'ready'});

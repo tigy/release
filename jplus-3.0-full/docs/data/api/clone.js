@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'clone',"summary":'<p>\u521b\u5efa\u5e76\u8fd4\u56deDom \u5bf9\u8c61\u7684\u526f\u672c\u3002</p>\n',"returns":{"type":'Dom',"summary":'\u65b0\u7684Dom \u5bf9\u8c61\u3002'},"name":'clone',"memberOf":'',"memberType":'function'});

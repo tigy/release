@@ -1,1 +1,1 @@
-﻿jsonp({"fullName":'trace.info',"summary":'<p>\u8f93\u51fa\u4e00\u4e2a\u4fe1\u606f\u3002</p>\n',"name":'info',"memberOf":'trace',"memberType":'function'});
+﻿jsonp({"fullName":'trace.info',"source":'base.js',"sourceFile":'data/source/base.html#trace-info',"summary":'<p>\u8f93\u51fa\u4e00\u4e2a\u4fe1\u606f\u3002</p>\n',"name":'info',"memberOf":'trace',"memberType":'function'});

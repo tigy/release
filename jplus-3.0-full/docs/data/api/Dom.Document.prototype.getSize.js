@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'Dom.Document.prototype.getSize',"summary":'<p>\u83b7\u53d6\u5143\u7d20\u53ef\u89c6\u533a\u57df\u5927\u5c0f\u3002\u5305\u62ec padding \u548c border \u5927\u5c0f\u3002</p>\n',"memberType":'method',"name":'getSize',"returns":{"type":'Point',"summary":'\u4f4d\u7f6e\u3002'},"memberOf":'Dom.Document'});

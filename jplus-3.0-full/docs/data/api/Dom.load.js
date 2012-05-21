@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'Dom.load',"summary":'<p>\u5728\u6587\u6863\u8f7d\u5165\u7684\u65f6\u5019\u6267\u884c\u51fd\u6570\u3002</p>\n',"memberType":'function',"memberOf":'Dom',"name":'load'});

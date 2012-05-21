@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'Dom.Document.prototype.getPosition',"summary":'<p>\u83b7\u53d6\u8ddd\u7236\u5143\u7d20\u7684\u504f\u5dee\u3002</p>\n',"returns":{"type":'Point',"summary":'\u4f4d\u7f6e\u3002'},"name":'getPosition',"memberOf":'Dom.Document',"memberType":'method'});

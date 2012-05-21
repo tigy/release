@@ -1,1 +1,1 @@
-﻿jsonp({"fullName":'trace.inspect',"summary":'<p>\u83b7\u53d6\u5bf9\u8c61\u7684\u5b57\u7b26\u4e32\u5f62\u5f0f\u3002</p>\n',"returns":{"type":'',"summary":'String \u6210\u5458\u3002'},"name":'inspect',"memberOf":'trace',"memberType":'function'});
+﻿jsonp({"fullName":'trace.inspect',"source":'base.js',"sourceFile":'data/source/base.html#trace-inspect',"summary":'<p>\u83b7\u53d6\u5bf9\u8c61\u7684\u5b57\u7b26\u4e32\u5f62\u5f0f\u3002</p>\n',"returns":{"type":'',"summary":'String \u6210\u5458\u3002'},"name":'inspect',"memberOf":'trace',"memberType":'function'});

@@ -310,6 +310,7 @@ var DocPlus = {
 	// 脚本动态载入。
 
 	_jsonpObj: new Request.JSONP({
+		jsonp: null,
 		callback: 'jsonp'
 	}),
 
@@ -747,6 +748,7 @@ DocPlus.APIController = DocPlus.Controller.extend({
 	
 	initTreeNode: function (memberInfo, pathInfo, name) {
 		memberInfo.treeNode.setText(name).setHref('#!' + this.name + '/' + pathInfo);
+		memberInfo.treeNode.getLast('span').addClass('icon-member icon-' + memberInfo.icon);
 	},
 	
 	getTreeNode: function(pathInfo, hash, createIfNotExist){
@@ -798,6 +800,58 @@ DocPlus.APIController = DocPlus.Controller.extend({
 	
 });
 
+var CommentServerUrl = 'http://localhost:8022';
+
+// disqus.com
+
+var CommentServer = {
+
+	save: function (dom, hash) {
+
+		new Request.JSONP({
+			url: CommentServerUrl,
+			data: {
+				action: 'save',
+				content: Dom.get(dom).find('.x-textbox').getValue()
+			},
+			success: function () {
+				CommentServer.init(dom, hash);
+			}
+		}).send();
+	},
+
+	load: function (dom, hash) {
+		if (!window.CommentServerUrl) {
+			Dom.get(dom).setHtml('未配置社区服务器');
+			return;
+		}
+
+
+
+		new Request.JSONP({
+			url: CommentServerUrl,
+			data: {
+				action: 'get'
+			},
+			success: function (data) {
+				Dom.get(dom).setHtml(Tpl.parse('\
+{for comment in $data}\
+{comment.content}\
+{comment.date}\
+<hr>\
+{end}\
+<textarea class="x-textbox"></textarea>\
+<br><br>\
+<input type="button" class="x-button" value="提交" onclick="CommentServer.save(this.parentNode, ' + hash + ')">', data));
+			},
+			error: function () {
+				Dom.get(dom).setHtml('无法连接到接口服务器');
+			},
+		}).send();
+	}
+
+};
+
 DocPlus.APIRender = {
 	
 	objectTypes: {
@@ -826,8 +880,8 @@ DocPlus.APIRender = {
 		'events': '事件'
 	},
 
-	getIcon: function (icon, isStatic) {
-
+	getIcon: function (icon, isStatic, extend) {
+		return '<span class="icon-member icon-member-signle icon-' + icon + '"></span>' + (isStatic ? '<span class="x-icon icon-static"></span>' : '') + (extend ? '<span class="x-icon icon-extends"></span>' : '');
 	},
 
 	getShortReadableName: function (name, memberType, memberOf) {
@@ -844,20 +898,24 @@ DocPlus.APIRender = {
 		return name.substr(name.lastIndexOf('.') + 1);
 	},
 
-	getTypeLink: function(name, displayName){
-		return '<a href="#' + DocPlus.controllers.api.name + '/' + name + '">' + (displayName || name) + '</a>';
+	getTypeLink: function (name, displayName) {
+		if (name in DocPlus.controllers.api.members) {
+			return '<a href="#' + DocPlus.controllers.api.name + '/' + name + '">' + (displayName || name) + '</a>';
+		} else {
+			return '<a>' + (displayName || name) + '</a>';
+		}
 	},
 
 	getSyntax: function (data) {
-
+		
 		var fn = [
 			data.memberAccess ? data.memberAccess + ' ' : '',
 			data.memberAttribute ? data.memberAttribute + ' ' : ''
 		];
 		
-		var name = DocPlus.APIRender.getMemberName(data.name);
+		var name = data.name;
 		
-		switch(data.type){
+		switch(data.memberType){
 			case 'method':
 			case 'function':
 						
@@ -903,15 +961,21 @@ DocPlus.APIRender = {
 			case 'module':
 			case 'category':
 					
-				fn.push(data.type);
+				fn.push(data.memberType);
 				fn.push(' ');
 				fn.push(name);
+				if (data['extends']) {
+					fn.push('extends ');
+					fn.push( data['extends']);
+				}
+				if (data['implements']) {
+					fn.push('implements ');
+					fn.push(data['implements'].join(','));
+				}
 				break;
 
 			case 'field':
 			case 'property':
-			case 'config':
-						
 				var type = data.type;
 				if (!type || type == "Undefined" || type == "undefined") {
 					type = "Object";
@@ -920,13 +984,26 @@ DocPlus.APIRender = {
 				type,
 				' ',
 				name);
-
-				if (value.defaultValue) {
+				
+				if (data.defaultValue) {
 					fn.push(' = ');
-					fn.push(value.defaultValue);
+					fn.push(data.defaultValue);
 				}
-				break;
 
+				break;
+			case 'config':
+				var type = data.type;
+				if (!type || type == "Undefined" || type == "undefined") {
+					type = "Object";
+				}
+				fn.push(
+				'{',
+				name,
+				': ',
+				data.defaultValue ? data.defaultValue : ('<em>' + (data.type || "Object") + '</em>'),
+				'}');
+
+				break;
 			case 'event':
 				fn.length = 0;
 				fn.push('obj.on("' + name + '", function(){<br>&nbsp;&nbsp;&nbsp;&nbsp;// 回调函数<br>})');
@@ -948,6 +1025,16 @@ DocPlus.APIRender = {
 		tpl = Tpl.parse(DocPlus.APIRender.tpl, data);
 		view.setTitle(DocPlus.APIRender.getShortReadableName(data.name, data.memberType, data.memberOf));
 		view.setContent(tpl);
+
+		Object.each(view.content.dom.getElementsByTagName('code'), function (node) {
+			var dom = Dom.get(node), lang = dom.getAttr('lang') || 'js';
+			if (lang != "none") {
+				dom = dom.replaceWith('<pre></pre>');
+				dom.addClass('prettyprint linenums lang-' + lang);
+				dom.setHtml(prettyPrintOne(node.innerHTML.trim(), lang, 1));
+			}
+		});
+		
 	},
 
 	tpl: '\
@@ -1007,12 +1094,16 @@ DocPlus.APIRender = {
 				{DocPlus.APIRender.getTypeLink(className)}\
 			</dd>\
 			{end}\
-			{if sourceFile}\
+			{if source}\
 			<dt>\
 				定义:\
 			</dt>\
 			<dd>\
-				<a href="{sourceFile}{sourceLine}">{sourceFile}</a>\
+				{if sourceFile}\
+				<a target="_blank" href="{sourceFile}">{source}</a>\
+				{else} \
+				<a>{source}</a>\
+				{end}\
 			</dd>\
 			{end}\
 			{if since}\
@@ -1028,7 +1119,7 @@ DocPlus.APIRender = {
 	{summary}\
 	<h3>语法</h3>\
 	<div class="doc-content">\
-		<code class="doc-syntax">{DocPlus.APIRender.getSyntax($data)}</code>\
+		<code lang="none" class="doc-syntax">{DocPlus.APIRender.getSyntax($data)}</code>\
 	</div>\
 	{if params}\
 	<h4>参数</h4>\
@@ -1087,8 +1178,8 @@ DocPlus.APIRender = {
 			</thead>\
 			<tbody>\
 				{for member in $data[$memberType]}\
-				<tr>\
-					<td> {DocPlus.APIRender.getIcon(member.icon, member.isStatic)} </td>\
+				<tr class="member-{member.memberAccess}{if member.defines} member-extends{end}">\
+					<td> {DocPlus.APIRender.getIcon(member.icon, member.isStatic, member.defines)} </td>\
 					<td> {DocPlus.APIRender.getTypeLink(member.fullName, member.name)} </td>\
 					<td> {member.summary} </td>\
 					<td> {member.defines ? DocPlus.APIRender.getTypeLink(member.defines) : ""} </td>\
@@ -1139,11 +1230,8 @@ DocPlus.APIRender = {
 	</div>\
 	{end}\
 	<h3>社区</h3>\
-	<div class="doc-content">\
-		<textarea class="x-textbox"></textarea>\
-		<br>\
-		<br>\
-		<input type="submit" class="x-button" value="提交">\
+	<div class="doc-content doc-club">\
+		<a href="javascript:;" class="x-linkbutton" onclick="CommentServer.load(this.parentNode, \'#!api/{fullName}\')">获取社区内容</a>\
 	</div>\
 </div>'
 	

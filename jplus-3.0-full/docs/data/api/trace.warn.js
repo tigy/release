@@ -1,1 +1,1 @@
-﻿jsonp({"fullName":'trace.warn',"summary":'<p>\u8f93\u51fa\u4e00\u4e2a\u8b66\u544a\u4fe1\u606f\u3002</p>\n',"name":'warn',"memberOf":'trace',"memberType":'function'});
+﻿jsonp({"fullName":'trace.warn',"source":'base.js',"sourceFile":'data/source/base.html#trace-warn',"summary":'<p>\u8f93\u51fa\u4e00\u4e2a\u8b66\u544a\u4fe1\u606f\u3002</p>\n',"name":'warn',"memberOf":'trace',"memberType":'function'});
