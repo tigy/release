@@ -861,7 +861,7 @@ DocPlus.APIRender = {
 		'class': '类',
 		'enum': '枚举',
 		'interface': '接口',
-		'object': '对象',
+		'namespace': '对象',
 		'module': '模块',
 		'category': '分类'
 	},
@@ -1190,7 +1190,7 @@ DocPlus.APIRender = {
 	{if type}\
 	<h4>类型</h4>\
 	<div class="doc-content">\
-		{type}\
+		{DocPlus.APIRender.getTypeLink(type)}\
 	</div>\
 	{end}\
 	{if defaultValue}\
@@ -1214,7 +1214,7 @@ DocPlus.APIRender = {
 			</thead>\
 			<tbody>\
 				{for member in $data[$memberType]}\
-				<tr class="member-{member.memberAccess}{if member.defines} member-extends{end}">\
+				<tr class="member-{member.memberAccess || "public"}{if member.defines} member-extends{end}">\
 					<td> {DocPlus.APIRender.getIcon(member.icon, member.isStatic, member.defines)} </td>\
 					<td> {DocPlus.APIRender.getTypeLink(member.fullName, member.name)} </td>\
 					<td> {member.summary} </td>\
