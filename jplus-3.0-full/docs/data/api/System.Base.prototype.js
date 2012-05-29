@@ -1,1 +1,0 @@
-﻿jsonp({"fullName":'',"memberType":'Object'});

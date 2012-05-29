@@ -1,1 +1,1 @@
-﻿jsonp({"fullName":'Dom.displayFix',"source":'base.js',"sourceFile":'data/source/base.js.html#Dom-displayFix',"summary":'<p>\u663e\u793a\u5143\u7d20\u7684\u6837\u5f0f\u3002</p>\n',"memberAttribute":'static',"type":'Object',"name":'displayFix',"memberOf":'Dom',"memberType":'field'});
+﻿jsonp({"fullName":'Dom.displayFix',"source":'base_1.js',"sourceFile":'data/source/base_1.js.html#Dom-displayFix',"summary":'<p>\u663e\u793a\u5143\u7d20\u7684\u6837\u5f0f\u3002</p>\n',"memberAttribute":'static',"type":'Object',"name":'displayFix',"memberOf":'Dom',"memberType":'field'});

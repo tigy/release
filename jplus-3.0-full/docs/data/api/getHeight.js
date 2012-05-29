@@ -1,1 +1,0 @@
-﻿jsonp({"fullName":'getHeight',"source":'base_1.js',"sourceFile":'data/source/base_1.js.html#getHeight',"summary":'<p>\u83b7\u53d6\u5143\u7d20\u81ea\u8eab\u5927\u5c0f\uff08\u4e0d\u5e26\u6eda\u52a8\u6761\uff09\u3002</p>\n',"returns":{"type":'Point',"summary":'\u4f4d\u7f6e\u3002'},"name":'getHeight',"memberOf":'',"memberType":'function'});

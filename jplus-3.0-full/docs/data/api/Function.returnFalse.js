@@ -1,1 +1,0 @@
-﻿jsonp({"fullName":'Function.returnFalse',"source":'base.js',"sourceFile":'data/source/base.html#Function-returnFalse',"summary":'<p>\u4e00\u4e2a\u8fd4\u56de false \u7684\u51fd\u6570\u3002</p>\n',"memberType":'property',"returns":{"type":'Boolean',"summary":'false'},"type":'Function',"name":'returnFalse',"memberOf":'Function'});

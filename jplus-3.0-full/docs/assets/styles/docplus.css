@@ -1,0 +1,314 @@
+/**
+ * @author 
+ */
+body {
+  overflow: hidden;
+}
+#header {
+  background-color: #0d4a78;
+  background-image: -moz-linear-gradient(top, #103e68, #085d91);
+  background-image: -ms-linear-gradient(top, #103e68, #085d91);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#103e68), to(#085d91));
+  background-image: -webkit-linear-gradient(top, #103e68, #085d91);
+  background-image: -o-linear-gradient(top, #103e68, #085d91);
+  background-image: linear-gradient(top, #103e68, #085d91);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#103e68', endColorstr='#085d91', GradientType=0);
+  padding: 5px 5px 0;
+  height: 60px;
+}
+#logo-container,
+#tabs {
+  height: 30px;
+  overflow: hidden;
+}
+#logo-container h1 {
+  margin: 0;
+  line-height: 26px;
+  font-size: 18px;
+  color: #ffffff;
+}
+#toolbar {
+  float: right;
+}
+#tab-container {
+  height: 30px;
+}
+#tab-container li {
+  float: left;
+  height: 28px;
+  -webkit-border-radius: 5px 5px 0 0;
+  -moz-border-radius: 5px 5px 0 0;
+  border-radius: 5px 5px 0 0;
+  background-color: #f1f7fb;
+  background-image: -moz-linear-gradient(top, #ffffff, #dcebf4);
+  background-image: -ms-linear-gradient(top, #ffffff, #dcebf4);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#dcebf4));
+  background-image: -webkit-linear-gradient(top, #ffffff, #dcebf4);
+  background-image: -o-linear-gradient(top, #ffffff, #dcebf4);
+  background-image: linear-gradient(top, #ffffff, #dcebf4);
+  background-repeat: repeat-x;
+  border: 1px solid #7CA1D2;
+  margin-right: -1px;
+  overflow: hidden;
+}
+#tab-container li.selected {
+  background: #ffffff;
+}
+#tab-container a {
+  font-size: 13px;
+  line-height: 28px;
+  padding: 0 10px;
+  color: #656565;
+  font-weight: bold;
+  text-decoration: none;
+  display: block;
+}
+#tab-container .x-closebutton {
+  padding: 7px 5px;
+  margin-left: -13px;
+  line-height: 13px;
+}
+#tabs a {
+  padding-right: 20px;
+}
+#tab-container-split {
+  float: left;
+  width: 10px;
+  height: 30px;
+}
+#tabs li.selected {
+  border-bottom-color: #ffffff;
+}
+#tabs-more {
+  float: right;
+}
+#tabs-more a {
+  padding: 0 5px;
+}
+#sidebar {
+  background: #f8f8f8;
+  border-right: 1px solid #dddddd;
+  padding: 5px;
+  float: left;
+}
+#sidebar-toolbar {
+  border-top: 1px solid #dddddd;
+  margin-top: 10px;
+}
+#doctree .x-treeview {
+  height: 100%;
+}
+#content {
+  margin: 5px;
+  float: left;
+}
+#splitter {
+  top: auto;
+  bottom: 0;
+}
+.content {
+  border: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+#mask {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  display: none;
+}
+.doc {
+  padding: 10px;
+  overflow: auto;
+}
+.doc h1 {
+  color: #66AB16;
+  font-family: 'Arial';
+}
+.doc h1 small {
+  font-size: 12px;
+  margin-left: 10px;
+}
+.doc h3 {
+  color: #250C58;
+}
+.doc pre {
+  overflow-x: auto;
+}
+.doc-func {
+  float: right;
+  margin-top: 10px;
+}
+.doc-func a {
+  color: #333333;
+}
+.doc-attrs {
+  float: right;
+  background: #F7F7F7;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  padding: 0 20px 0 10px;
+  border: 1px solid #dddddd;
+  color: #555555;
+  margin-left: 15px;
+  margin-bottom: 20px;
+}
+.doc-members {
+  width: auto;
+}
+.doc-members th {
+  background: #f1f1f1;
+  padding: 3px 8px;
+}
+.doc-members p {
+  margin: 0;
+}
+.doc-syntax {
+  padding: 10px;
+  display: inline-block;
+}
+.doc-content {
+  padding-left: 20px;
+  margin-bottom: 20px;
+}
+.doc-params dt {
+  font-weight: normal;
+}
+.x-panel {
+  margin: 10px 0;
+}
+.x-panel-header {
+  padding: 2px 10px;
+}
+.x-panel-body {
+  padding: 15px;
+}
+.icon-member {
+  background: url(../images/icons.gif) no-repeat left top;
+  padding-left: 21px;
+}
+.icon-member-signle {
+  padding-bottom: 3px;
+}
+.icon-static {
+  background-position: center bottom;
+  background-image: url(../images/static.gif);
+}
+.icon-extends {
+  background-position: center bottom;
+  background-image: url(../images/extends.gif);
+}
+.icon-namespace {
+  background-position: 0 0;
+}
+.icon-class {
+  background-position: 0 -40px;
+}
+.icon-interface {
+  background-position: 0 -80px;
+}
+.icon-enum {
+  background-position: 0 -120px;
+}
+.icon-method,
+.icon-function {
+  background-position: 0 -160px;
+}
+.icon-property {
+  background-position: 0 -200px;
+}
+.icon-field {
+  background-position: 0 -240px;
+}
+.icon-event {
+  background-position: 0 -280px;
+}
+.icon-config {
+  background-position: 0 -320px;
+}
+.icon-example {
+  background-position: 0 -360px;
+}
+.icon-module {
+  background-position: 0 -400px;
+}
+.icon-book {
+  background-position: 0 -440px;
+}
+.icon-namespace-private {
+  background-position: 0 -500px;
+}
+.icon-class-private {
+  background-position: 0 -540px;
+}
+.icon-interface-private {
+  background-position: 0 -580px;
+}
+.icon-enum-private {
+  background-position: 0 -620px;
+}
+.icon-method-private,
+.icon-function-private {
+  background-position: 0 -660px;
+}
+.icon-property-private {
+  background-position: 0 -700px;
+}
+.icon-field-private {
+  background-position: 0 -740px;
+}
+.icon-event-private {
+  background-position: 0 -780px;
+}
+.icon-config-private {
+  background-position: 0 -820px;
+}
+.icon-example-private {
+  background-position: 0 -860px;
+}
+.icon-module-private {
+  background-position: 0 -900px;
+}
+.icon-book-private {
+  background-position: 0 -940px;
+}
+.icon-namespace-protected {
+  background-position: 0 -1000px;
+}
+.icon-class-protected {
+  background-position: 0 -1040px;
+}
+.icon-interface-protected {
+  background-position: 0 -1080px;
+}
+.icon-enum-protected {
+  background-position: 0 -1120px;
+}
+.icon-method-protected,
+.icon-function-protected {
+  background-position: 0 -1160px;
+}
+.icon-property-protected {
+  background-position: 0 -1200px;
+}
+.icon-field-protected {
+  background-position: 0 -1240px;
+}
+.icon-event-protected {
+  background-position: 0 -1280px;
+}
+.icon-config-protected {
+  background-position: 0 -1320px;
+}
+.icon-example-protected {
+  background-position: 0 -1360px;
+}
+.icon-module-protected {
+  background-position: 0 -1400px;
+}
+.icon-book-protected {
+  background-position: 0 -1440px;
+}

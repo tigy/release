@@ -9,6 +9,7 @@
 </head>
 <body onload="setTimeout('prettyPrint()', 0);var node = document.getElementById(location.hash.replace(/#/, ''));if(node)node.className = 'highlight';"><pre class="prettyprint lang-js">/**
  * @fileOverview 提供最底层的 DOM 辅助函数。
+ * @pragma defaultExtends System.Base
  */
 
 // Core - 核心部分
@@ -67,14 +68,38 @@
 		 */
 		isStd = navigator.isStd,
 	
-		/**
-		 * 所有Dom 对象基类。
-		 * @class Dom
-		 */
+		<span id="Dom">/**
+		 * 提供对单一原生 HTML 节点的封装操作。
+		 * @class
+		 * @remark 
+		 * @see DomList
+		 * @see Dom.get
+		 * @see Dom.query
+		 * @remark
+		 * 所有 DOM 方法都是依赖于此类进行的。比如如下 HTML 代码:
+		 * &lt;pre&gt;
+		 * &amp;lt;div id=&quot;myDivId&quot;&amp;gt;内容&amp;lt;/div&amp;gt;
+		 * &lt;/pre&gt;
+		 * 现在如果要操作这个节点，必须获取这个节点对应的 **Dom** 对象实例。
+		 * 最常用的创建 **Dom** 对象实例的方法是 {@link Dom.get}。如:
+		 * &lt;pre&gt;
+		 * var myDiv = Dom.get(&quot;myDivId&quot;);
+		 * 
+		 * myDiv.addClass(&quot;cssClass&quot;);
+		 * &lt;/pre&gt;
+		 * 其中，myDiv就是一个 **Dom** 对象。然后通过 **Dom** 对象提供的方法可以方便地操作这个节点。&lt;br&gt;
+		 * myDiv.dom 属性就是这个 Dom 对象对应的原生 HTML 节点。即:
+		 * &lt;pre&gt;
+		 * Dom.get(&quot;myDivId&quot;).dom === document.getElementById(&quot;myDivId&quot;);
+		 * &lt;/pre&gt;
+		 * 
+		 * **Dom** 类仅实现了对一个节点的操作，如果需要同时处理多个节点，可以使用 {@link DomList} 类。
+		 * 	{@link DomList} 类的方法和 **Dom** 类的方法基本一致。
+		 */</span>
 		Dom = Class({
 			
 			<span id="Dom-prototype-dom">/**
-			 * 当前Dom 对象实际对应的 HTMLNode 实例。
+			 * 获取当 Dom 对象实际对应的 HTML 节点实例。
 			 * @type Node
 			 * @protected
 			 */</span>
@@ -82,8 +107,10 @@
 			
 			<span id="Dom-prototype-dataField">/**
 			 * 获取当前类对应的数据字段。
-			 * @proteced override
-			 * @returns {Object} 一个可存储数据的对象。
+			 * @protected override
+			 * @return {Object} 一个可存储数据的对象。
+			 * @remark
+			 * 此函数会在原生节点上创建一个 $data 属性以存储数据。
 			 */</span>
 			dataField: function(){
 				
@@ -92,7 +119,7 @@
 			},
 		
 			<span id="Dom-prototype-constructor">/**
-			 * Dom 对象的封装。
+			 * 使用一个原生节点初始化 Dom 对象的新实例。
 			 * @param {Node} dom 封装的元素。
 			 */</span>
 			constructor: function (dom) {
@@ -101,9 +128,9 @@
 			},
 		
 			<span id="Dom-prototype-attach">/**
-			 * 将当前Dom 对象插入到指定父节点，并显示在指定节点之前。
-			 * @param {Node} parentNode 渲染的目标。
-			 * @param {Node} refNode=null 渲染的位置。
+			 * 将当前 Dom 对象插入到指定父 Dom 对象指定位置。
+			 * @param {Node} parentNode 要添加的父节点。
+			 * @param {Node} refNode=null 如果指定了此值，则当前节点将添加到此节点之前。
 			 * @protected virtual
 			 */</span>
 			attach: function(parentNode, refNode) {
@@ -113,77 +140,81 @@
 			},
 		
 			<span id="Dom-prototype-detach">/**
-			 * 移除节点本身。
-			 * @param {Node} parentNode 渲染的目标。
+			 * 将当前 Dom 对象从指定的父 Dom 对象移除。
+			 * @param {Node} parentNode 用于移除的父节点。
 			 * @protected virtual
 			 */</span>
 			detach: function(parentNode) {
-				assert(parentNode &amp;&amp; parentNode.removeChild, 'Dom.prototype.detach(parentNode): {parentNode} 必须是 DOM 节点或Dom 对象。', parent);
+				assert(parentNode &amp;&amp; parentNode.removeChild, 'Dom.prototype.detach(parentNode): {parentNode} 必须是 DOM 节点 Dom 对象。', parent);
 				parentNode.removeChild(this.dom);
 			},
 		
 			<span id="Dom-prototype-insertBefore">/**
-			 * 在当前Dom 对象下插入一个子Dom 对象，并插入到指定位置。
-			 * @param {Dom} childControl 要插入的Dom 对象。
-			 * @param {Dom} refControl=null 渲染的位置。
-			 * @protected
+			 * 在当前 Dom 对象下插入一个子 Dom 对象到指定位置。
+			 * @param {Dom} childControl 要插入 Dom 对象。
+			 * @param {Dom} refControl=null 如果指定了此值，则插入到 Dom 对象之前。
+			 * @protected virtual
 			 */</span>
 			insertBefore: function(childControl, refControl) {
-				assert(childControl &amp;&amp; childControl.attach, 'Dom.prototype.insertBefore(childControl, refControl): {childControl} 必须是Dom 对象。', childControl);
+				assert(childControl &amp;&amp; childControl.attach, 'Dom.prototype.insertBefore(childControl, refControl): {childControl} 必须 Dom 对象。', childControl);
 				childControl.attach(this.dom, refControl &amp;&amp; refControl.dom || null);
 			},
 		
 			<span id="Dom-prototype-removeChild">/**
-			 * 删除当前Dom 对象的指定子Dom 对象。
-			 * @param {Dom} childControl 要插入的Dom 对象。
-			 * @protected
+			 * 删除当 Dom 对象的指定 Dom 对象。
+			 * @param {Dom} childControl 要删除 Dom 对象。
+			 * @protected virtual
 			 */</span>
 			removeChild: function(childControl) {
-				assert(childControl &amp;&amp; childControl.detach, 'Dom.prototype.removeChild(childControl): {childControl} 必须是Dom 对象。', childControl);
+				assert(childControl &amp;&amp; childControl.detach, 'Dom.prototype.removeChild(childControl): {childControl} 必须 Dom 对象。', childControl);
 				childControl.detach(this.dom);
 			}
 			
 		}),
 	
-		/**
-		 * 表示节点的集合。用于批量操作节点。
-		 * @class DomList
-		 * @extends Dom
+		<span id="DomList">/**
+		 * 表示原生节点的集合。用于批量操作节点。
+		 * @class
+		 * @extends Array
+		 * @see Dom
+		 * @see Dom.query
 		 * @remark
-		 * DomList 是对元素数组的只读包装。 DomList 允许快速操作多个节点。 DomList 的实例一旦创建，则不允许修改其成员。
-		 */
+		 * **DomList** 是对元素列表的包装。  **DomList** 允许快速操作多个节点。 
+		 * {@link Dom} 的所有方法对 **DomList** 都有效。
+		 * 要查询 DomList 的方法，可以转到 {@link Dom} 类。
+		 * 
+		 * **DomList** 是一个伪数组，每个元素都是一个原生的 HTML 节点。
+		 */</span>
 		DomList = Class({
 	
 			<span id="DomList-prototype-length">/**
-			 * 获取当前集合的元素个数。
+			 * 获取当前集合的节点个数。
 			 * @type {Number}
 			 * @property
 			 */</span>
 			length: 0,
-			
-			<span id="DomList-prototype-invoke">/**
-			 * 对数组成员调用指定的成员，返回结果数组。
-			 * @param {String} func 调用的成员名。
-			 * @param {Array} args 调用的参数数组。
-			 * @return {Array} 结果。
-			 * @example &lt;code&gt;
-			 * [&quot;vhd&quot;].invoke('charAt', [0]); //    ['v']
-			 * &lt;/code&gt;
+
+		    <span id="DomList-prototype-invoke">/**
+			 * 对当前集合的每个节点的 Dom 封装调用其指定属性名的函数，并将返回值放入新的数组返回。
+			 * @param {String} fnName 要调用的函数名。
+			 * @param {Array} args 调用时的参数数组。
+			 * @return {Array} 返回包含执行结果的数组。
+			 * @see Array#see
 			 */</span>
-			invoke: function(func, args) {
-				assert(args &amp;&amp; typeof args.length === 'number', &quot;DomList.prototype.invoke(func, args): {args} 必须是数组, 无法省略。&quot;, args);
+			invoke: function(fnName, args) {
+				assert(args &amp;&amp; typeof args.length === 'number', &quot;DomList.prototype.invoke(fnName, args): {args} 必须是数组, 无法省略。&quot;, args);
 				var r = [];
-				assert(Dom.prototype[func] &amp;&amp; Dom.prototype[func].apply, &quot;DomList.prototype.invoke(func, args): Dom 不包含方法 {func}。&quot;, func);
+				assert(Dom.prototype[fnName] &amp;&amp; Dom.prototype[fnName].apply, &quot;DomList.prototype.invoke(fnName, args): Dom 不包含方法 {fnName}。&quot;, fnName);
 				ap.forEach.call(this, function(value) {
 					value = new Dom(value);
-					r.push(value[func].apply(value, args));
+					r.push(value[fnName].apply(value, args));
 				});
 				return r;
 			},
 			
 			<span id="DomList-prototype-constructor">/**
-			 * 初始化 DomList 实例。
-			 * @param {Array/DomList} nodes 节点集合。
+			 * 使用包含节点的数组初始化 DomList 类的新实例。
+			 * @param {Array/DomList} [nodes] 用于初始化当前集合的节点集合。
 			 * @constructor
 			 */</span>
 			constructor: function(nodes) {
@@ -201,15 +232,29 @@
 				}
 
 			},
-
+	
+		    <span id="DomList-prototype-item">/**
+			 * 获取当前集合中指定索引对应的 Dom 对象。
+			 * @param {Number} index 要获取的元素索引。如果 *index* 小于 0， 则表示获取倒数 *index* 位置的元素。
+			 * @return {Object} 指定位置所在的元素。如果指定索引的值不存在，则返回 undefined。
+			 * @remark
+			 * 使用 arr.item(-1) 可获取最后一个元素的值。
+			 * @see Array#see
+			 * @example 
+			 * &lt;pre&gt;
+		     * [0, 1, 2, 3].item(0);  // 0
+		     * [0, 1, 2, 3].item(-1); // 3
+		     * [0, 1, 2, 3].item(5);  // undefined
+		     * &lt;/pre&gt;
+			 */</span>
 			item: function(index){
 				var elem = this[index &lt; 0 ? this.length + index : index];
 				return elem ? new Dom(elem) : null;
 			},
 			
 			<span id="DomList-prototype-concat">/**
-			 * 将参数数组添加到当前集合。
-			 * @param {Element/DomList} value 元素。
+			 * 将参数节点添加到当前集合。
+			 * @param {Node/NodeList/Array/DomList} ... 要增加的节点。
 			 * @return this
 			 */</span>
 			concat: function() {
@@ -229,14 +274,22 @@
 	
 		}),
 	
-		/**
+		<span id="Point">/**
 		 * 表示一个点。包含 x 坐标和 y 坐标。
 		 * @class Point
-		 */
+		 */</span>
 		Point = Class({
+			
+			<span id="Point-prototype-x">/**
+			 * @field {Number} x X 坐标。
+			 */</span>
+			
+			<span id="Point-prototype-y">/**
+			 * @field {Number} y Y 坐标。
+			 */</span>
 	
 			<span id="Point-prototype-constructor">/**
-			 * 初始化 Point 的实例。
+			 * 初始化 Point 的新实例。
 			 * @param {Number} x X 坐标。
 			 * @param {Number} y Y 坐标。
 			 * @constructor
@@ -247,8 +300,8 @@
 			},
 			
 			<span id="Point-prototype-add">/**
-			 * 将 (x, y) 增值。
-			 * @param {Point} System 值。
+			 * 将当前值加上 *p*。
+			 * @param {Point} p 值。
 			 * @return {Point} this
 			 */</span>
 			add: function(p) {
@@ -257,7 +310,7 @@
 			},
 
 			<span id="Point-prototype-sub">/**
-			 * 将一个点坐标减到当前值。
+			 * 将当前值减去 *p*。
 			 * @param {Point} System 值。
 			 * @return {Point} this
 			 */</span>
@@ -503,7 +556,10 @@
 			var win = this.defaultView;
 			return new Point(win.pageXOffset, win.pageYOffset);
 		}: getScroll,
-	
+		
+		/**
+		 * 一个返回 true 的函数。
+		 */
 		returnTrue = Function.from(true),
 
 		/**
@@ -526,16 +582,39 @@
 	
 	/// #region Dom
 	
-	<span id="Dom">/**
+	/**
 	 * @class Dom
-	 */</span>
+	 */
 	extend(Dom, {
 		
 		<span id="Dom-get">/**
-		 * 根据一个 id 获取元素。如果传入的id不是字符串，则直接返回参数。
-		 * @param {String/Node/Dom/DomList} id 要获取元素的 id 或元素本身。
-	 	 * @return {Dom} 元素。
+		 * 根据一个 *id* 或原生节点获取一个 {@link Dom} 类的实例。
+		 * @param {String/Node/Dom/DomList} id 要获取元素的 id 或用于包装成 Dom 对象的任何元素，如是原生的 DOM 节点、原生的 DOM 节点列表数组或已包装过的 Dom 对象。。
+	 	 * @return {Dom} 此函数返回是一个 Dom 类型的变量。通过这个变量可以调用所有文档中介绍的 DOM 操作函数。如果无法找到指定的节点，则返回 null 。此函数可简写为 $。
 	 	 * @static
+	 	 * @example
+	 	 * 找到 id 为 a 的元素。
+	 	 * #####HTML:
+	 	 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+	 	 * &amp;lt;p id=&quot;a&quot;&amp;gt;once&amp;lt;/p&amp;gt; &amp;lt;div&amp;gt;&amp;lt;p&amp;gt;two&amp;lt;/p&amp;gt;&amp;lt;/div&amp;gt; &amp;lt;p&amp;gt;three&amp;lt;/p&amp;gt;
+	 	 * &lt;/pre&gt;
+	 	 * #####JavaScript:
+	 	 * &lt;pre&gt;Dom.get(&quot;a&quot;);&lt;/pre&gt;
+	 	 * #####结果:
+	 	 * &lt;pre&gt;{&amp;lt;p id=&quot;a&quot;&amp;gt;once&amp;lt;/p&amp;gt;}&lt;/pre&gt;
+	 	 * 
+	 	 * &lt;br&gt;
+	 	 * 返回 id 为 a1 的 DOM 对象
+	 	 * #####HTML:
+	 	 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p id=&quot;a1&quot;&amp;gt;&amp;lt;/p&amp;gt; &amp;lt;p id=&quot;a2&quot;&amp;gt;&amp;lt;/p&amp;gt; &lt;/pre&gt;
+	 	 *
+	 	 * #####JavaScript:
+	 	 * &lt;pre&gt;Dom.get(document.getElecmentById('a1')) // 等效于 Dom.get('a1')&lt;/pre&gt;
+	 	 * &lt;pre&gt;Dom.get(['a1', 'a2']); // 等效于 Dom.get('a1')&lt;/pre&gt;
+	 	 * &lt;pre&gt;Dom.get(Dom.get('a1')); // 等效于 Dom.get('a1')&lt;/pre&gt;
+	 	 * 
+	 	 * #####结果:
+	 	 * &lt;pre&gt;{&amp;lt;p id=&quot;a1&quot;&amp;gt;&amp;lt;/p&amp;gt;}&lt;/pre&gt;
 		 */</span>
 		get: function(id) {
 			
@@ -551,11 +630,94 @@
 			
 		},
 		
-		<span id="Dom-query">/**
-		 * 执行一个选择器，返回一个新的 {DomList} 对象。
-		 * @param {String} selecter 选择器。 如 &quot;h2&quot; &quot;.cls&quot; &quot;[attr=value]&quot; 。
-		 * @return {Element/undefined} 节点。
+		<span id="Dom-find">/**
+		 * 执行一个 CSS 选择器，返回第一个元素对应的 {@link Dom} 对象。
+		 * @param {String/NodeList/DomList/Array/Dom} 用来查找的 CSS 选择器或原生的 DOM 节点。
+		 * @return {Element} 如果没有对应的节点则返回一个空的 DomList 对象。
 	 	 * @static
+	 	 * @see DomList
+	 	 * @example
+	 	 * 找到第一个 p 元素。
+	 	 * #####HTML:
+	 	 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+	 	 * &amp;lt;p&amp;gt;one&amp;lt;/p&amp;gt; &amp;lt;div&amp;gt;&amp;lt;p&amp;gt;two&amp;lt;/p&amp;gt;&amp;lt;/div&amp;gt; &amp;lt;p&amp;gt;three&amp;lt;/p&amp;gt;
+	 	 * &lt;/pre&gt;
+	 	 * 
+	 	 * #####Javascript:
+	 	 * &lt;pre&gt;
+	 	 * Dom.find(&quot;p&quot;);
+	 	 * &lt;/pre&gt;
+	 	 * 
+	 	 * #####结果:
+	 	 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+	 	 * {  &amp;lt;p&amp;gt;one&amp;lt;/p&amp;gt;  }
+	 	 * &lt;/pre&gt;
+	 	 * 
+	 	 * &lt;br&gt;
+	 	 * 找到第一个 p 元素，并且这些元素都必须是 div 元素的子元素。
+	 	 * #####HTML:
+	 	 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+	 	 * &amp;lt;p&amp;gt;one&amp;lt;/p&amp;gt; &amp;lt;div&amp;gt;&amp;lt;p&amp;gt;two&amp;lt;/p&amp;gt;&amp;lt;/div&amp;gt; &amp;lt;p&amp;gt;three&amp;lt;/p&amp;gt;&lt;/pre&gt;
+	 	 * 
+	 	 * #####Javascript:
+	 	 * &lt;pre&gt;
+	 	 * Dom.find(&quot;div &amp;gt; p&quot;);
+	 	 * &lt;/pre&gt;
+	 	 * 
+	 	 * #####结果:
+	 	 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+	 	 * { &amp;lt;p&amp;gt;two&amp;lt;/p&amp;gt; }
+	 	 * &lt;/pre&gt;
+		 */</span>
+		find: function(selector){
+			
+			return typeof selector === &quot;string&quot; ?
+				document.find(selector) :
+				Dom.get(selector);
+		},
+		
+		<span id="Dom-query">/**
+		 * 执行一个 CSS 选择器，返回一个新的 {@link DomList} 对象。
+		 * @param {String/NodeList/DomList/Array/Dom} 用来查找的 CSS 选择器或原生的 DOM 节点列表。
+		 * @return {Element} 如果没有对应的节点则返回一个空的 DomList 对象。
+	 	 * @static
+	 	 * @see DomList
+	 	 * @example
+	 	 * 找到所有 p 元素。
+	 	 * #####HTML:
+	 	 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+	 	 * &amp;lt;p&amp;gt;one&amp;lt;/p&amp;gt; &amp;lt;div&amp;gt;&amp;lt;p&amp;gt;two&amp;lt;/p&amp;gt;&amp;lt;/div&amp;gt; &amp;lt;p&amp;gt;three&amp;lt;/p&amp;gt;
+	 	 * &lt;/pre&gt;
+	 	 * 
+	 	 * #####Javascript:
+	 	 * &lt;pre&gt;
+	 	 * Dom.query(&quot;p&quot;);
+	 	 * &lt;/pre&gt;
+	 	 * 
+	 	 * #####结果:
+	 	 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+	 	 * [  &amp;lt;p&amp;gt;one&amp;lt;/p&amp;gt; ,&amp;lt;p&amp;gt;two&amp;lt;/p&amp;gt;, &amp;lt;p&amp;gt;three&amp;lt;/p&amp;gt;  ]
+	 	 * &lt;/pre&gt;
+	 	 * 
+	 	 * &lt;br&gt;
+	 	 * 找到所有 p 元素，并且这些元素都必须是 div 元素的子元素。
+	 	 * #####HTML:
+	 	 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+	 	 * &amp;lt;p&amp;gt;one&amp;lt;/p&amp;gt; &amp;lt;div&amp;gt;&amp;lt;p&amp;gt;two&amp;lt;/p&amp;gt;&amp;lt;/div&amp;gt; &amp;lt;p&amp;gt;three&amp;lt;/p&amp;gt;&lt;/pre&gt;
+	 	 * 
+	 	 * #####Javascript:
+	 	 * &lt;pre&gt;
+	 	 * Dom.query(&quot;div &amp;gt; p&quot;);
+	 	 * &lt;/pre&gt;
+	 	 * 
+	 	 * #####结果:
+	 	 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+	 	 * [ &amp;lt;p&amp;gt;two&amp;lt;/p&amp;gt; ]
+	 	 * &lt;/pre&gt;
+         * 
+	 	 * &lt;br&gt;
+         * 查找所有的单选按钮(即: type 值为 radio 的 input 元素)。
+         * &lt;pre&gt;Dom.query(&quot;input[type=radio]&quot;);&lt;/pre&gt;
 		 */</span>
 		query: function(selector) {
 			
@@ -575,6 +737,9 @@
 		
 		<span id="Dom-match">/**
 		 * 判断一个元素是否符合一个选择器。
+		 * @param {Node} elem 一个 HTML 节点。
+		 * @param {String} selector 一个 CSS 选择器。
+		 * @return {Boolean} 如果指定的元素匹配输入的选择器，则返回 true， 否则返回 false 。
 	 	 * @static
 		 */</span>
 		match: function (elem, selector) {
@@ -596,12 +761,31 @@
 		},
 
 		<span id="Dom-parse">/**
-		 * 解析一个 html 字符串，返回相应的Dom 对象。
-		 * @param {String/Element} html 字符。
-		 * @param {Element} context=document 生成节点使用的文档中的任何节点。
+		 * 根据提供的原始 HTML 标记字符串，解析并动态创建一个节点，并返回这个节点的 Dom 对象包装对象。
+		 * @param {String/Node} html 用于动态创建DOM元素的HTML字符串。
+		 * @param {Document} ownerDocument=document 创建DOM元素所在的文档。
 		 * @param {Boolean} cachable=true 指示是否缓存节点。
 		 * @return {Dom} Dom 对象。
 	 	 * @static
+	 	 * @remark
+	 	 * 可以传递一个手写的 HTML 字符串，或者由某些模板引擎或插件创建的字符串，也可以是通过 AJAX 加载过来的字符串。但是在你创建 input 元素的时会有限制，可以参考第二个示例。当然这个字符串可以包含斜杠 (比如一个图像地址)，还有反斜杠。当创建单个元素时，请使用闭合标签或 XHTML 格式。
+	 	 * 在这个函数的内部，是通过临时创建一个元素，并将这个元素的 innerHTML 属性设置为给定的标记字符串，来实现标记到 DOM 元素转换的。所以，这个函数既有灵活性，也有局限性。
+	 	 * 
+	 	 * @example
+	 	 * 动态创建一个 div 元素（以及其中的所有内容），并将它追加到 body 元素中。
+	 	 * #####JavaScript:
+	 	 * &lt;pre&gt;Dom.parse(&quot;&amp;lt;div&amp;gt;&amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&amp;lt;/div&amp;gt;&quot;).appendTo(document.body);&lt;/pre&gt;
+	 	 * #####结果:
+	 	 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;[&amp;lt;div&amp;gt;&amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&amp;lt;/div&amp;gt;]&lt;/pre&gt;
+	 	 * 
+	 	 * 创建一个 &amp;lt;input&amp;gt; 元素必须同时设定 type 属性。因为微软规定 &amp;lt;input&amp;gt; 元素的 type 只能写一次。
+	 	 * #####JavaScript:
+	 	 * &lt;pre&gt;
+	 	 * // 在 IE 中无效:
+	 	 * Dom.parse(&quot;&amp;lt;input&amp;gt;&quot;).setAttr(&quot;type&quot;, &quot;checkbox&quot;);
+	 	 * // 在 IE 中有效:
+	 	 * Dom.parse(&quot;&amp;lt;input type='checkbox'&amp;gt;&quot;);
+	 	 * &lt;/pre&gt;        
 		 */</span>
 		parse: function(html, context, cachable) {
 
@@ -611,10 +795,20 @@
 		},
 		
 		<span id="Dom-create">/**
-		 * 创建一个节点。
-		 * @param {String} tagName 创建的节点的标签名。
-		 * @param {String} className 创建的节点的类名。
+		 * 创建一个指定标签的节点，并返回这个节点的 Dom 对象包装对象。
+		 * @param {String} tagName 要创建的节点标签名。
+		 * @param {String} className 用于新节点的 CSS 类名。
 	 	 * @static
+	 	 * @example
+	 	 * 动态创建一个 div 元素（以及其中的所有内容），并将它追加到 body 元素中。在这个函数的内部，是通过临时创建一个元素，并将这个元素的 innerHTML 属性设置为给定的标记字符串，来实现标记到 DOM 元素转换的。所以，这个函数既有灵活性，也有局限性。
+	 	 * #####JavaScript:
+	 	 * &lt;pre&gt;Dom.create(&quot;div&quot;, &quot;cls&quot;).appendTo(document.body);&lt;/pre&gt;
+	 	 *
+	 	 * 创建一个 div 元素同时设定 class 属性。
+	 	 * #####JavaScript:
+	 	 * &lt;pre&gt;Dom.create(&quot;div&quot;, &quot;className&quot;);&lt;/pre&gt;
+	 	 * #####结果:
+	 	 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;{&amp;lt;div class=&quot;className&quot;&amp;gt;&amp;lt;/div&amp;gt;}&lt;/pre&gt;
 		 */</span>
 		create: function(tagName, className) {
 			return new Dom(Dom.createNode(tagName, className || ''));
@@ -765,10 +959,10 @@
 		},
 
 		<span id="Dom-getAttr">/**
-		 * 获取一个节点属性。
-		 * @param {Element} elem 元素。
-		 * @param {String} name 名字。
-		 * @return {String} 属性。
+		 * 获取元素的属性值。
+		 * @param {Node} elem 元素。
+		 * @param {String} name 要获取的属性名称。
+		 * @return {String} 返回属性值。如果元素没有相应属性，则返回 null 。
 	 	 * @static
 		 */</span>
 		getAttr: function(elem, name) {
@@ -961,12 +1155,11 @@
 
 		<span id="Dom-zIndex">/**
 		 * 默认最大的 z-index 。
-		 * @property
+		 * @property zIndex
 		 * @type Number
 		 * @private
 		 * @static
 		 */</span>
-		zIndex: 10000,
 		
 		<span id="Dom-window">/**
 		 * 
@@ -986,6 +1179,14 @@
 		 * @param {String} name 名字。
 		 * @return {String} 样式。
 	 	 * @static
+	 	 *  访问元素的样式属性。
+        &lt;params name=&quot;name&quot; type=&quot;String&quot;&gt;
+          要访问的属性名称
+        &lt;/params&gt;
+        @example
+          取得第一个段落的color样式属性的值。
+          #####JavaScript:&lt;pre&gt;Dom.query(&quot;p&quot;).getStyle(&quot;color&quot;);&lt;/pre&gt;
+        
 		 */</span>
 		getStyle: getStyle,
 
@@ -1006,6 +1207,13 @@
 		 * @static
 		 */</span>
 		styleNumber: styleNumber,
+
+		initToggleArgs: function (args) {
+			if(typeof args[0] === 'string')
+				return args;
+			ap.unshift.call(args, 'opacity');
+			return args;
+		},
 
 		<span id="Dom-show">/**
 		 * 清空元素的 display 属性。
@@ -1137,7 +1345,7 @@
 		 * 将一个成员附加到 Dom 对象和相关类。
 		 * @param {Object} obj 要附加的对象。
 		 * @param {Number} listType = 1 说明如何复制到 DomList 实例。
-		 * @return {Element} this
+		 * @return this
 		 * @static
 		 * 对 Element 扩展，内部对 Element DomList document 皆扩展。
 		 *         这是由于不同的函数需用不同的方法扩展，必须指明扩展类型。 所谓的扩展，即一个类所需要的函数。 DOM 方法
@@ -1212,7 +1420,7 @@
 		 * @param {Object} obj 要附加的对象。
 		 * @param {Number} listType = 1 说明如何复制到 DomList 实例。
 		 * @param {Number} docType 说明如何复制到 Document 实例。
-		 * @return {Element} this
+		 * @return this
 		 */</span>
 		implementIf: function(obj, listType) {
 			return this.implement(obj, listType, true);
@@ -1294,8 +1502,8 @@
 			},
 			
 			<span id="Dom-Event-prototype-getTarget">/**
-			 * 获取当前发生事件的Dom 对象。
-			 * @return {Dom} 发生事件的Dom 对象。
+			 * 获取当前发生事件 Dom 对象。
+			 * @return {Dom} 发生事件 Dom 对象。
 			 */</span>
 			getTarget: function() {
 				assert(this.target, &quot;Dom.Event.prototype.getTarget(): 当前事件不支持 getTarget 操作&quot;);
@@ -1321,10 +1529,28 @@
 	.implement({
 	
 		<span id="Dom-prototype-appendTo">/**
-		 * 将当前节点添加到其它节点。
-		 * @param {Element/String} elem=document.body 节点、Dom 对象或节点的 id 字符串。
-		 * @return this 
+		 * 将当前 Dom 对象添加到其它节点或 Dom 对象中。
+		 * @param {Node/String} parent=document.body 节点 Dom 对象或节点的 id 字符串。
+		 * @return this
+		 * @remark
 		 * this.appendTo(parent) 相当于 parent.append(this) 。 
+		 * @example
+		 * 把所有段落追加到ID值为foo的元素中。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+		 * &amp;lt;p&amp;gt;I would like to say: &amp;lt;/p&amp;gt;&amp;lt;div id=&quot;foo&quot;&amp;gt;&amp;lt;/div&amp;gt;
+		 * &lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).appendTo(&quot;foo&quot;);&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+		 * &amp;lt;div id=&quot;foo&quot;&amp;gt;&amp;lt;p&amp;gt;I would like to say: &amp;lt;/p&amp;gt;&amp;lt;/div&amp;gt;
+		 * &lt;/pre&gt;
+		 * 
+		 * 创建一个新的div节点并添加到 document.body 中。
+		 * &lt;pre&gt;
+		 * Dom.create(&quot;div&quot;).appendTo();
+		 * &lt;/pre&gt;
 		 */</span>
 		appendTo: function(parent) {
 		
@@ -1336,17 +1562,37 @@
 		},
 	
 		<span id="Dom-prototype-remove">/**
-		 * 删除元素子节点或本身。
-		 * @param {Dom} childControl 子Dom 对象。
-		 * @return {Dom} this
+		 * 移除当前 Dom 对象或其子对象。
+		 * @param {Dom} [child] 如果指定了子对象，则删除此对象。
+		 * @return this
+		 * @see #dispose
+		 * @remark
+		 * 这个方法不会彻底移除 Dom 对象，而只是暂时将其从 Dom 树分离。
+		 * 如果需要彻底删除 Dom 对象，使用 {@link #dispose}方法。
+		 * @example
+		 * 从DOM中把所有段落删除。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt; how are &amp;lt;p&amp;gt;you?&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).remove();&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;how are&lt;/pre&gt;
+		 * 
+		 * 从DOM中把带有hello类的段落删除
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p class=&quot;hello&quot;&amp;gt;Hello&amp;lt;/p&amp;gt; how are &amp;lt;p&amp;gt;you?&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).remove(&quot;.hello&quot;);&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;how are &amp;lt;p&amp;gt;you?&amp;lt;/p&amp;gt;&lt;/pre&gt;
 		 */</span>
-		remove: function(childControl) {
+		remove: function(child) {
 	
 			if (arguments.length) {
-				assert(childControl &amp;&amp; this.hasChild(childControl), 'Dom.prototype.remove(childControl): {childControl} 不是当前节点的子节点', childControl);
-				this.removeChild(childControl);
-			} else if (childControl = this.parentControl || this.parent()){
-				childControl.removeChild(this);
+				assert(child &amp;&amp; this.hasChild(child), 'Dom.prototype.remove(child): {child} 不是当前节点的子节点', child);
+				this.removeChild(child);
+			} else if (child = this.parentControl || this.parent()){
+				child.removeChild(this);
 			}
 	
 			return this;
@@ -1354,7 +1600,15 @@
 	
 		<span id="Dom-prototype-empty">/**
 	 	 * 删除一个节点的所有子节点。
-		 * @return {Element} this
+		 * @return this
+		 * @example
+		 * 把所有段落的子元素（包括文本节点）删除。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;Hello, &amp;lt;span&amp;gt;Person&amp;lt;/span&amp;gt; &amp;lt;a href=&quot;#&quot;&amp;gt;and person&amp;lt;/a&amp;gt;&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).empty();&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;&amp;lt;/p&amp;gt;&lt;/pre&gt;
 		 */</span>
 		empty: function() {
 			var elem = this.dom;
@@ -1366,7 +1620,23 @@
 		},
 	
 		<span id="Dom-prototype-dispose">/**
-		 * 释放节点所有资源。
+		 * 彻底删除当前 DOM 对象。释放占用的所有资源。
+		 * @see #remove
+		 * @remark 这个方法会同时删除节点绑定的事件以及所有的数据。
+		 * @example
+		 * 从DOM中把所有段落删除。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;dispose&amp;lt;/p&amp;gt; how are &amp;lt;p&amp;gt;you?&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).dispose();&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;how are&lt;/pre&gt;
+		 * 
+		 * 从DOM中把带有hello类的段落删除。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p class=&quot;hello&quot;&amp;gt;Hello&amp;lt;/p&amp;gt; how are &amp;lt;p&amp;gt;you?&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).dispose(&quot;.hello&quot;);&lt;/pre&gt;
 		 */</span>
 		dispose: function() {
 			if(this.dom.nodeType == 1){
@@ -1380,8 +1650,11 @@
 		<span id="Dom-prototype-setStyle">/**
 		 * 设置一个样式属性的值。
 		 * @param {String} name CSS 属性名或 CSS 字符串。
-		 * @param {String/Number} [value] CSS属性值， 数字如果不加单位，则函数会自动追为像素。
-		 * @return {Element} this
+		 * @param {String/Number} [value] CSS属性值， 数字如果不加单位，则会自动添加像素单位。
+		 * @return this
+		 * @example
+		 * 将所有段落的字体颜色设为红色并且背景为蓝色。
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).setStyle('color', &quot;#ff0011&quot;);&lt;/pre&gt;
 		 */</span>
 		setStyle: function(name, value) {
 		
@@ -1420,9 +1693,10 @@
 		},
 	
 		<span id="Dom-prototype-setOpacity">/**
-		 * 设置连接的透明度。
-		 * @param {Number} value 透明度， 0 - 1 。
-		 * @return {Element} this
+		 * 设置当前 Dom 对象的透明度。
+		 * @param {Number} value 要设置的透明度， 0 表示完全透明，  1 表示不透明。
+		 * @return this
+		 * @remark 此函数等效于 setStyle('opacity', value);
 		 */</span>
 		setOpacity: 'opacity' in div.style ? function(value) {
 		
@@ -1475,46 +1749,69 @@
 		/// #endif
 		
 		<span id="Dom-prototype-show">/**
-		 * 显示当前元素。
-		 * @param {Number} duration=500 时间。
-		 * @param {Function} [callBack] 回调。
-		 * @param {String} [type] 方式。
-		 * @return {Element} this
+		 * 向用户显示当前 Dom 对象。
+		 * @param {String} [type] 显示时使用的特效方式。
+		 * @param {Number} duration=300 效果执行时间。
+		 * @param {Function} [callBack] 效果执行完的回调函数。
+		 * @param {String} [link] 当效果正在执行时的处理方式。
+		 * 
+		 * - &quot;**wait**&quot;(默认): 等待上个效果执行完成。
+		 * - &quot;**ignore**&quot;: 忽略新的效果。
+		 * - &quot;**stop**&quot;: 正常中止上一个效果，然后执行新的效果。
+		 * - &quot;**abort**&quot;: 强制中止上一个效果，然后执行新的效果。
+		 * @return this
+		 * @remark 此函数是通过设置 css的 display 属性实现的。
 		 */</span>
-		show: function(duration, callBack) {
+		show: function () {
+			var args = Dom.initToggleArgs(arguments);
 			Dom.show(this.dom);
-			if (callBack) setTimeout(callBack, 0);
+			if (args = args[2]) setTimeout(args, 0);
 			return this;
 		},
 	
 		<span id="Dom-prototype-hide">/**
-		 * 隐藏当前元素。
-		 * @param {Number} duration=500 时间。
-		 * @param {Function} [callBack] 回调。
-		 * @param {String} [type] 方式。
-		 * @return {Element} this
+		 * 向用户隐藏当前 Dom 对象。
+		 * @param {String} [type] 显示时使用的特效方式。
+		 * @param {Number} duration=300 效果执行时间。
+		 * @param {Function} [callBack] 效果执行完的回调函数。
+		 * @param {String} [link] 当效果正在执行时的处理方式。
+		 * 
+		 * - &quot;**wait**&quot;(默认): 等待上个效果执行完成。
+		 * - &quot;**ignore**&quot;: 忽略新的效果。
+		 * - &quot;**stop**&quot;: 正常中止上一个效果，然后执行新的效果。
+		 * - &quot;**abort**&quot;: 强制中止上一个效果，然后执行新的效果。
+		 * @return this
+		 * @remark 此函数是通过设置 css的 display = none 实现的。
 		 */</span>
-		hide: function(duration, callBack) {
+		hide: function (duration, callback) {
+			var args = Dom.initToggleArgs(arguments);
 			Dom.hide(this.dom);
-			if (callBack) setTimeout(callBack, 0);
+			if (args = args[2]) setTimeout(args, 0);
 			return this;
 		},
 	
 		<span id="Dom-prototype-toggle">/**
-		 * 切换显示当前元素。
-		 * @param {Number} duration=500 时间。
-		 * @param {Function} [callBack] 回调。
-		 * @param {String} [type] 方式。
-		 * @return {Element} this
+		 * 切换当前 Dom 对象的显示状态。
+		 * @param {String} [type] 显示时使用的特效方式。
+		 * @param {Number} duration=300 效果执行时间。
+		 * @param {Function} [callBack] 效果执行完的回调函数。
+		 * @param {String} [link] 当效果正在执行时的处理方式。
+		 * 
+		 * - &quot;**wait**&quot;(默认): 等待上个效果执行完成。
+		 * - &quot;**ignore**&quot;: 忽略新的效果。
+		 * - &quot;**stop**&quot;: 正常中止上一个效果，然后执行新的效果。
+		 * - &quot;**abort**&quot;: 强制中止上一个效果，然后执行新的效果。
+		 * @return this
+		 * @remark 此函数是通过设置 css的 display 属性实现的。
 		 */</span>
-		toggle: function(duration, onShow, onHide, type, flag) {
-			flag = (flag === undefined ? Dom.isHidden(this.dom): flag);
-			return this[flag ? 'show': 'hide'](duration, flag ? onShow : onHide, type);
+		toggle: function () {
+			var args = Dom.initToggleArgs(arguments);
+			return this[(args[4] === undefined ? Dom.isHidden(this.dom) : args[4]) ? 'show' : 'hide'].apply(this, args);
 		},
 	
 		<span id="Dom-prototype-unselectable">/**
-		 * 设置元素不可选。
-		 * @param {Boolean} value 是否可选。
+		 * 设置当前 Dom 对象不可选。
+		 * @param {Boolean} value=true 如果为 true，表示不可选，否则表示可选。
 		 * @return this
 		 */</span>
 		unselectable: 'unselectable' in div ? function(value) {
@@ -1532,28 +1829,49 @@
 		},
 	
 		<span id="Dom-prototype-bringToFront">/**
-		 * 将元素引到最前。
-		 * @param {Dom} [targetControl] 如果指定了参考Dom 对象，则Dom 对象将位于指定的Dom 对象之上。
+		 * 将当前 Dom 对象置于指定 Dom 对象的上层。
+		 * @param {Dom} [target] 如果指定了参 Dom 对象， Dom 对象将位于指定 Dom 对象之上。
 		 * @return this
+		 * @remark 此函数是通过设置 css的 z-index 属性实现的。
 		 */</span>
-		bringToFront: function(targetControl) {
-			assert(!targetControl || (targetControl.dom &amp;&amp; targetControl.dom.style), &quot;Dom.prototype.bringToFront(elem): {elem} 必须为 空或允许使用样式的Dom 对象。&quot;, targetControl);
+		bringToFront: function(target) {
+			assert(!target || (target.dom &amp;&amp; target.dom.style), &quot;Dom.prototype.bringToFront(elem): {elem} 必须为 空或允许使用样式 Dom 对象。&quot;, target);
 		
-			var thisElem = this.dom, targetZIndex = targetControl&amp;&amp; (parseInt(styleString(targetControl.dom, 'zIndex')) + 1) || Dom.zIndex++;
+			var elem = this.dom, 
+				targetZIndex = targetControl&amp;&amp; (parseInt(styleString(target.dom, 'zIndex')) + 1) || (Dom.zIndex ? Dom.zIndex++ : (Dom.zIndex = 10000));
 		
 			// 如果当前元素的 z-index 未超过目标值，则设置
-			if(!(styleString(thisElem, 'zIndex') &gt; targetZIndex))
-				thisElem.style.zIndex = targetZIndex;
+			if(!(styleString(elem, 'zIndex') &gt; targetZIndex))
+				elem.style.zIndex = targetZIndex;
 		
 			return this;
 
 		}, 
 		
 		<span id="Dom-prototype-setAttr">/**
-		 * 设置节点属性。
-		 * @param {String} name 名字。
-		 * @param {String} value 值。
-		 * @return {Element} this
+		 * 设置或删除一个属性值。
+		 * @param {String} name 要设置的属性名称。
+		 * @param {String} value 要设置的属性值。当设置为 null 时，删除此属性。
+		 * @return this
+		 * @example
+		 * 为所有图像设置src属性。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+		 * &amp;lt;img/&amp;gt;
+		 * &amp;lt;img/&amp;gt;
+		 * &lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;img&quot;).setAttr(&quot;src&quot;,&quot;test.jpg&quot;);&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;[ &amp;lt;img src= &quot;test.jpg&quot; /&amp;gt; , &amp;lt;img src= &quot;test.jpg&quot; /&amp;gt; ]&lt;/pre&gt;
+		 * 
+		 * 将文档中图像的src属性删除
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;img src=&quot;test.jpg&quot;/&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;img&quot;).setAttr(&quot;src&quot;);&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;[ &amp;lt;img /&amp;gt; ]&lt;/pre&gt;
 		 */</span>
 		setAttr: function(name, value) {
 			var elem = this.dom;
@@ -1603,10 +1921,27 @@
 		},
 	
 		<span id="Dom-prototype-set">/**
-		 * 快速设置节点全部属性和样式。
-		 * @param {String/Object} name 名字。
-		 * @param {Object} [value] 值。
-		 * @return {Element} this
+		 * 快速设置当前 Dom 对象的样式、属性或事件。
+		 * @param {String/Object} name 属性名。可以是一个 css 属性名或 html 属性名。如果属性名是on开头的，则被认为是绑定事件。 - 或 - 属性值，表示 属性名/属性值 的 JSON 对象。
+		 * @param {Object} [value] 属性值。
+		 * @return this
+		 * @remark
+		 * 此函数相当于调用 setStyle 或 setAttr 。数字将自动转化为像素值。
+		 * @example
+		 * 将所有段落字体设为红色、设置 class 属性、绑定 click 事件。
+		 * &lt;pre&gt;
+		 * Dom.query(&quot;p&quot;).set(&quot;color&quot;,&quot;red&quot;).set(&quot;class&quot;,&quot;cls-red&quot;).set(&quot;onclick&quot;, function(){alert('clicked')});
+		 * &lt;/pre&gt;
+		 * 
+		 * - 或 -
+		 *
+		 * &lt;pre&gt;
+		 * Dom.query(&quot;p&quot;).set({
+		 * 		&quot;color&quot;:&quot;red&quot;,
+		 * 		&quot;class&quot;:&quot;cls-red&quot;,
+		 * 		&quot;onclick&quot;: function(){alert('clicked')}
+		 * });
+		 * &lt;/pre&gt;
 		 */</span>
 		set: function(name, value) {
 			var me = this;
@@ -1639,9 +1974,25 @@
 		},
 	
 		<span id="Dom-prototype-addClass">/**
-		 * 增加类名。
-		 * @param {String} className 类名。
-		 * @return {Element} this
+		 * 为当前 Dom 对象添加指定的 Css 类名。
+		 * @param {String} className 一个或多个要添加到元素中的CSS类名，用空格分开。
+		 * @return this
+		 * @example
+		 * 为匹配的元素加上 'selected' 类。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).addClass(&quot;selected&quot;);&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;[ &amp;lt;p class=&quot;selected&quot;&amp;gt;Hello&amp;lt;/p&amp;gt; ]&lt;/pre&gt;
+		 *
+		 * 为匹配的元素加上 selected highlight 类。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).addClass(&quot;selected highlight&quot;);&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;[ &amp;lt;p class=&quot;selected highlight&quot;&amp;gt;Hello&amp;lt;/p&amp;gt; ]&lt;/pre&gt;
 		 */</span>
 		addClass: function(className) {
 			assert.isString(className, &quot;Dom.prototype.addClass(className): {className} ~&quot;);
@@ -1667,8 +2018,21 @@
 		},
 	
 		<span id="Dom-prototype-removeClass">/**
-		 * 移除CSS类名。
-		 * @param {String} [className] 类名。
+		 * 从当前 Dom 对象中删除全部或者指定的类。
+		 * @param {String} [className] 一个或多个要删除的CSS类名，用空格分开。如果不提供此参数，将清空 className 。
+		 * @return this
+		 * @example
+		 * 从匹配的元素中删除 'selected' 类
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+		 * &amp;lt;p class=&quot;selected first&quot;&amp;gt;Hello&amp;lt;/p&amp;gt;
+		 * &lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).removeClass(&quot;selected&quot;);&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+		 * [ &amp;lt;p class=&quot;first&quot;&amp;gt;Hello&amp;lt;/p&amp;gt; ]
+		 * &lt;/pre&gt;
 		 */</span>
 		removeClass: function(className) {
 			assert(!className || className.split, &quot;Dom.prototype.removeClass(className): {className} ~&quot;);
@@ -1692,19 +2056,37 @@
 		},
 	
 		<span id="Dom-prototype-toggleClass">/**
-		 * 切换类名。
-		 * @param {String} className 类名。
+		 * 如果存在（不存在）就删除（添加）一个类。
+		 * @param {String} className CSS类名。
 		 * @param {Boolean} [toggle] 自定义切换的方式。如果为 true， 则加上类名，否则删除。
-		 * @return {Element} this
+		 * @return this
+		 * @see #addClass
+		 * @see #removeClass
+		 * @example
+		 * 为匹配的元素切换 'selected' 类
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&amp;lt;p class=&quot;selected&quot;&amp;gt;Hello Again&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).toggleClass(&quot;selected&quot;);&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;[ &amp;lt;p class=&quot;selected&quot;&amp;gt;Hello&amp;lt;/p&amp;gt;, &amp;lt;p&amp;gt;Hello Again&amp;lt;/p&amp;gt; ]&lt;/pre&gt;
 		 */</span>
 		toggleClass: function(className, stateVal) {
 			return (stateVal !== undefined ? !stateVal: this.hasClass(className)) ? this.removeClass(className): this.addClass(className);
 		},
 	
 		<span id="Dom-prototype-setText">/**
-		 * 设置Dom 对象对应的文本值。
-		 * @param {String/Boolean} 值。
-		 * @return {Element} this
+		 * 设置当前 Dom 对象的文本内容。对于输入框则设置其输入的值。
+		 * @param {String} 用于设置元素内容的文本。
+		 * @return this
+		 * @see #setHtml
+		 * @remark 与 {@link #setHtml} 类似, 但将编码 HTML (将 &quot;&amp;lt;&quot; 和 &quot;&amp;gt;&quot; 替换成相应的HTML实体)。
+		 * @example
+		 * 设定文本框的值。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;input type=&quot;text&quot;/&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;input&quot;).setText(&quot;hello world!&quot;);&lt;/pre&gt;
 		 */</span>
 		setText: function(value) {
 			var elem = this.dom;
@@ -1713,9 +2095,17 @@
 		},
 	
 		<span id="Dom-prototype-setHtml">/**
-		 * 设置当前Dom 对象的内部 HTML 字符串。
-		 * @param {String} value 设置的新值。
-		 * @return {Element} this
+		 * 设置当前 Dom 对象的 Html 内容。
+		 * @param {String} value 用于设定HTML内容的值。
+		 * @return this
+		 * @example
+		 * 设置一个节点的内部 html 
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;div id=&quot;a&quot;&amp;gt;&amp;lt;p/&amp;gt;&amp;lt;/div&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.get(&quot;a&quot;).setHtml(&quot;&amp;lt;a/&amp;gt;&quot;);&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;div id=&quot;a&quot;&amp;gt;&amp;lt;a/&amp;gt;&amp;lt;/div&amp;gt;&lt;/pre&gt;
 		 */</span>
 		setHtml: function(value) {
 			var elem = this.dom,
@@ -1748,10 +2138,20 @@
 		},
 
 		<span id="Dom-prototype-setSize">/**
-		 * 改变大小。
-		 * @param {Number} x 坐标。
-		 * @param {Number} y 坐标。
-		 * @return {Element} this
+		 * 设置当前 Dom 对象的显示大小。
+		 * @param {Number/Point} x 要设置的宽或一个包含 x、y 属性的对象。如果不设置，使用 null 。
+		 * @param {Number} y 要设置的高。如果不设置，使用 null 。
+		 * @return this
+		 * @remark
+		 * 设置元素实际占用大小（包括内边距和边框，但不包括滚动区域之外的大小）。
+		 * 
+		 * 此方法对可见和隐藏元素均有效。
+		 * @example
+		 * 设置 id=myP 的段落的大小。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p id=&quot;myP&quot;&amp;gt;Hello&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;2nd Paragraph&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.get(&quot;myP&quot;).setSize({x:200,y:100});&lt;/pre&gt;
 		 */</span>
 		setSize: function(x, y) {
 			var me = this,
@@ -1765,9 +2165,12 @@
 		},
 	
 		<span id="Dom-prototype-setWidth">/**
-		 * 获取元素自身大小（不带滚动条）。
-		 * @param {Number} value 值。
-		 * @return {Element} this
+		 * 获取当前 Dom 对象设置CSS宽度(width)属性的值（不带滚动条）。
+		 * @param {Number} value 设置的宽度值。
+		 * @return this
+		 * @example
+		 * 将所有段落的宽设为 20。
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).setWidth(20);&lt;/pre&gt;
 		 */</span>
 		setWidth: function(value) {
 		
@@ -1776,9 +2179,12 @@
 		},
 	
 		<span id="Dom-prototype-setHeight">/**
-		 * 获取元素自身大小（不带滚动条）。
-		 * @param {Number} value 值。
-		 * @return {Element} this
+		 * 获取当前 Dom 对象设置CSS高度(hidth)属性的值（不带滚动条）。
+		 * @param {Number} value 设置的高度值。
+		 * @return this
+		 * @example
+		 * 将所有段落的高设为 20。
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).setHeight(20);&lt;/pre&gt;
 		 */</span>
 		setHeight: function(value) {
 	
@@ -1787,9 +2193,24 @@
 		},
 	
 		<span id="Dom-prototype-setOffset">/**
-		 * 设置元素的相对位置。
-		 * @param {Point} System
-		 * @return {Element} this
+		 * 设置当前 Dom 对象相对父元素的偏移。
+		 * @param {Point} offsetPoint 要设置的 x, y 对象。
+		 * @return this
+		 * @remark
+		 * 此函数仅改变 CSS 中 left 和 top 的值。
+		 * 如果当前对象的 position 是static，则此函数无效。
+		 * 可以通过 {@link #setPosition} 强制修改 position, 或先调用 {@link Dom.movable} 来更改 position 。
+		 * 
+		 * @example
+		 * 设置第一段的偏移。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;2nd Paragraph&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;
+		 * Dom.query(&quot;p:first&quot;).setOffset({ x: 10, y: 30 });
+		 * &lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;left: 15, top: 15&amp;lt;/p&amp;gt;&lt;/pre&gt;
 		 */</span>
 		setOffset: function(offsetPoint) {
 		
@@ -1805,10 +2226,22 @@
 		},
 	
 		<span id="Dom-prototype-setPosition">/**
-		 * 设置元素的固定位置。
-		 * @param {Number} x 坐标。
-		 * @param {Number} y 坐标。
-		 * @return {Element} this
+		 * 设置当前 Dom 对象的绝对位置。
+		 * @param {Number/Point} x 要设置的水平坐标或一个包含 x、y 属性的对象。如果不设置，使用 null 。
+		 * @param {Number} y 要设置的垂直坐标。如果不设置，使用 null 。
+		 * @return this
+		 * @remark
+		 * 如果对象原先的position样式属性是static的话，会被改成relative来实现重定位。
+		 * @example
+		 * 设置第二段的位置。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+		 * &amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;2nd Paragraph&amp;lt;/p&amp;gt;
+		 * &lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;
+		 * Dom.query(&quot;p:last&quot;).setPosition({ x: 10, y: 30 });
+		 * &lt;/pre&gt;
 		 */</span>
 		setPosition: function(x, y) {
 			var me = this,
@@ -1827,11 +2260,10 @@
 		},
 	
 		<span id="Dom-prototype-setScroll">/**
-		 * 滚到。
-		 * @param {Element} dom
-		 * @param {Number} x 坐标。
-		 * @param {Number} y 坐标。
-		 * @return {Element} this
+		 * 设置当前 Dom 对象的滚动条位置。
+		 * @param {Number/Point} x 要设置的水平坐标或一个包含 x、y 属性的对象。如果不设置，使用 null 。
+		 * @param {Number} y 要设置的垂直坐标。如果不设置，使用 null 。
+		 * @return this
 		 */</span>
 		setScroll: function(x, y) {
 			var elem = this.dom,
@@ -1843,6 +2275,39 @@
 	
 		},
 		
+		<span id="Dom-prototype-delegate">/**
+		 * 通过当前 Dom 对象代理执行子节点的事件。
+		 * @param {String} selector 筛选子节点的选择器。
+		 * @param {String} type 绑定的事件名。
+		 * @param {Function} fn 绑定的事件监听器。
+		 * @remark
+		 * 这个函数会监听子节点的事件冒泡，并使用 CSS 选择器筛选子节点。
+		 * 
+		 * 这个方法是对 (@link #on} 的补充，比如有如下 HTML 代码:
+		 * &lt;pre lang=&quot;htm&quot;&gt;
+		 * &amp;amp;lt;body&amp;amp;gt;
+		 * &amp;amp;lt;div class=&amp;quot;clickme&amp;quot;&amp;amp;gt;Click here&amp;amp;lt;/div&amp;amp;gt;
+		 * &amp;amp;lt;/body&amp;amp;gt;
+		 * &lt;/pre&gt;
+		 * 
+		 * 可以给这个元素绑定一个简单的click事件：
+		 * &lt;pre&gt;
+		 * Dom.query('.clickme').bind('click', function() {
+		 * 	alert(&quot;Bound handler called.&quot;);
+		 * });
+		 * &lt;/pre&gt;
+		 * 
+		 * 使用 {@link #on} 时，函数会绑定一个事件处理函数，而以后再添加的对象则不会有。
+		 * 而如果让父元素代理执行事件，则可以监听到动态增加的元素。比如:
+		 * 
+		 * &lt;pre&gt;
+		 * document.delegate('.clickme', 'click', function() {
+		 * 	alert(&quot;Bound handler called.&quot;);
+		 * });
+		 * &lt;/pre&gt;
+		 * 
+		 * 这时，无论是原先存在的，还是后来动态创建的节点，只要匹配了　.clickme ，就可以成功触发事件。
+		 */</span>
 		delegate: function(selector, eventName, handler){
 			
 			assert.isFunction(handler, &quot;Dom.prototype.delegate(selector, eventName, handler): {handler}  ~&quot;);
@@ -1861,16 +2326,19 @@
 	.implement({
 		
 		<span id="Dom-prototype-getStyle">/**
-		 * 获取节点样式。
-		 * @param {String} name 键。
-		 * @return {String} 样式。 getStyle() 不被支持，需要使用 name 来获取样式。
+		 * 获取当前 Dom 对象指定属性的样式。
+		 * @param {String} name 需要读取的样式名。允许使用 css 原名字或其骆驼规则。
+		 * @return {String} 返回样式对应的值。如果此样式未设置过，返回其默认值。 
+		 * @example
+		 * 取得 id=myP 的段落的color样式属性的值。
+		 * &lt;pre&gt;Dom.get(&quot;myP&quot;).getStyle(&quot;color&quot;);&lt;/pre&gt;
 		 */</span>
 		getStyle: function(name) {
 		
 			var elem = this.dom;
 		
 			assert.isString(name, &quot;Dom.prototype.getStyle(name): {name} ~&quot;);
-			assert(elem.style, &quot;Dom.prototype.getStyle(name): 当前Dom 对象对应的节点不是元素，无法使用样式。&quot;);
+			assert(elem.style, &quot;Dom.prototype.getStyle(name): 当 Dom 对象对应的节点不是元素，无法使用样式。&quot;);
 		
 			return elem.style[name = name.replace(rStyle, formatStyle)] || getStyle(elem, name);
 		
@@ -1879,9 +2347,10 @@
 		/// #if CompactMode
 		
 		<span id="Dom-prototype-getOpacity">/**
-		 * 获取透明度。
+		 * 获取当前 Dom 对象的透明度。
 		 * @method
-		 * @return {Number} 透明度。 0 - 1 范围。
+		 * @return {Number} 透明度。0 表示完全透明，  1 表示不透明。
+		 * @remark 此函数等效于 getStyle('opacity', value);
 		 */</span>
 		getOpacity: 'opacity' in div.style ? function() {
 			return styleNumber(this.dom, 'opacity');
@@ -1900,34 +2369,72 @@
 		/// #endif
 		
 		<span id="Dom-prototype-getAttr">/**
-		 * 获取一个节点属性。
-		 * @param {String} name 名字。
-		 * @return {String} 属性。
+		 * 获取当前 Dom 对象的属性值。
+		 * @param {String} name 要获取的属性名称。
+		 * @return {String} 返回属性值。如果元素没有相应属性，则返回 null 。
+	 	 * @example
+	 	 * 返回文档中 id=&quot;img&quot; 的图像的src属性值。
+	 	 * #####HTML:
+	 	 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;img id=&quot;img&quot; src=&quot;test.jpg&quot;/&amp;gt;&lt;/pre&gt;
+	 	 * #####JavaScript:
+	 	 * &lt;pre&gt;Dom.get(&quot;img&quot;).getAttr(&quot;src&quot;);&lt;/pre&gt;
+	 	 * #####结果:
+	 	 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;test.jpg&lt;/pre&gt;
 		 */</span>
 		getAttr: function(name) {
 			return Dom.getAttr(this.dom, name);
 		},
 	
 		<span id="Dom-prototype-hasClass">/**
-		 * 检查是否含指定类名。
-		 * @param {String} className
-		 * @return {Boolean} 如果存在返回 true。
+		 * 检查当前 Dom 对象是否含有某个特定的类。
+		 * @param {String} className 要判断的类名。只允许一个类名。
+		 * @return {Boolean} 如果存在则返回 true。
+		 * @example
+		 * 隐藏包含有某个类的元素。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+		 * &amp;lt;div class=&quot;protected&quot;&amp;gt;&amp;lt;/div&amp;gt;&amp;lt;div&amp;gt;&amp;lt;/div&amp;gt;
+		 * &lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;div&quot;).on('click', function(){
+		 * 	if ( this.hasClass(&quot;protected&quot;) )
+		 * 		this.hide();
+		 * });
+		 * &lt;/pre&gt;
 		 */</span>
 		hasClass: function(className) {
 			return Dom.hasClass(this.dom, className);
 		},
 	
 		<span id="Dom-prototype-getText">/**
-		 * 获取值。
-		 * @return {Object/String} 值。对普通节点返回 text 属性。
+		 * 取得当前 Dom 对象内容。对于输入框则获取其输入的值。
+		 * @return {String} 文本内容。对普通节点返回 textContent 属性, 对输入框返回 value 属性， 对普通节点返回 nodeValue 属性。
+		 * @remark 
+		 * 结果是由所有匹配元素包含的文本内容组合起来的文本。这个方法对HTML和XML文档都有效。
+		 * @example
+		 * 获取文本框中的值。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;input type=&quot;text&quot; value=&quot;some text&quot;/&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;input&quot;).getText();&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;[&quot;some text&quot;]&lt;/pre&gt;
 		 */</span>
 		getText: function() {
 			return Dom.getText(this.dom);
 		},
 	
 		<span id="Dom-prototype-getHtml">/**
-		 * 获取当前Dom 对象的内部 HTML 字符串。
+		 * 取得当前 Dom 对象的html内容。
 		 * @return {String} HTML 字符串。
+		 * @example
+		 * 获取 id=&quot;a&quot; 的节点的内部 html。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;div id=&quot;a&quot;&amp;gt;&amp;lt;p/&amp;gt;&amp;lt;/div&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;$Dom.query(&quot;a&quot;).getHtml();&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&quot;&amp;lt;p/&amp;gt;&quot;&lt;/pre&gt;
 		 */</span>
 		getHtml: function() {
 			assert(this.dom.nodeType === 1, &quot;Dom.prototype.getHtml(): 仅当 dom.nodeType === 1 时才能使用此函数。&quot;); 
@@ -1935,8 +2442,20 @@
 		},
 	
 		<span id="Dom-prototype-getSize">/**
-		 * 获取元素可视区域大小。包括 border 大小。
+		 * 获取当前 Dom 对象的可视区域大小。包括 border 大小。
 		 * @return {Point} 位置。
+		 * @remark
+		 * 此方法对可见和隐藏元素均有效。
+		 * 
+		 * 获取元素实际占用大小（包括内边距和边框）。
+		 * @example
+		 * 获取第一段落实际大小。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;2nd Paragraph&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p:first&quot;).getSize();&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;{x=200,y=100}&lt;/pre&gt;
 		 */</span>
 		getSize: function() {
 			var elem = this.dom;
@@ -1945,24 +2464,42 @@
 		},
 	
 		<span id="Dom-prototype-getWidth">/**
-		 * 获取元素自身大小（不带滚动条）。
-		 * @return {Point} 位置。
+		 * 获取当前 Dom 对象的CSS width值。（不带滚动条）。
+		 * @return {Number} 获取的值。
+		 * 取得元素当前计算的宽度值（px）。
+		 * @example
+		 * 获取第一段的宽。
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).item(0).getWidth();&lt;/pre&gt;
+		 * 
+		 * 获取当前HTML文档宽度。
+		 * &lt;pre&gt;document.getWidth();&lt;/pre&gt;
 		 */</span>
 		getWidth: function() {
 			return styleNumber(this.dom, 'width');
 		},
 	
 		<span id="Dom-prototype-getHeight">/**
-		 * 获取元素自身大小（不带滚动条）。
-		 * @return {Point} 位置。
+		 * 获取当前 Dom 对象的CSS height值。（不带滚动条）。
+		 * @return {Number} 获取的值。
+		 * 取得元素当前计算的高度值（px）。
+		 * @example
+		 * 获取第一段的高。
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).item(0).getHeight();&lt;/pre&gt;
+		 * 
+		 * 获取当前HTML文档高度。
+		 * &lt;pre&gt;document.getHeight();&lt;/pre&gt;
 		 */</span>
 		getHeight: function() {
 			return styleNumber(this.dom, 'height');
 		},
 	
 		<span id="Dom-prototype-getScrollSize">/**
-		 * 获取滚动区域大小。
-		 * @return {Point} 位置。
+		 * 获取当前 Dom 对象的滚动区域大小。
+		 * @return {Point} 返回的对象包含两个整型属性：x 和 y。
+		 * @remark
+		 * getScrollSize 获取的值总是大于或的关于 getSize 的值。
+		 * 
+		 * 此方法对可见和隐藏元素均有效。
 		 */</span>
 		getScrollSize: function() {
 			var elem = this.dom;
@@ -1971,8 +2508,23 @@
 		},
 		
 		<span id="Dom-prototype-getOffset">/**
-		 * 获取元素的相对位置。
-		 * @return {Point} 位置。
+		 * 获取当前 Dom 对象的相对位置。
+		 * @return {Point} 返回的对象包含两个整型属性：x 和 y。
+		 * @remark
+		 * 此方法只对可见元素有效。
+		 * 
+		 * 获取匹配元素相对父元素的偏移。
+		 * @example
+		 * 获取第一段的偏移
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;2nd Paragraph&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:&lt;pre&gt;
+		 * var p = Dom.query(&quot;p&quot;).item(0);
+		 * var offset = p.getOffset();
+		 * trace( &quot;left: &quot; + offset.x + &quot;, top: &quot; + offset.y );
+		 * &lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;left: 15, top: 15&amp;lt;/p&amp;gt;&lt;/pre&gt;
 		 */</span>
 		getOffset: function() {
 			// 如果设置过 left top ，这是非常轻松的事。
@@ -2003,8 +2555,22 @@
 		},
 	
 		<span id="Dom-prototype-getPosition">/**
-		 * 获取距父元素的偏差。
-		 * @return {Point} 位置。
+		 * 获取当前 Dom 对象的绝对位置。
+		 * @return {Point} 返回的对象包含两个整型属性：x 和 y。
+		 * @remark
+		 * 此方法只对可见元素有效。
+		 * @example
+		 * 获取第二段的偏移
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;2nd Paragraph&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;
+		 * var p = Dom.query(&quot;p&quot;).item(1);
+		 * var position = p.getPosition();
+		 * trace( &quot;left: &quot; + position.x + &quot;, top: &quot; + position.y );
+		 * &lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;left: 0, top: 35&amp;lt;/p&amp;gt;&lt;/pre&gt;
 		 */</span>
 		getPosition: div.getBoundingClientRect ? function() {
 			var elem = this.dom, 
@@ -2062,8 +2628,24 @@
 		},
 	
 		<span id="Dom-prototype-getScroll">/**
-		 * 获取滚动条已滚动的大小。
-		 * @return {Point} 位置。
+		 * 获取当前 Dom 对象的滚动条的位置。
+		 * @return {Point} 返回的对象包含两个整型属性：x 和 y。
+		 * @remark
+		 * 此方法对可见和隐藏元素均有效。
+		 *
+		 * @example
+		 * 获取第一段相对滚动条顶部的偏移。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;2nd Paragraph&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;
+		 * var p = Dom.query(&quot;p&quot;).item(0);
+		 * trace( &quot;scrollTop:&quot; + p.getScroll() );
+		 * &lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+		 * &amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;scrollTop: 0&amp;lt;/p&amp;gt;
+		 * &lt;/pre&gt;
 		 */</span>
 		getScroll: getScroll
 
@@ -2071,27 +2653,117 @@
 
 	.implement({
 		
-		// 父节点。
+		<span id="Dom-prototype-parent">/**
+		 * 获取当前 Dom 对象的父节点对象。
+		 * @param {Integer/String/Function/Boolean} [filter] 用于查找子元素的 CSS 选择器 或者 元素在Control对象中的索引 或者 用于筛选元素的过滤函数 或者 true 则同时接收包含文本节点的所有节点。
+		 * @return {Dom} 返回一个节点对象。如果不存在，则返回 null 。
+		 * @example
+		 * 找到每个span元素的所有祖先元素。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;html&amp;gt;&amp;lt;body&amp;gt;&amp;lt;div&amp;gt;&amp;lt;p&amp;gt;&amp;lt;span&amp;gt;Hello&amp;lt;/span&amp;gt;&amp;lt;/p&amp;gt;&amp;lt;span&amp;gt;Hello Again&amp;lt;/span&amp;gt;&amp;lt;/div&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.find(&quot;span&quot;).parent()&lt;/pre&gt;
+		 */</span>
 		parent: createTreeWalker('parentNode'),
 
-		// 第一个节点。
+		<span id="Dom-prototype-first">/**
+		 * 获取当前 Dom 对象的第一个子节点对象。
+		 * @param {Integer/String/Function/Boolean} [filter] 用于查找子元素的 CSS 选择器 或者 元素在Control对象中的索引 或者 用于筛选元素的过滤函数 或者 true 则同时接收包含文本节点的所有节点。
+		 * @return {Dom} 返回一个节点对象。如果不存在，则返回 null 。
+		 * @example
+		 * 获取匹配的第二个元素
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt; This is just a test.&amp;lt;/p&amp;gt; &amp;lt;p&amp;gt; So is this&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).first(1)&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;[ &amp;lt;p&amp;gt; So is this&amp;lt;/p&amp;gt; ]&lt;/pre&gt;
+		 */</span>
 		first: createTreeWalker('nextSibling', 'firstChild'),
 
-		// 最后的节点。
+		<span id="Dom-prototype-last">/**
+		 * 获取当前 Dom 对象的最后一个子节点对象。
+		 * @param {Integer/String/Function/Boolean} [filter] 用于查找子元素的 CSS 选择器 或者 元素在Control对象中的索引 或者 用于筛选元素的过滤函数 或者 true 则同时接收包含文本节点的所有节点。
+		 * @return {Dom} 返回一个节点对象。如果不存在，则返回 null 。
+		 * @example
+		 * 获取匹配的第二个元素
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt; This is just a test.&amp;lt;/p&amp;gt; &amp;lt;p&amp;gt; So is this&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).getChild(1)&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;[ &amp;lt;p&amp;gt; So is this&amp;lt;/p&amp;gt; ]&lt;/pre&gt;
+		 */</span>
 		last: createTreeWalker('previousSibling', 'lastChild'),
 
-		// 后面的节点。
+		<span id="Dom-prototype-next">/**
+		 * 获取当前 Dom 对象的下一个相邻节点对象。取得一个包含匹配的元素集合中每一个元素紧邻的后面同辈元素的元素集合。
+		 * @param {Integer/String/Function/Boolean} [filter] 用于查找子元素的 CSS 选择器 或者 元素在Control对象中的索引 或者 用于筛选元素的过滤函数 或者 true 则同时接收包含文本节点的所有节点。
+		 * @return {Dom} 返回一个节点对象。如果不存在，则返回 null 。
+		 * @example
+		 * 找到每个段落的后面紧邻的同辈元素。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;Hello Again&amp;lt;/p&amp;gt;&amp;lt;div&amp;gt;&amp;lt;span&amp;gt;And Again&amp;lt;/span&amp;gt;&amp;lt;/div&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).getNext()&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;[ &amp;lt;p&amp;gt;Hello Again&amp;lt;/p&amp;gt;, &amp;lt;div&amp;gt;&amp;lt;span&amp;gt;And Again&amp;lt;/span&amp;gt;&amp;lt;/div&amp;gt; ]&lt;/pre&gt;
+		 */</span>
 		next: createTreeWalker('nextSibling'),
 
-		// 前面的节点。
+		<span id="Dom-prototype-prev">/**
+		 * 获取当前 Dom 对象的上一个相邻的节点对象。
+		 * @param {Integer/String/Function/Boolean} [filter] 用于查找子元素的 CSS 选择器 或者 元素在Control对象中的索引 或者 用于筛选元素的过滤函数 或者 true 则同时接收包含文本节点的所有节点。
+		 * @return {Dom} 返回一个节点对象。如果不存在，则返回 null 。
+		 * @example
+		 * 找到每个段落紧邻的前一个同辈元素。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&amp;lt;div&amp;gt;&amp;lt;span&amp;gt;Hello Again&amp;lt;/span&amp;gt;&amp;lt;/div&amp;gt;&amp;lt;p&amp;gt;And Again&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).getPrevious()&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;[ &amp;lt;div&amp;gt;&amp;lt;span&amp;gt;Hello Again&amp;lt;/span&amp;gt;&amp;lt;/div&amp;gt; ]&lt;/pre&gt;
+		 * 
+		 * 找到每个段落紧邻的前一个同辈元素中类名为selected的元素。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;div&amp;gt;&amp;lt;span&amp;gt;Hello&amp;lt;/span&amp;gt;&amp;lt;/div&amp;gt;&amp;lt;p class=&quot;selected&quot;&amp;gt;Hello Again&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;And Again&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).getPrevious(&quot;div&quot;)&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;[ &amp;lt;p class=&quot;selected&quot;&amp;gt;Hello Again&amp;lt;/p&amp;gt; ]&lt;/pre&gt;
+		 */</span>
 		prev: createTreeWalker('previousSibling'),
 
-		// 全部子节点。
+		<span id="Dom-prototype-children">/**
+		 * 获取当前 Dom 对象的全部直接子节点。
+		 * @param {Integer/String/Function/Boolean} [filter] 用于查找子元素的 CSS 选择器 或者 元素在Control对象中的索引 或者 用于筛选元素的过滤函数 或者 true 则同时接收包含文本节点的所有节点。
+		 * @return {NodeList} 返回满足要求的节点的列表。
+		 * @example
+		 * 
+		 * 查找DIV中的每个子元素。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&amp;lt;div&amp;gt;&amp;lt;span&amp;gt;Hello Again&amp;lt;/span&amp;gt;&amp;lt;/div&amp;gt;&amp;lt;p&amp;gt;And Again&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;div&quot;).getChildren()&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;[ &amp;lt;span&amp;gt;Hello Again&amp;lt;/span&amp;gt; ]&lt;/pre&gt;
+		 * 
+		 * 在每个div中查找 div。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;div&amp;gt;&amp;lt;span&amp;gt;Hello&amp;lt;/span&amp;gt;&amp;lt;p class=&quot;selected&quot;&amp;gt;Hello Again&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;And Again&amp;lt;/p&amp;gt;&amp;lt;/div&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;div&quot;).getChildren(&quot;div&quot;)&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;[ &amp;lt;p class=&quot;selected&quot;&amp;gt;Hello Again&amp;lt;/p&amp;gt; ]&lt;/pre&gt;
+		 */</span>
 		children: function(args){
 			return dir(this.dom.firstChild, 'nextSibling', args);
 		},
 		
-		// 号次。
+		<span id="Dom-prototype-index">/**
+		 * 获取当前 Dom 对象的在原节点的位置。
+		 * @return {Number} 位置。从 0 开始。
+		 */</span>
 		index: 'nodeIndex' in div ? function(){
 			return this.dom.nodeIndex;
 		} : function() {
@@ -2105,9 +2777,15 @@
 		<span id="Dom-prototype-getAll">/**
 		 * 获取全部满足要求的节点的集合。
 		 * @param {String} direction 遍历的方向方向，可以是以下值之一:
-		 * - previousSibling: 遍历当前节点以前的节点。
-		 * - previousSibling: 遍历当前节点以后的节点。
-		 * - parentNode: 遍历当前节点的父节点。
+		 * 
+		 * - **child**: 遍历当前全部子节点。如果是此关键字时，args 只能是 节点标签名。
+		 * - **prev**: 遍历当前节点以前的节点。
+		 * - **next**: 遍历当前节点以后的节点。
+		 * - **parent**: 遍历当前节点的父节点。
+		 * - **sibling**: 遍历当前节点的兄弟节点。
+		 * 
+		 * @param {Number/String/Function/Boolean} [args] 用于查找子元素的 CSS 选择器 或者 元素在Control对象中的索引 或者 用于筛选元素的过滤函数 或者 true 则同时接收包含文本节点的所有节点。
+		 * @return {NodeList} 返回满足要求的节点的列表。
 		 */</span>
 		getAll: function(direction, args){
 			switch(direction) {
@@ -2129,9 +2807,17 @@
 		},
 
 		<span id="Dom-prototype-find">/**
-		 * 执行一个简单的选择器。
-		 * @param {String} selecter 选择器。 如 h2 .cls attr=value 。
-		 * @return {Element/undefined} 节点。
+		 * 搜索所有与指定CSS表达式匹配的第一个元素。
+		 * @param {String} selecter 用于查找的表达式。
+		 * @return {Dom} 返回一个节点对象。如果不存在，则返回 null 。
+		 * @example
+		 * 从所有的段落开始，进一步搜索下面的span元素。与Dom.find(&quot;p span&quot;)相同。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;&amp;lt;span&amp;gt;Hello&amp;lt;/span&amp;gt;, how are you?&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).find(&quot;span&quot;)&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;[ &amp;lt;span&amp;gt;Hello&amp;lt;/span&amp;gt; ]&lt;/pre&gt;
 		 */</span>
 		find: function(selector){
 			assert.isString(selector, &quot;Dom.prototype.find(selector): selector ~。&quot;);
@@ -2159,10 +2845,17 @@
 		},
 		
 		<span id="Dom-prototype-query">/**
-		 * 执行选择器。
-		 * @method
-		 * @param {String} selecter 选择器。 如 h2 .cls attr=value 。
-		 * @return {Element/undefined} 节点。
+		 * 搜索所有与指定表达式匹配的元素。
+		 * @param {String} 用于查找的表达式。
+		 * @return {NodeList} 返回满足要求的节点的列表。
+		 * @example
+		 * 从所有的段落开始，进一步搜索下面的span元素。与Dom.query(&quot;p span&quot;)相同。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;&amp;lt;span&amp;gt;Hello&amp;lt;/span&amp;gt;, how are you?&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).query(&quot;span&quot;)&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;[ &amp;lt;span&amp;gt;Hello&amp;lt;/span&amp;gt; ]&lt;/pre&gt;
 		 */</span>
 		query: function(selector){
 			assert.isString(selector, &quot;Dom.prototype.find(selector): selector ~。&quot;);
@@ -2193,7 +2886,10 @@
 			return new DomList(result);
 		},
 			
-		// 偏移父位置。
+		<span id="Dom-prototype-offsetParent">/**
+		 * 获取用于让当前 Dom 对象定位的父对象。
+		 * @return {Dom} 返回一个节点对象。如果不存在，则返回 null 。
+		 */</span>
 		offsetParent: function() {
 			var me = this.dom;
 			while(( me = me.offsetParent) &amp;&amp; !rBody.test(me.nodeName) &amp;&amp; styleString(me, &quot;position&quot;) === &quot;static&quot;);
@@ -2202,10 +2898,24 @@
 	 
 		<span id="Dom-prototype-insert">/**
 		 * 在某个位置插入一个HTML 。
-		 * @param {String/Element} html 内容。
-		 * @param {String} [where] 插入地点。 beforeBegin 节点外 beforeEnd 节点里
-		 *            afterBegin 节点外 afterEnd 节点里
-		 * @return {Element} 插入的节点。
+		 * @param {String} where 插入地点。 
+		 * 
+		 * - **beforeBegin**: 节点外。 
+		 * - **beforeEnd** 节点里。
+		 * - **afterBegin** 节点外。
+		 * - **afterEnd** 节点里。
+		 * 
+		 * @param {String/Node/Dom} html 要插入的内容。
+		 * @return {Dom} 返回插入的新节点对象。
+		 * 向每个匹配的元素内部前置内容。
+		 * @example
+		 * 向所有段落中前置一些HTML标记代码。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;I would like to say: &amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).insert(&quot;afterBegin&quot;,&quot;&amp;lt;b&amp;gt;Hello&amp;lt;/b&amp;gt;&quot;);&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;[ &amp;lt;p&amp;gt;&amp;lt;b&amp;gt;Hello&amp;lt;/b&amp;gt;I would like to say: &amp;lt;/p&amp;gt; ]&lt;/pre&gt;
 		 */</span>
 		insert: function(where, html) {
 		
@@ -2239,9 +2949,9 @@
 		},
 	
 		<span id="Dom-prototype-append">/**
-		 * 插入一个HTML 。
-		 * @param {String/Element} html 内容。
-		 * @return {Element} 元素。
+		 * 插入一个HTML 到末尾。
+		 * @param {String/Node/Dom} html 要插入的内容。
+		 * @return {Dom} 返回插入的新节点对象。
 		 */</span>
 		append: function(html) {
 			html = Dom.parse(html, this);
@@ -2251,8 +2961,35 @@
 		
 		<span id="Dom-prototype-replaceWith">/**
 		 * 将一个节点用另一个节点替换。
-		 * @param {Element/String} html 内容。
+		 * @param {String/Node/Dom} html 用于将匹配元素替换掉的内容。
 		 * @return {Element} 替换之后的新元素。
+		 * 将所有匹配的元素替换成指定的HTML或DOM元素。
+		 * @example
+		 * 把所有的段落标记替换成加粗的标记。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;Hello&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;cruel&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;World&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;p&quot;).replaceWith(&quot;&amp;lt;b&amp;gt;Paragraph. &amp;lt;/b&amp;gt;&quot;);&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;b&amp;gt;Paragraph. &amp;lt;/b&amp;gt;&amp;lt;b&amp;gt;Paragraph. &amp;lt;/b&amp;gt;&amp;lt;b&amp;gt;Paragraph. &amp;lt;/b&amp;gt;&lt;/pre&gt;
+		 *
+		 * 用第一段替换第三段，可以发现他是移动到目标位置来替换，而不是复制一份来替换。
+		 * #####HTML:&lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+		 * &amp;lt;div class=&amp;quot;container&amp;quot;&amp;gt;
+		 * &amp;lt;div class=&amp;quot;inner first&amp;quot;&amp;gt;Hello&amp;lt;/div&amp;gt;
+		 * &amp;lt;div class=&amp;quot;inner second&amp;quot;&amp;gt;And&amp;lt;/div&amp;gt;
+		 * &amp;lt;div class=&amp;quot;inner third&amp;quot;&amp;gt;Goodbye&amp;lt;/div&amp;gt;
+		 * &amp;lt;/div&amp;gt;
+		 * &lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.find('.third').replaceWith(Dom.find('.first'));&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;
+		 * &amp;lt;div class=&amp;quot;container&amp;quot;&amp;gt;
+		 * &amp;lt;div class=&amp;quot;inner second&amp;quot;&amp;gt;And&amp;lt;/div&amp;gt;
+		 * &amp;lt;div class=&amp;quot;inner first&amp;quot;&amp;gt;Hello&amp;lt;/div&amp;gt;
+		 * &amp;lt;/div&amp;gt;
+		 * &lt;/pre&gt;
 		 */</span>
 		replaceWith: function(html) {
 			var elem;
@@ -2266,11 +3003,20 @@
 		},
 	
 		<span id="Dom-prototype-clone">/**
-		 * 创建并返回Dom 对象的副本。
+		 * 创建并返回当前 Dom 对象的副本。
 		 * @param {Boolean} cloneEvent=false 是否复制事件。
 		 * @param {Boolean} contents=true 是否复制子元素。
 		 * @param {Boolean} keepId=false 是否复制 id 。
-		 * @return {Dom} 新的Dom 对象。
+		 * @return {Dom} 新 Dom 对象。
+		 *
+		 * @example
+		 * 克隆所有b元素（并选中这些克隆的副本），然后将它们前置到所有段落中。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;b&amp;gt;Hello&amp;lt;/b&amp;gt;&amp;lt;p&amp;gt;, how are you?&amp;lt;/p&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;b&quot;).clone().prependTo(&quot;p&quot;);&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;b&amp;gt;Hello&amp;lt;/b&amp;gt;&amp;lt;p&amp;gt;&amp;lt;b&amp;gt;Hello&amp;lt;/b&amp;gt;, how are you?&amp;lt;/p&amp;gt;&lt;/pre&gt;
 		 */</span>
 		clone: function(cloneEvent, contents, keepId) {
 		
@@ -2292,18 +3038,36 @@
 
 	.implement({
 		
+		<span id="Dom-prototype-match">/**
+		 * 检查当前 Dom 对象是否符合指定的表达式。
+		 * @param {String} String
+		 * @return {Boolean} 如果匹配表达式就返回 true，否则返回  false 。
+		 * @example
+		 * 由于input元素的父元素是一个表单元素，所以返回true。
+		 * #####HTML:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;form&amp;gt;&amp;lt;input type=&quot;checkbox&quot; /&amp;gt;&amp;lt;/form&amp;gt;&lt;/pre&gt;
+		 * #####JavaScript:
+		 * &lt;pre&gt;Dom.query(&quot;input[type='checkbox']&quot;).match(&quot;input&quot;)&lt;/pre&gt;
+		 * #####结果:
+		 * &lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;true&lt;/pre&gt;
+		 */</span>
 		match: function (selector) {
 			return Dom.match(this.dom, selector);
 		},
 		
+		<span id="Dom-prototype-isHidden">/**
+		 * 判断当前元素是否是隐藏的。
+		 * @return {Boolean} 当前元素已经隐藏返回 true，否则返回  false 。
+		 */</span>
 		isHidden: function(){
 			return Dom.isHidden(this.dom) || styleString(this.dom, 'visibility') !== 'hidden';
 		},
 		
 		<span id="Dom-prototype-hasChild">/**
 		 * 判断一个节点是否有子节点。
-		 * @param {Element} [Dom] 子节点。
-		 * @return {Boolean} 有返回true 。
+		 * @param {Dom} [dom] 子节点。如果未传递此参数，则判断是否存在任何子节点。
+		 * @param {Boolean} allowSelf=false 如果为 true，则当当前节点等于指定的节点时也返回 true 。
+		 * @return {Boolean} 存在子节点则返回true 。
 		 */</span>
 		hasChild: function(dom, allowSelf) {
 			var elem = this.dom;
@@ -2326,6 +3090,13 @@
 	 */
 	Dom.Document.implement({
 		
+		<span id="Dom-Document-prototype-dataField">/**
+		 * 获取当前类对应的数据字段。
+		 * @protected override
+		 * @return {Object} 一个可存储数据的对象。
+		 * @remark
+		 * 此函数会在原生节点上创建一个 $data 属性以存储数据。
+		 */</span>
 		dataField: function(){
 			return this.$data;
 		},
@@ -2333,7 +3104,18 @@
 		<span id="Dom-Document-prototype-append">/**
 		 * 插入一个HTML 。
 		 * @param {String/Dom} html 内容。
-		 * @return {Element} 元素。
+		 * @return {Node} 元素。
+		 * 向每个匹配的元素内部追加内容。
+        &lt;longdesc&gt;这个操作与对指定的元素执行appendChild方法，将它们添加到文档中的情况类似。&lt;/longdesc&gt;
+        &lt;params name=&quot;content&quot; type=&quot;String, Element, Control&quot;&gt;
+          要追加到目标中的内容
+        &lt;/params&gt;
+        @example
+          向所有段落中追加一些HTML标记。
+          #####HTML:&lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;&amp;lt;p&amp;gt;I would like to say: &amp;lt;/p&amp;gt;&lt;/pre&gt;
+          #####JavaScript:&lt;pre&gt;Dom.query(&quot;p&quot;).append(&quot;&amp;lt;b&amp;gt;Hello&amp;lt;/b&amp;gt;&quot;);&lt;/pre&gt;
+          #####结果:&lt;pre lang=&quot;htm&quot; format=&quot;none&quot;&gt;[ &amp;lt;p&amp;gt;I would like to say: &amp;lt;b&amp;gt;Hello&amp;lt;/b&amp;gt;&amp;lt;/p&amp;gt; ]&lt;/pre&gt;
+        
 		 */</span>
 		append: function(html) {
 			return new Dom(this.body).append(html);
@@ -2426,6 +3208,15 @@
 		 * @param {Number} x 坐标。
 		 * @param {Number} y 坐标。
 		 * @return {Document} this 。
+		 * 传递参数值时，设置垂直滚动条顶部偏移为该值。
+        &lt;longdesc&gt;此方法对可见和隐藏元素均有效。&lt;/longdesc&gt;
+        &lt;params name=&quot;val&quot; type=&quot;String, Number&quot;&gt;
+          设定垂直滚动条值
+        &lt;/params&gt;
+        @example
+          设置相对滚动条顶部的偏移
+          #####JavaScript:&lt;pre&gt;Dom.query(&quot;div.demo&quot;).setScroll(300);&lt;/pre&gt;
+        
 		 */</span>
 		setScroll: function(x, y) {
 			var doc = this, offsetPoint = formatPoint(x, y);
@@ -2615,15 +3406,32 @@
 	/// #endif
 
 	<span id="Dom-ready">/**
-	 * 页面加载时执行。
-	 * @param {Functon} fn 执行的函数。
+	 * 设置在页面加载(不包含图片)完成时执行函数。
+	 * @param {Functon} fn 当DOM加载完成后要执行的函数。
 	 * @member Dom.ready
+	 * @remark
+	 * 允许你绑定一个在DOM文档载入完成后执行的函数。需要把页面中所有需要在 DOM 加载完成时执行的Dom.ready()操作符都包装到其中来。
+	 * 
+        @example
+          当DOM加载完成后，执行其中的函数。
+          #####JavaScript:&lt;pre&gt;Dom.ready(function(){
+  // 文档就绪
+});&lt;/pre&gt;
+        
 	 */</span>
 
 	<span id="Dom-load">/**
-	 * 在文档载入的时候执行函数。
+	 * 设置在页面加载(包含图片)完成时执行函数。
 	 * @param {Functon} fn 执行的函数。
 	 * @member Dom.load
+	 * @remark
+	 * 允许你绑定一个在DOM文档载入完成后执行的函数。需要把页面中所有需要在 DOM 加载完成时执行的Dom.load()操作符都包装到其中来。
+        @example
+          当DOM加载完成后，执行其中的函数。
+          #####JavaScript:&lt;pre&gt;Dom.load(function(){
+  // 文档和引用的资源文件加载完成
+});&lt;/pre&gt;
+        
 	 */</span>
 
 	Dom.addEvent('domready domload', {});
@@ -3116,7 +3924,7 @@
 				
 				// ‘a&gt;b’: m = ['&gt;', 'b']
 				// ‘a&gt;.b’: m = ['&gt;', '']
-				// result 始终实现了 IDom 接口，所以保证有 Dom.combinators 内的方法。
+				// result 始终实现了  Dom 接口，所以保证有 Dom.combinators 内的方法。
 
 			// 解析的第三步: 解析剩余的选择器:获取所有子节点。第四步再一一筛选。
 			} else {

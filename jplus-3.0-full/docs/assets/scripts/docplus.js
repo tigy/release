@@ -502,7 +502,7 @@ DocPlus.Controller = Class({
 
 		this.homeView = new DocPlus.HomeView(name, this, title, description);
 		this.homeView.tab.appendTo('navbar');
-		this.homeView.setContent('<div>ddd55d</div>').deactive();
+		this.homeView.setContent('<div>请从左边选择 API 信息</div>').deactive();
 
 		this.treeView = new TreeView()
 				.addClass('x-treeview-plain')
@@ -1090,7 +1090,7 @@ DocPlus.APIRender = {
 				var m;
 				node.className = 'doc-list';
 				for(node = node.firstChild; node; node = node.nextSibling){
-					if(node.nodeType === 1 && (m = /^\{(.*?)\}\s+(.*?)(\s*=\s*(.*?))\s+(.*)$/.exec(Dom.getText(node)))){
+					if(node.nodeType === 1 && (m = /^\{(.*?)\}\s+(.*?)(\s*=\s*(.*?))?\s+(.*)$/.exec(Dom.getText(node)))){
 						node.innerHTML = String.format("<strong>{0}</strong>({1}): {2}{3}", m[2], DocPlus.APIRender.getTypeLink(m[1]), m[5], m[4] ? " 默认为 " + m[4] + " 。": "");
 					}	
 				}
@@ -1129,7 +1129,7 @@ DocPlus.APIRender = {
 
 	tpl: '\
 <div class="doc">\
-	<div class="doc-func">\
+	<div class="doc-func x-hide">\
 		<a type="button" href="javascript:;" class="x-button x-button-plain x-menubutton">显示 <span class="x-button-menu x-button-menu-down"> </span> </a>\
 	</div>\
 	<h1>\
@@ -1334,13 +1334,17 @@ DocPlus.APIRender = {
 };
 
 DocPlus.initControllers = function(){
-
-	new DocPlus.HomeController(null, '', '', '<span class="x-icon x-icon-home"></span>', '首页');
+	//	  new DocPlus.HomeController(null, '', '', '<span class="x-icon x-icon-home"></span>', '首页');
 
 	new DocPlus.APIController('data/api.js', 'data/api/', 'api', 'API');
 	
-	new DocPlus.Controller('data/example.js', '../example/', 'example', '示例');
+	//    new DocPlus.Controller('data/example.js', '../example/', 'example', '示例');
 
+	
+	if(!location.hash){
+		location.hash = '#!api/';
+	}
+	
 };
 
 

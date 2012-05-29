@@ -1,1 +1,0 @@
-﻿jsonp({"fullName":'contains',"summary":'<p>\u5224\u65ad\u4e00\u4e2a\u8282\u70b9\u662f\u5426\u5305\u542b\u4e00\u4e2a\u8282\u70b9\u3002 \u4e00\u4e2a\u8282\u70b9\u5305\u542b\u81ea\u8eab\u3002</p>\n',"returns":{"type":'Boolean',"summary":'\u6709\u8fd4\u56detrue \u3002'},"name":'contains',"memberOf":'',"memberType":'function'});
