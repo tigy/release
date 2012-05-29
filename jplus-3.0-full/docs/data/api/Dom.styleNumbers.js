@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'Dom.styleNumbers',"source":'base.js',"sourceFile":'data/source/base.js.html#Dom-styleNumbers',"summary":'<p>\u4e0d\u9700\u8981\u5355\u4f4d\u7684 css \u5c5e\u6027\u3002</p>\n',"memberAttribute":'static',"type":'Object',"name":'styleNumbers',"memberOf":'Dom',"memberType":'field'});

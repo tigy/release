@@ -47,7 +47,7 @@ var DocPlus = {
 		win.on('hashchange', DocPlus.reload);
 		win.on('resize', DocPlus.updateLayout);
 
-		document.find('#tabs-more .x-icon-list').getParent().on('click', function () {
+		document.find('#tabs-more .x-icon-list').parent().on('click', function () {
 			var menu = DocPlus.listMenu;
 			if (!menu) {
 				DocPlus.listMenu = menu = new ContextMenu().appendTo();
@@ -751,7 +751,7 @@ DocPlus.APIController = DocPlus.Controller.extend({
 	
 	initTreeNode: function (memberInfo, pathInfo, name) {
 		memberInfo.treeNode.setText(name).setHref('#!' + this.name + '/' + pathInfo);
-		memberInfo.treeNode.getLast('span').addClass('icon-member icon-' + memberInfo.icon);
+		memberInfo.treeNode.last('span').addClass('icon-member icon-' + memberInfo.icon);
 	},
 	
 	getTreeNode: function(pathInfo, hash, createIfNotExist){
@@ -803,7 +803,7 @@ DocPlus.APIController = DocPlus.Controller.extend({
 	
 });
 
-var CommentServerUrl = 'http://localhost:8022';
+var CommentServerUrl = 'http://localhost:83/query.ashx';
 
 // disqus.com
 
@@ -814,11 +814,12 @@ var CommentServer = {
 		new Request.JSONP({
 			url: CommentServerUrl,
 			data: {
-				action: 'save',
-				content: Dom.get(dom).find('.x-textbox').getValue()
+				action: 'add',
+				content: Dom.get(dom).find('.x-textbox').getText(),
+				url: hash
 			},
 			success: function () {
-				CommentServer.init(dom, hash);
+				CommentServer.load(dom, hash);
 			}
 		}).send();
 	},
@@ -834,18 +835,19 @@ var CommentServer = {
 		new Request.JSONP({
 			url: CommentServerUrl,
 			data: {
-				action: 'get'
+				action: 'get',
+				url: hash
 			},
 			success: function (data) {
 				Dom.get(dom).setHtml(Tpl.parse('\
 {for comment in $data}\
 {comment.content}\
-{comment.date}\
+<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{comment.date}</span>\
 <hr>\
 {end}\
 <textarea class="x-textbox"></textarea>\
 <br><br>\
-<input type="button" class="x-button" value="提交" onclick="CommentServer.save(this.parentNode, ' + hash + ')">', data));
+<input type="button" class="x-button" value="提交" onclick="CommentServer.save(this.parentNode, \'' + hash + '\')">', data));
 			},
 			error: function () {
 				Dom.get(dom).setHtml('无法连接到接口服务器');
@@ -861,13 +863,14 @@ DocPlus.APIRender = {
 		'class': '类',
 		'enum': '枚举',
 		'interface': '接口',
-		'namespace': '对象',
+		'object': '对象',
 		'module': '模块',
 		'category': '分类'
 	},
 
 	memberTypes: {
 		'method': '方法',
+		'constructor': '构造函数',
 		'field': '字段',
 		'property': '属性',
 		'function': '函数',
@@ -889,21 +892,10 @@ DocPlus.APIRender = {
 
     formatJS: js_beautify,
     
-    formatAndHighLight: function(code, lang){
-    	code = code.trim();
-    	if(!lang || lang == "js"){
-    		code = DocPlus.APIRender.formatJS(code);
-    	} else if(lang == "html")  {
-    		code = DocPlus.APIRender.formatHTML(code);	
-    	} 
-    	
-    	
-    	code = prettyPrintOne(code, lang, 1);
-    	
-    	
-    	return code;
-    	
-    },
+    encodeHTML: function (value) {
+            return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\'/g, "&#39;").replace(/\"/g, "&quot;");
+
+        },
 
 	getIcon: function (icon, isStatic, extend) {
 		return '<span class="icon-member icon-member-signle icon-' + icon + '"></span>' + (isStatic ? '<span class="x-icon icon-static"></span>' : '') + (extend ? '<span class="x-icon icon-extends"></span>' : '');
@@ -921,6 +913,12 @@ DocPlus.APIRender = {
 	
 	getMemberName: function(name){
 		return name.substr(name.lastIndexOf('.') + 1);
+	},
+	
+	getLink: function(name){
+		var m = DocPlus.controllers.api.members[name];
+		
+		return DocPlus.APIRender.getTypeLink(name, DocPlus.APIRender.getReadableName(name, m && m.type));
 	},
 
 	getTypeLink: function (name, displayName) {
@@ -953,16 +951,29 @@ DocPlus.APIRender = {
 		switch(data.memberType){
 			case 'method':
 			case 'function':
-						
-				var type = data.returns && data.returns.type;
-				if (!type || type == "Undefined" || type == "undefined") {
-					type = "void";
+			case 'constructor':
+			
+				if(data.memberType === 'constructor') {
+				
+					fn.push(
+					'new ',
+					data.memberOf,
+					'(');
+					
+				} else {
+					
+					var type = data.returns && data.returns.type;
+					if (!type || type == "Undefined" || type == "undefined") {
+						type = "void";
+					}
+					
+					fn.push(
+					type,
+					' ',
+					name,
+					'(');
+					
 				}
-				fn.push(
-				type,
-				' ',
-				name,
-				'(');
 	
 				if (data.params) {
 					data.params.forEach(function (value, index) {
@@ -1049,23 +1060,68 @@ DocPlus.APIRender = {
 				fn.push(' = {}')
 				break;
 				
+			default:
+				fn.push(name);
+				break;
+				
 		}
 
 		return fn.join('');
 	},
 	
 	render: function (view, data) {
-
-
-		tpl = Tpl.parse(DocPlus.APIRender.tpl, data);
+		
+		// @link
+		tpl = Tpl.parse(DocPlus.APIRender.tpl, data).replace(/\{@link (.*?)\}/g, function(m, value){
+			if(value.charAt(0) === '#'){
+				value = data.memberOf + value;
+			}
+			
+			value = value.replace('#', '.prototype.');
+		
+			return DocPlus.APIRender.getLink(value);
+		});
+		
 		view.setTitle(DocPlus.APIRender.getShortReadableName(data.name, data.memberType, data.memberOf));
 		view.setContent(tpl);
 
+		Object.each(view.content.dom.getElementsByTagName('ul'), function (node) {
+			if (!node.className) {
+				var m;
+				node.className = 'doc-list';
+				for(node = node.firstChild; node; node = node.nextSibling){
+					if(node.nodeType === 1 && (m = /^\{(.*?)\}\s+(.*?)(\s*=\s*(.*?))\s+(.*)$/.exec(Dom.getText(node)))){
+						node.innerHTML = String.format("<strong>{0}</strong>({1}): {2}{3}", m[2], DocPlus.APIRender.getTypeLink(m[1]), m[5], m[4] ? " 默认为 " + m[4] + " 。": "");
+					}	
+				}
+			}
+		});
+
 		Object.each(view.content.dom.getElementsByTagName('pre'), function (node) {
-			var dom = Dom.get(node), lang = dom.getAttr('lang') || 'js';
-			if (lang != "none") {
-				dom.addClass('prettyPrint linenums lang-' + lang);
-				dom.setHtml(DocPlus.APIRender.formatAndHighLight(node.innerHTML, lang));
+			if (!node.className) {
+				var code = Dom.getText(node).trim(),
+					format = Dom.getAttr(node, 'format'),
+					lang;
+    			
+    			switch(format) {
+    				case 'htm':
+    					code = DocPlus.APIRender.formatJS(code);
+    					lang = format;
+    					break;
+    					
+    				case 'js':
+    					code = DocPlus.APIRender.formatHTML(code);	
+    					lang = format;
+    					break;
+    					
+    				default:
+    					lang = Dom.getAttr(node, 'lang') || (/^\</.test(code) ? 'htm' : 'js');
+    				
+    			}
+				
+				node.className = 'prettyPrint linenums lang-' + lang;
+				
+				node.innerHTML = prettyPrintOne(DocPlus.APIRender.encodeHTML(code), lang, 1);
 			}
 		});
 		
@@ -1155,7 +1211,7 @@ DocPlus.APIRender = {
 	{summary}\
 	<h3>语法</h3>\
 	<div class="doc-content">\
-		<code lang="none" class="doc-syntax">{DocPlus.APIRender.getSyntax($data)}</code>\
+		<code lang="none" class="doc-syntax">{$data.syntax || DocPlus.APIRender.getSyntax($data)}</code>\
 	</div>\
 	{if params}\
 	<h4>参数</h4>\
@@ -1253,15 +1309,18 @@ DocPlus.APIRender = {
 		</dl>\
 	</div>\
 	{end}\
-	{if sees}\
-	<h3>参考</h3>\
+	{if $data.memberOf || $data.see}\
+	<h3>另参考</h3>\
 	<div class="doc-content">\
-		<ul>\
-			{for see in sees}\
+		<ul class="doc-ul">\
+			{for see in $data.see}\
 				<li>\
-					{DocPlus.APIRender.getTypeLink(see)}\
+					{{}@link {see}{}}\
 				</li>\
 			{end}\
+			<li>\
+				{{}@link {$data.memberOf}{}}\
+			</li>\
 		</ul>\
 	</div>\
 	{end}\

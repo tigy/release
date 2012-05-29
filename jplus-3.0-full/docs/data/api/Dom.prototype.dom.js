@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'Dom.prototype.dom',"source":'base.js',"sourceFile":'data/source/base.js.html#Dom-prototype-dom',"summary":'<p>\u83b7\u53d6\u5f53 Dom \u5bf9\u8c61\u5b9e\u9645\u5bf9\u5e94\u7684 HTML \u8282\u70b9\u5b9e\u4f8b\u3002</p>\n',"type":'Node',"memberAccess":'protected',"name":'dom',"memberOf":'Dom',"memberType":'field'});

@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'Dom.textFix',"source":'base.js',"sourceFile":'data/source/base.js.html#Dom-textFix',"summary":'<p>\u83b7\u53d6\u6587\u672c\u65f6\u5e94\u4f7f\u7528\u7684\u5c5e\u6027\u503c\u3002</p>\n',"memberAccess":'private',"memberAttribute":'static',"name":'textFix',"memberOf":'Dom',"memberType":'field'});

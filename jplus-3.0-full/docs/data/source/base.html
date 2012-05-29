@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>base.js 源码</title>
+		<title>base 源码</title>
 		<link href="../../assets/styles/prettify.css" type="text/css" rel="stylesheet" />
 		<script src="../../assets/scripts/prettify.js" type="text/javascript"></script>
 		<style type="text/css">.highlight { display: block; background-color: #ddd; }</style>
@@ -15,8 +15,8 @@
  */
 
 // 可用的宏
-// 	CompactMode - 兼容模式 - 支持 IE6+ FF2.5+ Chrome1+ Opera9+ Safari4+ , 若无此宏，将只支持 HTML5。
-// 	Release - 启用发布操作 - 删除 assert 和 trace 和 using 支持。
+// 	CompactMode - 兼容模式 - 支持 IE6+ FF3.6+ Chrome10+ Opera10.5+ Safari5+ , 若无此宏，将只支持 HTML5。
+// 	Publish - 启用发布操作 - 删除 assert 和 trace 和 using 支持。
 
 
 (function(window, undefined) {
@@ -28,12 +28,6 @@
 	 * @type Document
 	 */
 	var document = window.document,
-	
-		/**
-		 * navigator 简写。
-		 * @type Navigator
-		 */
-		navigator = window.navigator,
 
         /**
          * Object 简写。
@@ -76,55 +70,10 @@
 	/// #region Functions
 	
 	/**
+	 * 系统有关对象。
 	 * @namespace System
 	 */
-	apply(System,  {
-
-		<span id="System-getData">/**
-		 * 获取一个对象指定字段的数据，如果数据不存在，则返回 undefined。
-		 * @param {Object} obj 任何对象。
-		 * @param {String} name 数据类型名。
-		 * @return {Object} 返回对应的值。如果数据不存在，则返回 undefined。
-		 * @see System.setData
-		 * @example &lt;pre&gt;
-		 * var obj = {};
-		 * var a = System.getData(obj, 'a'); // 获取 a 字段的数据。 
-		 * trace( a )
-		 * &lt;/pre&gt;
-		 */</span>
-		getData: function(obj, name) {
-
-			assert.isObject(obj, &quot;System.getData(obj, dataType): {obj} ~&quot;);
-
-		    // 内部支持 dom 属性。
-		    // 这里忽略 IE6/7 的内存泄露问题。
-			var data = (obj.dom ||  obj).$data;
-			return data &amp;&amp; data[name];
-		},
-
-		<span id="System-setData">/**
-		 * 设置属于一个对象指定字段的数据。
-		 * @param {Object} obj 任何对象。
-		 * @param {String} name 数据类型名。
-		 * @param {Object} data 要设置的数据内容。
-		 * @return {Object} data 返回 data 本身。
-		 * @see System.getData
-		 * @example &lt;pre&gt;
-		 * var obj = {};
-		 * System.setData(obj, 'a', 5);    // 设置 a 字段的数据值为 5。 
-		 * var val = System.getData(obj, 'a'); // 获取值， 返回 5
-		 * &lt;/pre&gt;
-		 */</span>
-		setData: function (obj, name, data) {
-
-			assert.isObject(obj, &quot;System.setData(obj, dataType): {obj} ~&quot;);
-
-			// 内部支持 dom 属性。
-			obj = obj.dom || obj;
-
-			// 简单设置变量。
-			return (obj.$data || (obj.$data = {}))[name] = data;
-		},
+	extend(System, {
 
 		<span id="System-Base">/**
 		 * 所有类的基类。
@@ -142,11 +91,7 @@
 			// 简单拷贝 Object 的成员，即拥有类的特性。
 			// 在 JavaScript， 一切函数都可作为类，故此函数存在。
 			// Object 的成员一般对当前类构造函数原型辅助。
-			apply(constructor, Base);
-
-			delete constructor.$data;
-
-			return constructor;
+			return extend(constructor, Base);
 		},
 
 		<span id="System-id">/**
@@ -163,7 +108,7 @@
 	/**
 	 * @namespace System.Base
 	 */
-	apply(Base, {
+	extend(Base, {
 
 	    <span id="System-Base-implement">/**
 		 * 扩展当前类的动态方法。
@@ -183,6 +128,7 @@
 	    implement: function(members) {
 
 		    assert(members &amp;&amp; this.prototype, &quot;Class.implement(members): 无法扩展类，因为 {members} 或 this.prototype 为空。&quot;, members);
+            
             // 复制到原型 。
 		    Object.extend(this.prototype, members);
 
@@ -199,7 +145,7 @@
 
 		    assert(members &amp;&amp; this.prototype, &quot;Class.implementIf(members): 无法扩展类，因为 {members} 或 this.prototype 为空。&quot;, members);
 
-		    applyIf(this.prototype, members);
+		    Object.extendIf(this.prototype, members);
 
 		    return this;
 	    },
@@ -225,7 +171,7 @@
 		 *         如果其中一个函数执行后返回 false， 则中止执行，并返回 false， 否则返回 true。
 		 *         evtTrigger.handlers 表示 当前这个事件的所有实际调用的函数的数组。
 		 *         然后系统会调用 add(o,
-		 *         '事件名', evtTrigger) 然后把 evtTrigger 保存在 o.data.event['事件名'] 中。
+		 *         '事件名', evtTrigger) 然后把 evtTrigger 保存在 o.data.$event['事件名'] 中。
 		 *         如果 之前已经绑定了这个事件，则 evtTrigger 已存在，无需创建。 这时系统只需把 函数 放到
 		 *         evtTrigger.handlers 即可。
 		 *         &lt;/p&gt;
@@ -297,7 +243,7 @@
 			// 更新事件对象。
 	    	eventName.split(' ').forEach(function(value){
 	    		eventObj[value] = this;
-			}, properties ? applyIf(properties, eventObj.$default) : (eventObj.$default || emptyObj));
+			}, properties ? Object.extendIf(properties, eventObj.$default) : (eventObj.$default || emptyObj));
 			
 			return this;
 	    },
@@ -377,10 +323,11 @@
 	});
 
 	/**
-	 * Object 简写。
 	 * @namespace Object
 	 */
-	apply(Object, {
+	extend(Object, {
+		
+		/// #if CompactMode
 
 	    <span id="Object-extend">/**
 		 * 复制对象的所有属性到其它对象。
@@ -398,7 +345,7 @@
 		    for ( var item in {
 			    toString: true
 		    })
-			    return apply;
+			    return extend;
 
 		    System.enumerables = &quot;toString hasOwnProperty valueOf constructor isPrototypeOf&quot;.split(' ');
 		    // IE6 不会遍历系统对象需要复制，所以强制去测试，如果改写就复制 。
@@ -409,12 +356,18 @@
 				    for ( var i = System.enumerables.length, value; i--;)
 					    if (hasOwnProperty.call(src, value = System.enumerables[i]))
 						    dest[value] = src[value];
-				    apply(dest, src);
+				    extend(dest, src);
 			    }
 
 			    return dest;
 		    }
 	    })(),
+	    
+	    /// #else
+	    
+	    /// extend: extend,
+	    
+	    /// #endif
 
 	    <span id="Object-extendIf">/**
 		 * 如果目标成员不存在就复制对象的所有属性到其它对象。
@@ -428,7 +381,16 @@
 	     * trace(a); // {v: 3, g: 5}  b 未覆盖 a 任何成员。
 	     * &lt;/pre&gt;
 		 */</span>
-	    extendIf: applyIf,
+	    extendIf: function (dest, src) {
+	
+			assert(dest != null, &quot;Object.extendIf(dest, src): {dest} 不可为空。&quot;, dest);
+	
+			// 和 extend 类似，只是判断目标的值是否为 undefiend 。
+			for ( var b in src)
+				if (dest[b] === undefined)
+					dest[b] = src[b];
+			return dest;
+		},
 
 	    <span id="Object-each">/**
 		 * 在一个可迭代对象上遍历。
@@ -448,8 +410,8 @@
 		 */</span>
 	    each: function(iterable, fn, bind) {
 
-		    assert(!Function.isFunction(iterable), &quot;Object.each(iterable, fn, bind): {iterable} 不能是函数。 &quot;, iterable);
-		    assert(Function.isFunction(fn), &quot;Object.each(iterable, fn, bind): {fn} 必须是函数。 &quot;, fn);
+		    assert(!Object.isFunction(iterable), &quot;Object.each(iterable, fn, bind): {iterable} 不能是函数。 &quot;, iterable);
+		    assert(Object.isFunction(fn), &quot;Object.each(iterable, fn, bind): {fn} 必须是函数。 &quot;, fn);
 
 		    // 如果 iterable 是 null， 无需遍历 。
 		    if (iterable != null) {
@@ -486,23 +448,60 @@
 		 */</span>
 	    map: function(iterable, fn, dest) {
 	    	
-	    	assert(Function.isFunction(fn), &quot;Object.map(iterable, fn, dest): {fn} 必须是函数。 &quot;, fn);
+	    	assert(Object.isFunction(fn), &quot;Object.map(iterable, fn): {fn} 必须是函数。 &quot;, fn);
 	    	
-	    	var isArray;
+	    	var actualFn;
 	    	
 			// 如果是目标对象是一个字符串，则改为数组。
-	    	if(typeof iterable === 'string') {
+	    	if (typeof iterable === 'string') {
 	    		iterable = iterable.split(' ');
-	    		isArray = true;
-	    	}
+	    		actualFn = dest ? function(value, key){
+	    			this[value] = fn(value, key);
+	    		} : fn;
+			} else {
+				dest = iterable.length === undefined ? {} : [];
+				actualFn = function(value, key) {
+					this[key] = fn(value, key);
+				};
+			}
 	    	
-		    // 遍历源。
-		    Object.each(iterable, dest ? function(value, key) {
-				dest[isArray ? value : key] = fn(value, key);
-		    } : fn);
+		    // 遍历对象。
+		    Object.each(iterable, actualFn, dest);
 
 		    // 返回目标。
-		    return dest || iterable;
+		    return dest;
+		},
+
+		<span id="Object-isArray">/**
+		 * 判断一个变量是否是数组。
+		 * @param {Object} obj 要判断的变量。
+		 * @return {Boolean} 如果是数组，返回 true， 否则返回 false。
+		 * @example &lt;pre&gt;
+	     * Array.isArray([]); // true
+	     * Array.isArray(document.getElementsByTagName(&quot;div&quot;)); // false
+	     * Array.isArray(new Array); // true
+	     * &lt;/pre&gt;
+		 */</span>
+	    isArray: Array.isArray || function (obj) {
+
+	    	// 检查原型。
+	    	return toString.call(obj) === &quot;[object Array]&quot;;
+		},
+
+		<span id="Object-isFunction">/**
+		 * 判断一个变量是否是函数。
+		 * @param {Object} obj 要判断的变量。
+		 * @return {Boolean} 如果是函数，返回 true， 否则返回 false。
+		 * @example &lt;pre&gt;
+	     * Object.isFunction(function () {}); // true
+	     * Object.isFunction(null); // false
+	     * Object.isFunction(new Function); // true
+	     * &lt;/pre&gt;
+		 */</span>
+	    isFunction: function (obj) {
+
+	    	// 检查原型。
+	    	return toString.call(obj) === &quot;[object Function]&quot;;
 	    },
 
 	    <span id="Object-isObject">/**
@@ -518,7 +517,7 @@
 
 		    // 只检查 null 。
 		    return obj !== null &amp;&amp; typeof obj === &quot;object&quot;;
-	    },
+		},
 
 	    <span id="Object-set">/**
 		 * 将一个对象解析成一个类的属性。
@@ -546,9 +545,10 @@
 		    for ( var key in options) {
 
 			    // 检查 setValue 。
-			    var setter = 'set' + key.capitalize(), val = options[key];
+			    var val = options[key],
+			    	setter = 'set' + key.capitalize();
 
-			    if (Function.isFunction(obj[setter])) {
+			    if (Object.isFunction(obj[setter])) {
 				    obj[setter](val);
 					
 				} else if(key in obj) {
@@ -556,7 +556,7 @@
 					setter = obj[key];
 					
 					// 是否存在函数。
-					if (Function.isFunction(setter))
+					if (Object.isFunction(setter))
 						obj[key](val);
 
 					// 检查 value.set 。
@@ -583,75 +583,46 @@
 	    }
 
 	});
-
+	
 	/**
-	 * 函数。
 	 * @namespace Function
 	 */
-	apply(Function, {
-
-	    <span id="Function-empty">/**
+	extend(Function, {
+		
+		<span id="Function-empty">/**
 		 * 空函数。
 		 * @property
 		 * @type Function
 		 * Function.empty返回空函数的引用。
 		 */</span>
-	    empty: emptyFn,
-
-	    <span id="Function-returnTrue">/**
-		 * 一个返回 true 的函数。
-		 * @property
-		 * @return {Boolean} true
-		 * @type Function
-		 */</span>
-	    returnTrue: from(true),
-
-	    <span id="Function-returnFalse">/**
-		 * 一个返回 false 的函数。
-		 * @property
-		 * @return {Boolean} false
-		 * @type Function
-		 */</span>
-	    returnFalse: from(false),
-
-	    <span id="Function-isFunction">/**
-		 * 判断一个变量是否是函数。
-		 * @param {Object} obj 要判断的变量。
-		 * @return {Boolean} 如果是函数，返回 true， 否则返回 false。
-		 * @example &lt;pre&gt;
-	     * Function.isFunction(function () {}); // true
-	     * Function.isFunction(null); // false
-	     * Function.isFunction(new Function); // true
-	     * &lt;/pre&gt;
-		 */</span>
-	    isFunction: function(obj) {
-
-		    // 检查原型。
-		    return toString.call(obj) === &quot;[object Function]&quot;;
-	    },
-
-	    <span id="Function-from">/**
-		 * 返回自身的函数。
-		 * @param {Object} v 需要返回的参数。
+		empty: emptyFn,
+		
+		<span id="Function-from">/**
+		 * 返回返回指定结果的函数。
+		 * @param {Object} ret 需要返回的参数。
 		 * @return {Function} 执行得到参数的一个函数。
-		 * @hide
 		 * @example &lt;pre&gt;
 	     * Function.from(0)()    ; // 0
 	     * &lt;/pre&gt;
-		 */</span>
-	    from: from
-
+	 	 */</span>
+		from: function (ret) {
+	
+			// 返回一个值，这个值是当前的参数。
+			return function() {
+				return ret;
+			}
+		}
+		
 	});
-
+	
 	/**
-	 * 字符串。
 	 * @namespace String
 	 */
-	apply(String, {
-
+	extend(String, {
+			
 	    <span id="String-format">/**
 		 * 格式化字符串。
-		 * @param {String} format 字符。
+		 * @param {String} formatString 字符。
 		 * @param {Object} ... 参数。
 		 * @return {String} 格式化后的字符串。
 		 * @example &lt;pre&gt;
@@ -663,118 +634,141 @@
 	     *  不要出现{{{ 和  }}} 这样将获得不可预知的结果。
 	     * &lt;/pre&gt;
 		 */</span>
-	    format: function(format, args) {
-
-		    assert(!format || format.replace, 'String.format(format, args): {format} 必须是字符串。', format);
-
+		format: function(formatString, args) {
+	
+		    assert(!formatString || formatString.replace, 'String.format(formatString, args): {formatString} 必须是字符串。', formatString);
+	
 		    // 支持参数2为数组或对象的直接格式化。
 		    var toString = this;
-
+	
 		    args = arguments.length === 2 &amp;&amp; Object.isObject(args) ? args : ap.slice.call(arguments, 1);
-
+	
 		    // 通过格式化返回
-		    return (format || &quot;&quot;).replace(/\{+?(\S*?)\}+/g, function(match, name) {
+		    return formatString ? formatString.replace(/\{+?(\S*?)\}+/g, function(match, name) {
 			    var start = match.charAt(1) == '{', end = match.charAt(match.length - 2) == '}';
 			    if (start || end)
 				    return match.slice(start, match.length - end);
 			    // LOG : {0, 2;yyyy} 为了支持这个格式, 必须在这里处理
 			    // match , 同时为了代码简短, 故去该功能。
 			    return name in args ? toString(args[name]) : &quot;&quot;;
-		    });
-	    },
-
+		    }) : &quot;&quot;;
+	  	},
+		  	
 	    <span id="String-ellipsis">/**
 		 * 把字符串转为指定长度。
 		 * @param {String} value 字符串。
 		 * @param {Number} len 需要的最大长度。
 		 * @example &lt;pre&gt;
-	     * String.ellipsis(&quot;123&quot;, 2); //   '1...'
+	     * String.ellipsis(&quot;1234567&quot;, 4); //   '1...'
 	     * &lt;/pre&gt;
 		 */</span>
-	    ellipsis: function(value, len) {
+	  	ellipsis: function(value, len) {
 		    assert.isString(value, &quot;String.ellipsis(value, len): 参数  {value} ~&quot;);
 		    assert.isNumber(len, &quot;String.ellipsis(value, len): 参数  {len} ~&quot;);
 		    return value.length &gt; len ? value.substr(0, len - 3) + &quot;...&quot; : value;
-	    }
-
+		}
+		
 	});
 
-	/**
-	 * 数组。
-	 * @namespace Array
-	 */
-	applyIf(Array, {
+    <span id="Array-create">/**
+	 * 在原有可迭代对象生成一个数组。
+	 * @param {Object} iterable 可迭代的实例。
+	 * @param {Number} startIndex=0 开始的位置。
+	 * @return {Array} 复制得到的数组。
+	 * @memberOf Array
+	 * @example &lt;pre&gt;
+     * Array.create([4,6], 1); // [6]
+     * &lt;/pre&gt;
+	 */</span>
+	Array.create = function(iterable, startIndex) {
+	    // if(!iterable)
+	    // return [];
 
-	    <span id="Array-isArray">/**
-		 * 判断一个变量是否是数组。
-		 * @param {Object} obj 要判断的变量。
-		 * @return {Boolean} 如果是数组，返回 true， 否则返回 false。
-		 * @example &lt;pre&gt; 
-	     * Array.isArray([]); // true
-	     * Array.isArray(document.getElementsByTagName(&quot;div&quot;)); // false
-	     * Array.isArray(new Array); // true
-	     * &lt;/pre&gt;
-		 */</span>
-	    isArray: function(obj) {
+	    // [DOM Object] 。
+	    // if(iterable.item) {
+	    // var r = [], len = iterable.length;
+	    // for(startIndex = startIndex || 0; startIndex &lt; len;
+	    // startIndex++)
+	    // r[startIndex] = iterable[startIndex];
+	    // return r;
+	    // }
 
-		    // 检查原型。
-		    return toString.call(obj) === &quot;[object Array]&quot;;
-	    },
+	    assert(!iterable || toString.call(iterable) !== '[object HTMLCollection]' || typeof iterable.length !== 'number',
+	            'Array.create(iterable, startIndex): {iterable} 不支持 DomCollection 。', iterable);
 
-	    <span id="Array-create">/**
-		 * 在原有可迭代对象生成一个数组。
-		 * @param {Object} iterable 可迭代的实例。
-		 * @param {Number} startIndex=0 开始的位置。
-		 * @return {Array} 复制得到的数组。
-		 * @example &lt;pre&gt;
-	     * Array.create([4,6], 1); // [6]
-	     * &lt;/pre&gt;
-		 */</span>
-	    create: function(iterable, startIndex) {
-		    // if(!iterable)
-		    // return [];
-
-		    // [DOM Object] 。
-		    // if(iterable.item) {
-		    // var r = [], len = iterable.length;
-		    // for(startIndex = startIndex || 0; startIndex &lt; len;
-		    // startIndex++)
-		    // r[startIndex] = iterable[startIndex];
-		    // return r;
-		    // }
-
-		    assert(!iterable || toString.call(iterable) !== '[object HTMLCollection]' || typeof iterable.length !== 'number',
-		            'Array.create(iterable, startIndex): {iterable} 不支持 DomCollection 。', iterable);
-
-		    // 调用 slice 实现。
-		    return iterable ? ap.slice.call(iterable, startIndex) : [];
-	    }
-
-	});
+	    // 调用 slice 实现。
+	    return iterable ? ap.slice.call(iterable, startIndex) : [];
+    };
 
 	/// #if CompactMode
 
-	<span id="Date">/**
-	 * 日期。
-	 * @class Date
-	 */</span>
-	applyIf(Date, {
-
+	if(!Date.now) {
+			
 		<span id="Date-now">/**
 		 * 获取当前时间。
-		 * @static
+		 * @memberOf Date
 		 * @return {Number} 当前的时间点。
 		 * @example &lt;pre&gt;
 		 * Date.now(); //   相当于 new Date().getTime()
 		 * &lt;/pre&gt;
 		 */</span>
-		now: function() {
+		Date.now = function() {
 			return +new Date;
-		}
-
-	});
+		};
+		
+	}
 
 	/// #endif
+	
+	/**
+	 * @namespace window
+	 */
+
+	<span id="Class">/**
+	 * 创建一个类。
+	 * @param {Object/Function} [methods] 类成员列表对象或类构造函数。
+	 * @return {Class} 返回创建的类。
+	 * @see System.Object.extend
+	 * @example 以下代码演示了如何创建一个类:
+	 * &lt;pre&gt;
+	 * var MyCls = Class({
+	 * 
+	 *    constructor: function (g, h) {
+	 * 	      alert('构造函数' + g + h)
+	 *    },
+	 *
+	 *    say: function(){
+	 *    	alert('say');
+	 *    } 
+	 * 
+	 * });
+	 * 
+	 * 
+	 * var c = new MyCls(4, ' g');  // 创建类。
+	 * c.say();  //  调用 say 方法。
+	 * &lt;/pre&gt;
+	 */</span>
+	window.Class = function(members){
+		return Base.extend(members);
+	};
+	
+	if(!window.execScript){
+		
+		<span id="execScript">/**
+		 * 在全局作用域运行一个字符串内的代码。
+		 * @param {String} statement Javascript 语句。
+		 * @example &lt;pre&gt;
+		 * execScript('alert(&quot;hello&quot;)');
+		 * &lt;/pre&gt;
+		 */</span>
+		window.execScript = function(statements) {
+
+			// 如果正常浏览器，使用 window.eval 。
+			window[&quot;eval&quot;].call( window, statements );
+
+       };
+       
+	}
 
 	/// #endregion
 
@@ -784,10 +778,17 @@
 	 * 浏览器。
 	 * @namespace navigator
 	 */
-	apply(navigator, (function(ua) {
+	(function(navigator) {
 
+		/**
+		 * navigator 简写。
+		 * @type Navigator
+		 */
+		
 		// 检查信息
-		var match = ua.match(/(IE|Firefox|Chrome|Safari|Opera).([\w\.]*)/i) || ua.match(/(WebKit|Gecko).([\w\.]*)/i) || [0, &quot;&quot;, 0],
+		var ua = navigator.userAgent,
+		
+			match = ua.match(/(IE|Firefox|Chrome|Safari|Opera)[\/\s]([\w\.]*)/i) || ua.match(/(WebKit|Gecko)[\/\s]([\w\.]*)/i) || [0, &quot;&quot;, 0],
 	
 			// 浏览器名字。
 			browser = match[1],
@@ -827,7 +828,7 @@
 		 */</span>
 
 		// 结果
-		return {
+		extend(navigator, {
 
 			/// #if CompactMode
 			
@@ -860,60 +861,10 @@
 			 */</span>
 		    version: match[2]
 
-		};
+		});
 
-	})(navigator.userAgent));
+	})(window.navigator);
 
-	/**
-	 * 窗口对象。
-	 * @namespace window
-	 */
-	apply(window, {
-		
-		<span id="Class">/**
-		 * 创建一个类。
-		 * @param {Object/Function} [methods] 类成员列表对象或类构造函数。
-		 * @return {Class} 返回创建的类。
-		 * @see System.Object.extend
-		 * @example 以下代码演示了如何创建一个类:
-		 * &lt;pre lang=&quot;js&quot;&gt;
-		 * var MyCls = Class({
-		 * 
-		 *    constructor: function (g, h) {
-		 * 	      alert('构造函数' + g + h)
-		 *    },
-		 *
-		 *    say: function(){
-		 *    	alert('say');
-		 *    } 
-		 * 
-		 * });
-		 * 
-		 * 
-		 * var c = new MyCls(4, ' g');  // 创建类。
-		 * c.say();  //  调用 say 方法。
-		 * &lt;/pre&gt;
-		 */</span>
-		Class: function(members){
-			return Base.extend(members);
-		},
-		
-		<span id="execScript">/**
-		 * 在全局作用域运行一个字符串内的代码。
-		 * @param {String} statement Javascript 语句。
-		 * @example &lt;pre&gt;
-		 * execScript('alert(&quot;hello&quot;)');
-		 * &lt;/pre&gt;
-		 */</span>
-		execScript: window.execScript || function(statements) {
-
-			// 如果正常浏览器，使用 window.eval 。
-			window[&quot;eval&quot;].call( window, statements );
-
-        }
-		
-	});
-	
 	/// #endregion
 
 	/// #region Methods
@@ -925,6 +876,15 @@
 	 * @class System.Base
 	 */
     Base.implement({
+    	
+    	<span id="System-Base-prototype-dataField">/**
+    	 * 获取当前类对应的数据字段。
+    	 * @proteced virtual
+    	 * @returns {Object} 一个可存储数据的对象。
+    	 */</span>
+    	dataField: function(){
+    		return this;
+    	},
     	
 	    <span id="System-Base-prototype-base">/**
 	     * 调用父类的成员变量。
@@ -1006,7 +966,13 @@
 	        assert.isFunction(listener, 'System.Object.prototype.on(type, listener, bind): {listener} ~');
 
 	        // 获取本对象 本对象的数据内容 本事件值
-	        var me = this, d = System.getData(me, '$event') || System.setData(me, '$event', {}), evt = d[type];
+	        var me = this, 
+	        	d = me.dataField(),
+	        	evt;
+	        	
+	        d = d.$event || (d.$event = {});
+	        
+	        evt = d[type];
 
 	        // 如果未绑定过这个事件。
 	        if (!evt) {
@@ -1064,10 +1030,10 @@
 		 */</span>
         un: function(type, listener) {
 
-	        assert(!listener || Function.isFunction(listener), 'System.Object.prototype.un(type, listener): {listener} 必须是函数或空参数。', listener);
+	        assert(!listener || Object.isFunction(listener), 'System.Object.prototype.un(type, listener): {listener} 必须是函数或空参数。', listener);
 
 	        // 获取本对象 本对象的数据内容 本事件值
-	        var me = this, d = System.getData(me, '$event'), evt, handlers, i;
+	        var me = this, d = me.dataField().$event, evt, handlers, i;
 	        if (d) {
 		        if (evt = d[type]) {
 
@@ -1124,7 +1090,7 @@
         trigger: function(type, e) {
 
 	        // 获取本对象 本对象的数据内容 本事件值 。
-	        var me = this, evt = System.getData(me, '$event'), eMgr;
+	        var me = this, evt = me.dataField().$event, eMgr;
 
 	        // 执行事件。
 	        return !evt || !(evt = evt[type]) || ((eMgr = getMgr(me, type)).trigger ? eMgr.trigger(me, type, evt, e) : evt(e));
@@ -1445,30 +1411,13 @@
 	 * @param {Object} src 要复制的内容。
 	 * @return {Object} 复制后的对象。
 	 */
-	function apply(dest, src) {
+	function extend(dest, src) {
 
 		assert(dest != null, &quot;Object.extend(dest, src): {dest} 不可为空。&quot;, dest);
 
 		// 直接遍历，不判断是否为真实成员还是原型的成员。
 		for ( var b in src)
 			dest[b] = src[b];
-		return dest;
-	}
-
-	/**
-	 * 如果不存在就复制所有属性到任何对象。
-	 * @param {Object} dest 复制目标。
-	 * @param {Object} src 要复制的内容。
-	 * @return {Object} 复制后的对象。
-	 */
-	function applyIf(dest, src) {
-
-		assert(dest != null, &quot;Object.extendIf(dest, src): {dest} 不可为空。&quot;, dest);
-
-		// 和 apply 类似，只是判断目标的值是否为 undefiend 。
-		for ( var b in src)
-			if (dest[b] === undefined)
-				dest[b] = src[b];
 		return dest;
 	}
 
@@ -1480,7 +1429,7 @@
 	 */
 	function each(fn, bind) {
 
-		assert(Function.isFunction(fn), &quot;Array.prototype.each(fn, bind): {fn} 必须是一个函数。&quot;, fn);
+		assert(Object.isFunction(fn), &quot;Array.prototype.each(fn, bind): {fn} 必须是一个函数。&quot;, fn);
 
 		var i = -1, me = this;
 
@@ -1502,19 +1451,6 @@
 	 */
 	function emptyFn(){
 		
-	}
-
-	/**
-	 * 返回返回指定结果的函数。
-	 * @param {Object} ret 结果。
-	 * @return {Function} 函数。
-	 */
-	function from(ret) {
-
-		// 返回一个值，这个值是当前的参数。
-		return function() {
-			return ret;
-		}
 	}
 
 	/**
@@ -1552,6 +1488,15 @@
 })(this);
 
 /// #if !Publish
+
+System.Base.prototype.toString = function(){
+	for(var item in window){
+		if(window[item] === this.constructor)
+			return item;	
+	}
+		
+	return &quot;Object&quot;;
+};
 
 /**
  * Debug Tools
@@ -1643,10 +1588,11 @@ function using(ns, isStyle) {
     assert.isString(ns, &quot;using(ns): {ns} 不是合法的名字空间。&quot;);
     
     var cache = using[isStyle ? 'styles' : 'scripts'];
-
-    // 已经载入。
-    if (cache.indexOf(ns) &gt;= 0)
-        return;
+	
+	for(var i = 0; i &lt; cache.length; i++){
+		if(cache[i] === ns)
+			return;
+	}
         
     cache.push(ns);
 
@@ -1688,7 +1634,7 @@ function using(ns, isStyle) {
 	}
     
     callback(using.rootPath + ns + exts[0]);
-};
+}
 
 <span id="imports">/**
  * 导入指定名字空间表示的样式文件。
@@ -1696,7 +1642,7 @@ function using(ns, isStyle) {
  */</span>
 function imports(ns){
     return using(ns, true);
-};
+}
 
 (function(){
 	
@@ -1705,7 +1651,7 @@ function imports(ns){
     /**
      * @namespace trace
      */
-    apply(trace, {
+    extend(trace, {
 
 		<span id="trace-enable">/**
 		 * 是否打开调试输出。
@@ -1747,7 +1693,7 @@ function imports(ns){
                      * reduceRight'
                      */
                     'Number': 'toExponential toFixed toLocaleString toPrecision',
-                    'Function': 'length apply call',
+                    'Function': 'length extend call',
                     'Date': 'getDate getDay getFullYear getHours getMilliseconds getMinutes getMonth getSeconds getTime getTimezoneOffset getUTCDate getUTCDay getUTCFullYear getUTCHours getUTCMinutes getUTCMonth getUTCSeconds getYear setDate setFullYear setHours setMinutes setMonth setSeconds setTime setUTCDate setUTCFullYear setUTCHours setUTCMilliseconds setUTCMinutes setUTCMonth setUTCSeconds setYear toGMTString toLocaleString toUTCString',
                     'RegExp': 'exec test'
                 },
@@ -2266,10 +2212,10 @@ function imports(ns){
          */</span>
         time: function(fn, times) {
             times = times || 1000;
-            var d = Date.now();
+            var d = new Date();
             while (times-- &gt; 0)
                 fn();
-            times = Date.now() - d;
+            times = new Date() - d;
             window.trace(&quot;[时间] &quot; + times);
         }
 
@@ -2280,7 +2226,7 @@ function imports(ns){
     /**
      * @namespace assert
      */
-    apply(assert, {
+    extend(assert, {
     	
 		<span id="assert-stackTrace">/**
 		 * 是否在 assert 失败时显示函数调用堆栈。
@@ -2338,7 +2284,7 @@ function imports(ns){
          * @return {Boolean} 返回 bValue 。
          */</span>
         isNode: function(value, msg) {
-            return assertInternal(value &amp;&amp; value.nodeType, msg, value, &quot;必须是 DOM 节点。&quot;);
+            return assertInternal(value &amp;&amp; (value.nodeType || value.setTimeout), msg, value, &quot;必须是 DOM 节点。&quot;);
         },
 
         <span id="assert-isElement">/**
@@ -2431,7 +2377,7 @@ function imports(ns){
 
     /// #region Using
 
-    apply(using, {
+    extend(using, {
     	
     	<span id="assert-useLess">/**
     	 * 是否使用 lesscss
@@ -2465,7 +2411,7 @@ function imports(ns){
         loadStyle: function(url) {
 
             // 在顶部插入一个css，但这样肯能导致css没加载就执行 js 。所以，要保证样式加载后才能继续执行计算。
-            return document.getElementsByTagName(&quot;HEAD&quot;)[0].appendChild(apply(document.createElement('link'), {
+            return document.getElementsByTagName(&quot;HEAD&quot;)[0].appendChild(extend(document.createElement('link'), {
                 href: url,
                 rel: trace.useLess ? 'stylesheet/less' : 'stylesheet',
                 type: 'text/css'
@@ -2612,7 +2558,7 @@ function imports(ns){
 	 * @param {Object} src 要复制的内容。
 	 * @return {Object} 复制后的对象。
 	 */
-	function apply(dest, src) {
+	function extend(dest, src) {
 
 		assert(dest != null, &quot;Object.extend(dest, src): {dest} 不可为空。&quot;, dest);
 

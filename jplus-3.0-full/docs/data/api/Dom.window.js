@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'Dom.window',"source":'base.js',"sourceFile":'data/source/base.js.html#Dom-window',"memberAttribute":'static',"name":'window',"memberOf":'Dom',"memberType":'field'});

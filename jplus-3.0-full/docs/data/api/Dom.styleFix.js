@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'Dom.styleFix',"source":'base.js',"sourceFile":'data/source/base.js.html#Dom-styleFix',"summary":'<p>\u7279\u6b8a\u7684\u6837\u5f0f\u96c6\u5408\u3002</p>\n',"memberType":'property',"type":'Object',"memberAccess":'private',"memberAttribute":'static',"name":'styleFix',"memberOf":'Dom'});

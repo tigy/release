@@ -1,0 +1,1 @@
+﻿jsonp({"fullName":'Dom.attrFix',"source":'base.js',"sourceFile":'data/source/base.js.html#Dom-attrFix',"summary":'<p>\u7279\u6b8a\u5c5e\u6027\u96c6\u5408\u3002</p>\n',"memberType":'property',"type":'Object',"memberAttribute":'static',"memberAccess":'private',"name":'attrFix',"memberOf":'Dom'});

@@ -1,5 +1,5 @@
 /**********************************************
- * This file is created by a tool at 2012/5/21 14:30
+ * This file is created by a tool at 2012/5/26 13:32
  **********************************************/
 
 
@@ -15,8 +15,8 @@
  */
 
 // 可用的宏
-// 	CompactMode - 兼容模式 - 支持 IE6+ FF2.5+ Chrome1+ Opera9+ Safari4+ , 若无此宏，将只支持 HTML5。
-// 	Release - 启用发布操作 - 删除 assert 和 trace 和 using 支持。
+// 	CompactMode - 兼容模式 - 支持 IE6+ FF3.6+ Chrome10+ Opera10.5+ Safari5+ , 若无此宏，将只支持 HTML5。
+// 	Publish - 启用发布操作 - 删除 assert 和 trace 和 using 支持。
 
 
 (function(window, undefined) {
@@ -28,12 +28,6 @@
 	 * @type Document
 	 */
 	var document = window.document,
-	
-		/**
-		 * navigator 简写。
-		 * @type Navigator
-		 */
-		navigator = window.navigator,
 
         /**
          * Object 简写。
@@ -76,55 +70,10 @@
 	/// #region Functions
 	
 	/**
+	 * 系统有关对象。
 	 * @namespace System
 	 */
-	apply(System,  {
-
-		/**
-		 * 获取一个对象指定字段的数据，如果数据不存在，则返回 undefined。
-		 * @param {Object} obj 任何对象。
-		 * @param {String} name 数据类型名。
-		 * @return {Object} 返回对应的值。如果数据不存在，则返回 undefined。
-		 * @see System.setData
-		 * @example <code>
-		 * var obj = {};
-		 * var a = System.getData(obj, 'a'); // 获取 a 字段的数据。 
-		 * trace( a )
-		 * </code>
-		 */
-		getData: function(obj, name) {
-
-			assert.isObject(obj, "System.getData(obj, dataType): {obj} ~");
-
-		    // 内部支持 dom 属性。
-		    // 这里忽略 IE6/7 的内存泄露问题。
-			var data = (obj.dom ||  obj).$data;
-			return data && data[name];
-		},
-
-		/**
-		 * 设置属于一个对象指定字段的数据。
-		 * @param {Object} obj 任何对象。
-		 * @param {String} name 数据类型名。
-		 * @param {Object} data 要设置的数据内容。
-		 * @return {Object} data 返回 data 本身。
-		 * @see System.getData
-		 * @example <code>
-		 * var obj = {};
-		 * System.setData(obj, 'a', 5);    // 设置 a 字段的数据值为 5。 
-		 * var val = System.getData(obj, 'a'); // 获取值， 返回 5
-		 * </code>
-		 */
-		setData: function (obj, name, data) {
-
-			assert.isObject(obj, "System.setData(obj, dataType): {obj} ~");
-
-			// 内部支持 dom 属性。
-			obj = obj.dom || obj;
-
-			// 简单设置变量。
-			return (obj.$data || (obj.$data = {}))[name] = data;
-		},
+	extend(System, {
 
 		/**
 		 * 所有类的基类。
@@ -142,19 +91,15 @@
 			// 简单拷贝 Object 的成员，即拥有类的特性。
 			// 在 JavaScript， 一切函数都可作为类，故此函数存在。
 			// Object 的成员一般对当前类构造函数原型辅助。
-			apply(constructor, Base);
-
-			delete constructor.$data;
-
-			return constructor;
+			return extend(constructor, Base);
 		},
 
 		/**
 		 * id种子 。
 		 * @type Number
-		 * @example 下例演示了 System.id 的用处。<code>
+		 * @example 下例演示了 System.id 的用处。<pre>
 		 *		var uid = System.id++;  // 每次使用之后执行 ++， 保证页面内的 id 是唯一的。
-		 * </code>
+		 * </pre>
 		 */
 		id: 1
 
@@ -163,14 +108,14 @@
 	/**
 	 * @namespace System.Base
 	 */
-	apply(Base, {
+	extend(Base, {
 
 	    /**
 		 * 扩展当前类的动态方法。
 		 * @param {Object} members 用于扩展的成员列表。
 		 * @return this
 		 * @see #implementIf
-		 * @example 以下示例演示了如何扩展 Number 类的成员。<code>
+		 * @example 以下示例演示了如何扩展 Number 类的成员。<pre>
 	     * Number.implement({
 	     *   sin: function () {
 	     * 	    return Math.sin(this);
@@ -178,11 +123,12 @@
 	     * });
 	     * 
 	     * (1).sin();  //  Math.sin(1);
-	     * </code>
+	     * </pre>
 		 */
 	    implement: function(members) {
 
 		    assert(members && this.prototype, "Class.implement(members): 无法扩展类，因为 {members} 或 this.prototype 为空。", members);
+            
             // 复制到原型 。
 		    Object.extend(this.prototype, members);
 
@@ -199,7 +145,7 @@
 
 		    assert(members && this.prototype, "Class.implementIf(members): 无法扩展类，因为 {members} 或 this.prototype 为空。", members);
 
-		    applyIf(this.prototype, members);
+		    Object.extendIf(this.prototype, members);
 
 		    return this;
 	    },
@@ -225,7 +171,7 @@
 		 *         如果其中一个函数执行后返回 false， 则中止执行，并返回 false， 否则返回 true。
 		 *         evtTrigger.handlers 表示 当前这个事件的所有实际调用的函数的数组。
 		 *         然后系统会调用 add(o,
-		 *         '事件名', evtTrigger) 然后把 evtTrigger 保存在 o.data.event['事件名'] 中。
+		 *         '事件名', evtTrigger) 然后把 evtTrigger 保存在 o.data.$event['事件名'] 中。
 		 *         如果 之前已经绑定了这个事件，则 evtTrigger 已存在，无需创建。 这时系统只需把 函数 放到
 		 *         evtTrigger.handlers 即可。
 		 *         </p>
@@ -248,11 +194,11 @@
 		 *         <p>
 		 *         add 表示 事件被绑定时的操作。 原型为:
 		 *         </p>
-		 *         <code>
+		 *         <pre>
 	     * function add(elem, type, fn) {
 	     * 	   // 对于标准的 DOM 事件， 它会调用 elem.addEventListener(type, fn, false);
 	     * }
-	     * </code>
+	     * </pre>
 		 *         <p>
 		 *         elem表示绑定事件的对象，即类实例。 type 是事件类型， 它就是事件名，因为多个事件的 add 函数肯能一样的，
 		 *         因此 type 是区分事件类型的关键。fn 则是绑定事件的函数。
@@ -266,7 +212,7 @@
 		 *         <p>
 		 *         如果你不知道其中的几个参数功能，特别是 trigger ，请不要自定义。
 		 *         </p>
-		 * @example 下面代码演示了如何给一个类自定义事件，并创建类的实例，然后绑定触发这个事件。 <code>
+		 * @example 下面代码演示了如何给一个类自定义事件，并创建类的实例，然后绑定触发这个事件。 <pre>
 	     * 
 	     * // 创建一个新的类。
 	     * var MyCls = new Class();
@@ -286,7 +232,7 @@
 	     * 
 	     * m.trigger('click', 2);
 	     * 
-	     * </code>
+	     * </pre>
 		 */
 	    addEvent: function(eventName, properties) {
 
@@ -297,7 +243,7 @@
 			// 更新事件对象。
 	    	eventName.split(' ').forEach(function(value){
 	    		eventObj[value] = this;
-			}, properties ? applyIf(properties, eventObj.$default) : (eventObj.$default || emptyObj));
+			}, properties ? Object.extendIf(properties, eventObj.$default) : (eventObj.$default || emptyObj));
 			
 			return this;
 	    },
@@ -333,7 +279,7 @@
 		 *         <p>
 		 *         你也可以把动态成员的定义放到 构造函数， 如: this.c = []; 这是最好的解决方案。
 		 *         </p>
-		 * @example 下面示例演示了如何创建一个子类。<code>
+		 * @example 下面示例演示了如何创建一个子类。<pre>
 		 * var MyClass = new Class(); //创建一个类。
 		 * 
 		 * var Child = MyClass.extend({  // 创建一个子类。
@@ -341,7 +287,7 @@
 		 * });
 		 * 
 		 * var obj = new Child(); // 创建子类的实例。
-		 * </code>
+		 * </pre>
 		 */
 	    extend: function(members) {
 
@@ -377,10 +323,11 @@
 	});
 
 	/**
-	 * Object 简写。
 	 * @namespace Object
 	 */
-	apply(Object, {
+	extend(Object, {
+		
+		/// #if CompactMode
 
 	    /**
 		 * 复制对象的所有属性到其它对象。
@@ -388,17 +335,17 @@
 		 * @param {Object} obj 要复制的内容。
 		 * @return {Object} 复制后的对象 (dest)。
 		 * @see Object.extendIf
-		 * @example <code>
+		 * @example <pre>
 	     * var a = {v: 3}, b = {g: 2};
 	     * Object.extend(a, b);
 	     * trace(a); // {v: 3, g: 2}
-	     * </code>
+	     * </pre>
 		 */
 	    extend: (function() {
 		    for ( var item in {
 			    toString: true
 		    })
-			    return apply;
+			    return extend;
 
 		    System.enumerables = "toString hasOwnProperty valueOf constructor isPrototypeOf".split(' ');
 		    // IE6 不会遍历系统对象需要复制，所以强制去测试，如果改写就复制 。
@@ -409,25 +356,41 @@
 				    for ( var i = System.enumerables.length, value; i--;)
 					    if (hasOwnProperty.call(src, value = System.enumerables[i]))
 						    dest[value] = src[value];
-				    apply(dest, src);
+				    extend(dest, src);
 			    }
 
 			    return dest;
 		    }
 	    })(),
+	    
+	    /// #else
+	    
+	    /// extend: extend,
+	    
+	    /// #endif
 
 	    /**
 		 * 如果目标成员不存在就复制对象的所有属性到其它对象。
 		 * @param {Object} dest 复制目标。
 		 * @param {Object} obj 要复制的内容。
 		 * @return {Object} 复制后的对象 (dest)。
-		 * @see Object.extend <code>
+		 * @see Object.extend 
+		 * @example <pre>
 	     * var a = {v: 3, g: 5}, b = {g: 2};
 	     * Object.extendIf(a, b);
 	     * trace(a); // {v: 3, g: 5}  b 未覆盖 a 任何成员。
-	     * </code>
+	     * </pre>
 		 */
-	    extendIf: applyIf,
+	    extendIf: function (dest, src) {
+	
+			assert(dest != null, "Object.extendIf(dest, src): {dest} 不可为空。", dest);
+	
+			// 和 extend 类似，只是判断目标的值是否为 undefiend 。
+			for ( var b in src)
+				if (dest[b] === undefined)
+					dest[b] = src[b];
+			return dest;
+		},
 
 	    /**
 		 * 在一个可迭代对象上遍历。
@@ -438,17 +401,17 @@
 		 *            如果中止循环， 返回 false。}
 		 * @param {Object} bind 函数执行时的作用域。
 		 * @return {Boolean} 如果已经遍历完所传的所有值， 返回 true， 如果遍历被中断过，返回 false。
-		 * @example <code> 
+		 * @example <pre> 
 	     * Object.each({a: '1', c: '3'}, function (value, key) {
 	     * 		trace(key + ' : ' + value);
 	     * });
 	     * // 输出 'a : 1' 'c : 3'
-	     * </code>
+	     * </pre>
 		 */
 	    each: function(iterable, fn, bind) {
 
-		    assert(!Function.isFunction(iterable), "Object.each(iterable, fn, bind): {iterable} 不能是函数。 ", iterable);
-		    assert(Function.isFunction(fn), "Object.each(iterable, fn, bind): {fn} 必须是函数。 ", fn);
+		    assert(!Object.isFunction(iterable), "Object.each(iterable, fn, bind): {iterable} 不能是函数。 ", iterable);
+		    assert(Object.isFunction(fn), "Object.each(iterable, fn, bind): {fn} 必须是函数。 ", fn);
 
 		    // 如果 iterable 是 null， 无需遍历 。
 		    if (iterable != null) {
@@ -479,45 +442,82 @@
 		 * @param {Object} bind=iterable 函数执行时的作用域。
 		 * @param { Base/Boolean} [args] 参数/是否间接传递。
 		 * @return {Object} 返回的对象。
-		 * @example 该函数支持多个功能。主要功能是将一个对象根据一个关系变成新的对象。 <code>
+		 * @example 该函数支持多个功能。主要功能是将一个对象根据一个关系变成新的对象。 <pre>
 	     * Object.map(["aa","aa23"], function(a){return a.length} , []); // => [2, 4];
-	     * </code>
+	     * </pre>
 		 */
 	    map: function(iterable, fn, dest) {
 	    	
-	    	assert(Function.isFunction(fn), "Object.map(iterable, fn, dest): {fn} 必须是函数。 ", fn);
+	    	assert(Object.isFunction(fn), "Object.map(iterable, fn): {fn} 必须是函数。 ", fn);
 	    	
-	    	var isArray;
+	    	var actualFn;
 	    	
 			// 如果是目标对象是一个字符串，则改为数组。
-	    	if(typeof iterable === 'string') {
+	    	if (typeof iterable === 'string') {
 	    		iterable = iterable.split(' ');
-	    		isArray = true;
-	    	}
+	    		actualFn = dest ? function(value, key){
+	    			this[value] = fn(value, key);
+	    		} : fn;
+			} else {
+				dest = iterable.length === undefined ? {} : [];
+				actualFn = function(value, key) {
+					this[key] = fn(value, key);
+				};
+			}
 	    	
-		    // 遍历源。
-		    Object.each(iterable, dest ? function(value, key) {
-				dest[isArray ? value : key] = fn(value, key);
-		    } : fn);
+		    // 遍历对象。
+		    Object.each(iterable, actualFn, dest);
 
 		    // 返回目标。
-		    return dest || iterable;
+		    return dest;
+		},
+
+		/**
+		 * 判断一个变量是否是数组。
+		 * @param {Object} obj 要判断的变量。
+		 * @return {Boolean} 如果是数组，返回 true， 否则返回 false。
+		 * @example <pre>
+	     * Array.isArray([]); // true
+	     * Array.isArray(document.getElementsByTagName("div")); // false
+	     * Array.isArray(new Array); // true
+	     * </pre>
+		 */
+	    isArray: Array.isArray || function (obj) {
+
+	    	// 检查原型。
+	    	return toString.call(obj) === "[object Array]";
+		},
+
+		/**
+		 * 判断一个变量是否是函数。
+		 * @param {Object} obj 要判断的变量。
+		 * @return {Boolean} 如果是函数，返回 true， 否则返回 false。
+		 * @example <pre>
+	     * Object.isFunction(function () {}); // true
+	     * Object.isFunction(null); // false
+	     * Object.isFunction(new Function); // true
+	     * </pre>
+		 */
+	    isFunction: function (obj) {
+
+	    	// 检查原型。
+	    	return toString.call(obj) === "[object Function]";
 	    },
 
 	    /**
 		 * 判断一个变量是否是引用变量。
 		 * @param {Object} object 变量。
 		 * @return {Boolean} 所有对象变量返回 true, null 返回 false 。
-		 * @example <code>
+		 * @example <pre>
 	     * Object.isObject({}); // true
 	     * Object.isObject(null); // false
-	     * </code>
+	     * </pre>
 		 */
 	    isObject: function(obj) {
 
 		    // 只检查 null 。
 		    return obj !== null && typeof obj === "object";
-	    },
+		},
 
 	    /**
 		 * 将一个对象解析成一个类的属性。
@@ -527,7 +527,7 @@
 		 *            检查，如果存在就调用: obj.key(value) 否则， 检查，如果存在就调用:
 		 *            obj.key.set(value) 否则，检查，如果存在就调用: obj.set(value) 否则，执行
 		 *            obj.key = value;
-		 * @example <code>
+		 * @example <pre>
 	     * document.setA = function (value) {
 	     * 	  this._a = value;
 	     * };
@@ -536,7 +536,7 @@
 	     * 
 	     * // 这样会调用     document.setA(3);
 	     * 
-	     * </code>
+	     * </pre>
 		 */
 	    set: function(obj, options) {
 		
@@ -545,9 +545,10 @@
 		    for ( var key in options) {
 
 			    // 检查 setValue 。
-			    var setter = 'set' + key.capitalize(), val = options[key];
+			    var val = options[key],
+			    	setter = 'set' + key.capitalize();
 
-			    if (Function.isFunction(obj[setter])) {
+			    if (Object.isFunction(obj[setter])) {
 				    obj[setter](val);
 					
 				} else if(key in obj) {
@@ -555,7 +556,7 @@
 					setter = obj[key];
 					
 					// 是否存在函数。
-					if (Function.isFunction(setter))
+					if (Object.isFunction(setter))
 						obj[key](val);
 
 					// 检查 value.set 。
@@ -582,196 +583,192 @@
 	    }
 
 	});
-
+	
 	/**
-	 * 函数。
 	 * @namespace Function
 	 */
-	apply(Function, {
-
-	    /**
+	extend(Function, {
+		
+		/**
 		 * 空函数。
 		 * @property
 		 * @type Function
 		 * Function.empty返回空函数的引用。
 		 */
-	    empty: emptyFn,
-
-	    /**
-		 * 一个返回 true 的函数。
-		 * @property
-		 * @type Function
-		 */
-	    returnTrue: from(true),
-
-	    /**
-		 * 一个返回 false 的函数。
-		 * @property
-		 * @type Function
-		 */
-	    returnFalse: from(false),
-
-	    /**
-		 * 判断一个变量是否是函数。
-		 * @param {Object} obj 要判断的变量。
-		 * @return {Boolean} 如果是函数，返回 true， 否则返回 false。
-		 * @example <code>
-	     * Function.isFunction(function () {}); // true
-	     * Function.isFunction(null); // false
-	     * Function.isFunction(new Function); // true
-	     * </code>
-		 */
-	    isFunction: function(obj) {
-
-		    // 检查原型。
-		    return toString.call(obj) === "[object Function]";
-	    },
-
-	    /**
-		 * 返回自身的函数。
-		 * @param {Object} v 需要返回的参数。
+		empty: emptyFn,
+		
+		/**
+		 * 返回返回指定结果的函数。
+		 * @param {Object} ret 需要返回的参数。
 		 * @return {Function} 执行得到参数的一个函数。
-		 * @hide
-		 * @example <code>
+		 * @example <pre>
 	     * Function.from(0)()    ; // 0
-	     * </code>
-		 */
-	    from: from
-
+	     * </pre>
+	 	 */
+		from: function (ret) {
+	
+			// 返回一个值，这个值是当前的参数。
+			return function() {
+				return ret;
+			}
+		}
+		
 	});
-
+	
 	/**
-	 * 字符串。
 	 * @namespace String
 	 */
-	apply(String, {
-
+	extend(String, {
+			
 	    /**
 		 * 格式化字符串。
-		 * @param {String} format 字符。
+		 * @param {String} formatString 字符。
 		 * @param {Object} ... 参数。
 		 * @return {String} 格式化后的字符串。
-		 * @example <code>
+		 * @example <pre>
 	     *  String.format("{0}转换", 1); //  "1转换"
 	     *  String.format("{1}翻译",0,1); // "1翻译"
 	     *  String.format("{a}翻译",{a:"也可以"}); // 也可以翻译
 	     *  String.format("{{0}}不转换, {0}转换", 1); //  "{0}不转换1转换"
 	     *  格式化的字符串{}不允许包含空格。
 	     *  不要出现{{{ 和  }}} 这样将获得不可预知的结果。
-	     * </code>
+	     * </pre>
 		 */
-	    format: function(format, args) {
-
-		    assert(!format || format.replace, 'String.format(format, args): {format} 必须是字符串。', format);
-
+		format: function(formatString, args) {
+	
+		    assert(!formatString || formatString.replace, 'String.format(formatString, args): {formatString} 必须是字符串。', formatString);
+	
 		    // 支持参数2为数组或对象的直接格式化。
 		    var toString = this;
-
+	
 		    args = arguments.length === 2 && Object.isObject(args) ? args : ap.slice.call(arguments, 1);
-
+	
 		    // 通过格式化返回
-		    return (format || "").replace(/\{+?(\S*?)\}+/g, function(match, name) {
+		    return formatString ? formatString.replace(/\{+?(\S*?)\}+/g, function(match, name) {
 			    var start = match.charAt(1) == '{', end = match.charAt(match.length - 2) == '}';
 			    if (start || end)
 				    return match.slice(start, match.length - end);
 			    // LOG : {0, 2;yyyy} 为了支持这个格式, 必须在这里处理
 			    // match , 同时为了代码简短, 故去该功能。
 			    return name in args ? toString(args[name]) : "";
-		    });
-	    },
-
+		    }) : "";
+	  	},
+		  	
 	    /**
 		 * 把字符串转为指定长度。
 		 * @param {String} value 字符串。
 		 * @param {Number} len 需要的最大长度。
-		 * @example <code>
-	     * String.ellipsis("123", 2); //   '1...'
-	     * </code>
+		 * @example <pre>
+	     * String.ellipsis("1234567", 4); //   '1...'
+	     * </pre>
 		 */
-	    ellipsis: function(value, len) {
+	  	ellipsis: function(value, len) {
 		    assert.isString(value, "String.ellipsis(value, len): 参数  {value} ~");
 		    assert.isNumber(len, "String.ellipsis(value, len): 参数  {len} ~");
 		    return value.length > len ? value.substr(0, len - 3) + "..." : value;
-	    }
-
+		}
+		
 	});
 
-	/**
-	 * 数组。
-	 * @namespace Array
+    /**
+	 * 在原有可迭代对象生成一个数组。
+	 * @param {Object} iterable 可迭代的实例。
+	 * @param {Number} startIndex=0 开始的位置。
+	 * @return {Array} 复制得到的数组。
+	 * @memberOf Array
+	 * @example <pre>
+     * Array.create([4,6], 1); // [6]
+     * </pre>
 	 */
-	applyIf(Array, {
+	Array.create = function(iterable, startIndex) {
+	    // if(!iterable)
+	    // return [];
 
-	    /**
-		 * 判断一个变量是否是数组。
-		 * @param {Object} obj 要判断的变量。
-		 * @return {Boolean} 如果是数组，返回 true， 否则返回 false。
-		 * @example <code> 
-	     * Array.isArray([]); // true
-	     * Array.isArray(document.getElementsByTagName("div")); // false
-	     * Array.isArray(new Array); // true
-	     * </code>
-		 */
-	    isArray: function(obj) {
+	    // [DOM Object] 。
+	    // if(iterable.item) {
+	    // var r = [], len = iterable.length;
+	    // for(startIndex = startIndex || 0; startIndex < len;
+	    // startIndex++)
+	    // r[startIndex] = iterable[startIndex];
+	    // return r;
+	    // }
 
-		    // 检查原型。
-		    return toString.call(obj) === "[object Array]";
-	    },
+	    assert(!iterable || toString.call(iterable) !== '[object HTMLCollection]' || typeof iterable.length !== 'number',
+	            'Array.create(iterable, startIndex): {iterable} 不支持 DomCollection 。', iterable);
 
-	    /**
-		 * 在原有可迭代对象生成一个数组。
-		 * @param {Object} iterable 可迭代的实例。
-		 * @param {Number} startIndex=0 开始的位置。
-		 * @return {Array} 复制得到的数组。
-		 * @example <code>
-	     * Array.create([4,6], 1); // [6]
-	     * </code>
-		 */
-	    create: function(iterable, startIndex) {
-		    // if(!iterable)
-		    // return [];
-
-		    // [DOM Object] 。
-		    // if(iterable.item) {
-		    // var r = [], len = iterable.length;
-		    // for(startIndex = startIndex || 0; startIndex < len;
-		    // startIndex++)
-		    // r[startIndex] = iterable[startIndex];
-		    // return r;
-		    // }
-
-		    assert(!iterable || toString.call(iterable) !== '[object HTMLCollection]' || typeof iterable.length !== 'number',
-		            'Array.create(iterable, startIndex): {iterable} 不支持 DomCollection 。', iterable);
-
-		    // 调用 slice 实现。
-		    return iterable ? ap.slice.call(iterable, startIndex) : [];
-	    }
-
-	});
+	    // 调用 slice 实现。
+	    return iterable ? ap.slice.call(iterable, startIndex) : [];
+    };
 
 	/// #if CompactMode
 
-	/**
-	 * 日期。
-	 * @class Date
-	 */
-	applyIf(Date, {
-
+	if(!Date.now) {
+			
 		/**
 		 * 获取当前时间。
-		 * @static
+		 * @memberOf Date
 		 * @return {Number} 当前的时间点。
-		 * @example <code>
+		 * @example <pre>
 		 * Date.now(); //   相当于 new Date().getTime()
-		 * </code>
+		 * </pre>
 		 */
-		now: function() {
+		Date.now = function() {
 			return +new Date;
-		}
-
-	});
+		};
+		
+	}
 
 	/// #endif
+	
+	/**
+	 * @namespace window
+	 */
+
+	/**
+	 * 创建一个类。
+	 * @param {Object/Function} [methods] 类成员列表对象或类构造函数。
+	 * @return {Class} 返回创建的类。
+	 * @see System.Object.extend
+	 * @example 以下代码演示了如何创建一个类:
+	 * <pre>
+	 * var MyCls = Class({
+	 * 
+	 *    constructor: function (g, h) {
+	 * 	      alert('构造函数' + g + h)
+	 *    },
+	 *
+	 *    say: function(){
+	 *    	alert('say');
+	 *    } 
+	 * 
+	 * });
+	 * 
+	 * 
+	 * var c = new MyCls(4, ' g');  // 创建类。
+	 * c.say();  //  调用 say 方法。
+	 * </pre>
+	 */
+	window.Class = function(members){
+		return Base.extend(members);
+	};
+	
+	if(!window.execScript){
+		
+		/**
+		 * 在全局作用域运行一个字符串内的代码。
+		 * @param {String} statement Javascript 语句。
+		 * @example <pre>
+		 * execScript('alert("hello")');
+		 * </pre>
+		 */
+		window.execScript = function(statements) {
+
+			// 如果正常浏览器，使用 window.eval 。
+			window["eval"].call( window, statements );
+
+       };
+       
+	}
 
 	/// #endregion
 
@@ -781,10 +778,17 @@
 	 * 浏览器。
 	 * @namespace navigator
 	 */
-	apply(navigator, (function(ua) {
+	(function(navigator) {
 
+		/**
+		 * navigator 简写。
+		 * @type Navigator
+		 */
+		
 		// 检查信息
-		var match = ua.match(/(IE|Firefox|Chrome|Safari|Opera).([\w\.]*)/i) || ua.match(/(WebKit|Gecko).([\w\.]*)/i) || [0, "", 0],
+		var ua = navigator.userAgent,
+		
+			match = ua.match(/(IE|Firefox|Chrome|Safari|Opera)[\/\s]([\w\.]*)/i) || ua.match(/(WebKit|Gecko)[\/\s]([\w\.]*)/i) || [0, "", 0],
 	
 			// 浏览器名字。
 			browser = match[1],
@@ -824,7 +828,7 @@
 		 */
 
 		// 结果
-		return {
+		extend(navigator, {
 
 			/// #if CompactMode
 			
@@ -857,60 +861,10 @@
 			 */
 		    version: match[2]
 
-		};
+		});
 
-	})(navigator.userAgent));
+	})(window.navigator);
 
-	/**
-	 * 窗口对象。
-	 * @namespace window
-	 */
-	apply(window, {
-		
-		/**
-		 * 创建一个类。
-		 * @param {Object/Function} [methods] 类成员列表对象或类构造函数。
-		 * @return {Class} 返回创建的类。
-		 * @see System.Object.extend
-		 * @example 以下代码演示了如何创建一个类:
-		 * <code>
-		 * var MyCls = Class({
-		 * 
-		 *    constructor: function (g, h) {
-		 * 	      alert('构造函数' + g + h)
-		 *    },
-		 *
-		 *    say: function(){
-		 *    	alert('say');
-		 *    } 
-		 * 
-		 * });
-		 * 
-		 * 
-		 * var c = new MyCls(4, ' g');  // 创建类。
-		 * c.say();  //  调用 say 方法。
-		 * </code>
-		 */
-		Class: function(members){
-			return Base.extend(members);
-		},
-		
-		/**
-		 * 在全局作用域运行一个字符串内的代码。
-		 * @param {String} statement Javascript 语句。
-		 * @example <code>
-		 * execScript('alert("hello")');
-		 * </code>
-		 */
-		execScript: window.execScript || function(statements) {
-
-			// 如果正常浏览器，使用 window.eval 。
-			window["eval"].call( window, statements );
-
-        }
-		
-	});
-	
 	/// #endregion
 
 	/// #region Methods
@@ -923,13 +877,22 @@
 	 */
     Base.implement({
     	
+    	/**
+    	 * 获取当前类对应的数据字段。
+    	 * @proteced virtual
+    	 * @returns {Object} 一个可存储数据的对象。
+    	 */
+    	dataField: function(){
+    		return this;
+    	},
+    	
 	    /**
 	     * 调用父类的成员变量。
 	     * @param {String} methodName 属性名。
 	     * @param {Object} [...] 调用的参数数组。
 	     * @return {Object} 父类返回。 注意只能从子类中调用父类的同名成员。
 	     * @protected
-	     * @example <code>
+	     * @example <pre>
 	     *
 	     * var MyBa = new Class({
 	     *    a: function (g, b) {
@@ -944,7 +907,7 @@
 	     * });
 	     *
 	     * new MyCls().a();
-	     * </code>
+	     * </pre>
 	     */
     	base: function(methodName) {
 	
@@ -992,18 +955,24 @@
 		 * @param {Function} listener 调用函数。
 		 * @param {Object} bind=this listener 执行时的作用域。
 		 * @return  Base this
-		 * @example <code>
+		 * @example <pre>
          * elem.on('click', function (e) {
          * 		return true;
          * });
-         * </code>
+         * </pre>
 		 */
         on: function(type, listener, bind) {
 
 	        assert.isFunction(listener, 'System.Object.prototype.on(type, listener, bind): {listener} ~');
 
 	        // 获取本对象 本对象的数据内容 本事件值
-	        var me = this, d = System.getData(me, '$event') || System.setData(me, '$event', {}), evt = d[type];
+	        var me = this, 
+	        	d = me.dataField(),
+	        	evt;
+	        	
+	        d = d.$event || (d.$event = {});
+	        
+	        evt = d[type];
 
 	        // 如果未绑定过这个事件。
 	        if (!evt) {
@@ -1044,27 +1013,27 @@
 		 * @param {String} [type] 监听名字。
 		 * @param {Function} [listener] 回调器。
 		 * @return  Base this 注意: function () {} !== function () {},
-		 *         这意味着这个代码有问题: <code>
+		 *         这意味着这个代码有问题: <pre>
          * elem.on('click', function () {});
          * elem.un('click', function () {});
-         * </code>
-		 *         你应该把函数保存起来。 <code>
+         * </pre>
+		 *         你应该把函数保存起来。 <pre>
          * var c =  function () {};
          * elem.on('click', c);
          * elem.un('click', c);
-         * </code>
-		 * @example <code>
+         * </pre>
+		 * @example <pre>
          * elem.un('click', function (e) {
          * 		return true;
          * });
-         * </code>
+         * </pre>
 		 */
         un: function(type, listener) {
 
-	        assert(!listener || Function.isFunction(listener), 'System.Object.prototype.un(type, listener): {listener} 必须是函数或空参数。', listener);
+	        assert(!listener || Object.isFunction(listener), 'System.Object.prototype.un(type, listener): {listener} 必须是函数或空参数。', listener);
 
 	        // 获取本对象 本对象的数据内容 本事件值
-	        var me = this, d = System.getData(me, '$event'), evt, handlers, i;
+	        var me = this, d = me.dataField().$event, evt, handlers, i;
 	        if (d) {
 		        if (evt = d[type]) {
 
@@ -1114,14 +1083,14 @@
 		 * @param {String} type 监听名字。
 		 * @param {Object} [e] 事件参数。
 		 * @return  Base this trigger 只是手动触发绑定的事件。
-		 * @example <code>
+		 * @example <pre>
          * elem.trigger('click');
-         * </code>
+         * </pre>
 		 */
         trigger: function(type, e) {
 
 	        // 获取本对象 本对象的数据内容 本事件值 。
-	        var me = this, evt = System.getData(me, '$event'), eMgr;
+	        var me = this, evt = me.dataField().$event, eMgr;
 
 	        // 执行事件。
 	        return !evt || !(evt = evt[type]) || ((eMgr = getMgr(me, type)).trigger ? eMgr.trigger(me, type, evt, e) : evt(e));
@@ -1134,14 +1103,14 @@
 		 * @param {Function} listener 调用函数。
 		 * @param {Object} bind=this listener 执行时的作用域。
 		 * @return  Base this
-		 * @example <code>
+		 * @example <pre>
          * elem.once('click', function (e) {
          * 		trace('a');  
          * });
          * 
          * elem.trigger('click');   //  输出  a
          * elem.trigger('click');   //  没有输出 
-         * </code>
+         * </pre>
 		 */
         once: function(type, listener, bind) {
 
@@ -1172,9 +1141,9 @@
 	    /**
 		 * 去除字符串的首尾空格。
 		 * @return {String} 处理后的字符串。
-		 * @example <code>
+		 * @example <pre>
 	     * "   g h   ".trim(); //  返回     "g h"
-	     * </code>
+	     * </pre>
 		 */
 	    trim: function() {
 
@@ -1188,9 +1157,9 @@
 		 * 转为骆驼格式。
 		 * @param {String} value 内容。
 		 * @return {String} 返回的内容。
-		 * @example <code>
+		 * @example <pre>
 	     * "font-size".toCamelCase(); //     "fontSize"
-	     * </code>
+	     * </pre>
 		 */
 	    toCamelCase: function() {
 		    return this.replace(/-(\w)/g, toUpperCase);
@@ -1199,9 +1168,9 @@
 	    /**
 		 * 将字符首字母大写。
 		 * @return {String} 大写的字符串。
-		 * @example <code>
+		 * @example <pre>
 	     * "bb".capitalize(); //     "Bb"
-	     * </code>
+	     * </pre>
 		 */
 	    capitalize: function() {
 
@@ -1221,9 +1190,9 @@
 		 * @param {Function} fn 函数。
 		 * @param {Object} bind 位置。 注意，未来 Function.prototype.bind 是系统函数，
 		 *            因此这个函数将在那个时候被 替换掉。
-		 * @example <code>
+		 * @example <pre>
 	     * (function () {trace( this );}).bind(0)()    ; // 0
-	     * </code>
+	     * </pre>
 		 */
 	    bind: function(bind) {
 		
@@ -1249,13 +1218,13 @@
 		 * @return {Boolean} 有无执行完。
 		 * @method
 		 * @see #forEach
-		 * @example <code> 
+		 * @example <pre> 
 	     * [2, 5].each(function (value, key) {
 	     * 		trace(value);
 	     * 		return false
 	     * });
 	     * // 输出 '2'
-	     * </code>
+	     * </pre>
 		 */
 	    each: each,
 
@@ -1263,10 +1232,10 @@
 		 * 包含一个元素。元素存在直接返回。
 		 * @param {Object} value 值。
 		 * @return {Boolean} 是否包含元素。
-		 * @example <code>
+		 * @example <pre>
 	     * ["", "aaa", "zzz", "qqq"].include(""); //   true
 	     * [false].include(0);	//   false
-	     * </code>
+	     * </pre>
 		 */
 	    include: function(value) {
 
@@ -1281,9 +1250,9 @@
 		 * 在指定位置插入项。
 		 * @param {Number} index 插入的位置。
 		 * @param {Object} value 插入的内容。
-		 * @example <code>
+		 * @example <pre>
 	     * ["", "aaa", "zzz", "qqq"].insert(3, 4); //   ["", "aaa", "zzz", 4, "qqq"]
-	     * </code>
+	     * </pre>
 		 */
 	    insert: function(index, value) {
 		    assert.isNumber(index, "Array.prototype.insert(index, value): 参数 index ~");
@@ -1305,9 +1274,9 @@
 		 * @param {String} func 调用的成员名。
 		 * @param {Array} args 调用的参数数组。
 		 * @return {Array} 结果。
-		 * @example <code>
+		 * @example <pre>
 	     * ["vhd"].invoke('charAt', [0]); //    ['v']
-	     * </code>
+	     * </pre>
 		 */
 	    invoke: function(func, args) {
 		    assert(args && typeof args.length === 'number', "Array.prototype.invoke(func, args): {args} 必须是数组, 无法省略。", args);
@@ -1323,9 +1292,9 @@
 	    /**
 		 * 删除数组中重复元素。
 		 * @return {Array} 结果。
-		 * @example <code>
+		 * @example <pre>
 	     * [1,7,8,8].unique(); //    [1, 7, 8]
-	     * </code>
+	     * </pre>
 		 */
 	    unique: function() {
 
@@ -1345,9 +1314,9 @@
 		 * 删除元素, 参数为元素的内容。
 		 * @param {Object} value 值。
 		 * @return {Number} 删除的值的位置。
-		 * @example <code>
+		 * @example <pre>
 	     * [1,7,8,8].remove(7); //   1
-	     * </code>
+	     * </pre>
 		 */
 	    remove: function(value, startIndex) {
 
@@ -1362,11 +1331,11 @@
 		 * 获取指定索引的元素。如果 index < 0， 则获取倒数 index 元素。
 		 * @param {Number} index 元素。
 		 * @return {Object} 指定位置所在的元素。
-		 * @example <code>
+		 * @example <pre>
 	     * [1,7,8,8].item(0); //   1
 	     * [1,7,8,8].item(-1); //   8
 	     * [1,7,8,8].item(5); //   undefined
-	     * </code>
+	     * </pre>
 		 */
 	    item: function(index) {
 		    return this[index < 0 ? this.length + index : index];
@@ -1378,7 +1347,7 @@
 		 * 返回数组某个值的第一个位置。值没有,则为-1 。
 		 * @param {Object} item 成员。
 		 * @param {Number} start=0 开始查找的位置。
-		 * @return Number 位置，找不到返回 -1 。 现在大多数浏览器已含此函数.除了 IE8- 。
+		 * @return {Number} 位置，找不到返回 -1 。 现在大多数浏览器已含此函数.除了 IE8- 。
 		 */
 	    indexOf: function(item, startIndex) {
 		    startIndex = startIndex || 0;
@@ -1394,9 +1363,9 @@
 		 * @param {Object} bind 绑定的对象。
 		 * @return {Array} 新的数组。
 		 * @seeAlso Array.prototype.select
-		 * @example <code> 
+		 * @example <pre> 
 	     * [1, 7, 2].filter(function (key) {return key &lt; 5 })   [1, 2]
-	     * </code>
+	     * </pre>
 		 */
 	    filter: function(fn, bind) {
 		    var r = [];
@@ -1419,12 +1388,12 @@
 		 *            当前变量的索引} {@param {Array} array 数组本身}
 		 * @param {Object} bind 函数执行时的作用域。
 		 * @seeAlso Array.prototype.each
-		 * @example <code> 
+		 * @example <pre> 
 	     * [2, 5].forEach(function (value, key) {
 	     * 		trace(value);
 	     * });
 	     * // 输出 '2' '5'
-	     * </code>
+	     * </pre>
 		 */
 	    forEach: each
 
@@ -1442,30 +1411,13 @@
 	 * @param {Object} src 要复制的内容。
 	 * @return {Object} 复制后的对象。
 	 */
-	function apply(dest, src) {
+	function extend(dest, src) {
 
 		assert(dest != null, "Object.extend(dest, src): {dest} 不可为空。", dest);
 
 		// 直接遍历，不判断是否为真实成员还是原型的成员。
 		for ( var b in src)
 			dest[b] = src[b];
-		return dest;
-	}
-
-	/**
-	 * 如果不存在就复制所有属性到任何对象。
-	 * @param {Object} dest 复制目标。
-	 * @param {Object} src 要复制的内容。
-	 * @return {Object} 复制后的对象。
-	 */
-	function applyIf(dest, src) {
-
-		assert(dest != null, "Object.extendIf(dest, src): {dest} 不可为空。", dest);
-
-		// 和 apply 类似，只是判断目标的值是否为 undefiend 。
-		for ( var b in src)
-			if (dest[b] === undefined)
-				dest[b] = src[b];
 		return dest;
 	}
 
@@ -1477,7 +1429,7 @@
 	 */
 	function each(fn, bind) {
 
-		assert(Function.isFunction(fn), "Array.prototype.each(fn, bind): {fn} 必须是一个函数。", fn);
+		assert(Object.isFunction(fn), "Array.prototype.each(fn, bind): {fn} 必须是一个函数。", fn);
 
 		var i = -1, me = this;
 
@@ -1499,19 +1451,6 @@
 	 */
 	function emptyFn(){
 		
-	}
-
-	/**
-	 * 返回返回指定结果的函数。
-	 * @param {Object} ret 结果。
-	 * @return {Function} 函数。
-	 */
-	function from(ret) {
-
-		// 返回一个值，这个值是当前的参数。
-		return function() {
-			return ret;
-		}
 	}
 
 	/**
@@ -1550,6 +1489,15 @@
 
 
 
+System.Base.prototype.toString = function(){
+	for(var item in window){
+		if(window[item] === this.constructor)
+			return item;	
+	}
+		
+	return "Object";
+};
+
 /**
  * Debug Tools
  */
@@ -1585,9 +1533,9 @@ function trace() {
  * @param {Object} bValue 值。
  * @param {String} msg="断言失败" 错误后的提示。
  * @return {Boolean} 返回 bValue 。
- * @example <code>
+ * @example <pre>
  * assert(true, "{value} 错误。", value);
- * </code>
+ * </pre>
  */
 function assert(bValue, msg) {
     if (!bValue) {
@@ -1629,19 +1577,20 @@ function assert(bValue, msg) {
 /**
  * 使用一个名空间。
  * @param {String} ns 名字空间。
- * @example <code>
+ * @example <pre>
  * using("System.Dom.Keys");
- * </code>
+ * </pre>
  */
 function using(ns, isStyle) {
 
     assert.isString(ns, "using(ns): {ns} 不是合法的名字空间。");
     
     var cache = using[isStyle ? 'styles' : 'scripts'];
-
-    // 已经载入。
-    if (cache.indexOf(ns) >= 0)
-        return;
+	
+	for(var i = 0; i < cache.length; i++){
+		if(cache[i] === ns)
+			return;
+	}
         
     cache.push(ns);
 
@@ -1683,7 +1632,7 @@ function using(ns, isStyle) {
 	}
     
     callback(using.rootPath + ns + exts[0]);
-};
+}
 
 /**
  * 导入指定名字空间表示的样式文件。
@@ -1691,7 +1640,7 @@ function using(ns, isStyle) {
  */
 function imports(ns){
     return using(ns, true);
-};
+}
 
 (function(){
 	
@@ -1700,7 +1649,7 @@ function imports(ns){
     /**
      * @namespace trace
      */
-    apply(trace, {
+    extend(trace, {
 
 		/**
 		 * 是否打开调试输出。
@@ -1742,7 +1691,7 @@ function imports(ns){
                      * reduceRight'
                      */
                     'Number': 'toExponential toFixed toLocaleString toPrecision',
-                    'Function': 'length apply call',
+                    'Function': 'length extend call',
                     'Date': 'getDate getDay getFullYear getHours getMilliseconds getMinutes getMonth getSeconds getTime getTimezoneOffset getUTCDate getUTCDay getUTCFullYear getUTCHours getUTCMinutes getUTCMonth getUTCSeconds getYear setDate setFullYear setHours setMinutes setMonth setSeconds setTime setUTCDate setUTCFullYear setUTCHours setUTCMilliseconds setUTCMinutes setUTCMonth setUTCSeconds setYear toGMTString toLocaleString toUTCString',
                     'RegExp': 'exec test'
                 },
@@ -2259,10 +2208,10 @@ function imports(ns){
          */
         time: function(fn, times) {
             times = times || 1000;
-            var d = Date.now();
+            var d = new Date();
             while (times-- > 0)
                 fn();
-            times = Date.now() - d;
+            times = new Date() - d;
             window.trace("[时间] " + times);
         }
 
@@ -2273,7 +2222,7 @@ function imports(ns){
     /**
      * @namespace assert
      */
-    apply(assert, {
+    extend(assert, {
     	
 		/**
 		 * 是否在 assert 失败时显示函数调用堆栈。
@@ -2286,9 +2235,9 @@ function imports(ns){
          * @param {Object} bValue 值。
          * @param {String} msg="断言失败" 错误后的提示。
          * @return {Boolean} 返回 bValue 。
-         * @example <code>
+         * @example <pre>
          * assert.isFunction(a, "a ~");
-         * </code>
+         * </pre>
          */
         isFunction: function(value, msg) {
             return assertInternal(typeof value == 'function', msg, value, "必须是函数。");
@@ -2331,7 +2280,7 @@ function imports(ns){
          * @return {Boolean} 返回 bValue 。
          */
         isNode: function(value, msg) {
-            return assertInternal(value && value.nodeType, msg, value, "必须是 DOM 节点。");
+            return assertInternal(value && (value.nodeType || value.setTimeout), msg, value, "必须是 DOM 节点。");
         },
 
         /**
@@ -2424,7 +2373,7 @@ function imports(ns){
 
     /// #region Using
 
-    apply(using, {
+    extend(using, {
     	
     	/**
     	 * 是否使用 lesscss
@@ -2435,9 +2384,9 @@ function imports(ns){
         /**
          * 同步载入代码。
          * @param {String} uri 地址。
-         * @example <code>
+         * @example <pre>
          * System.loadScript('./v.js');
-         * </code>
+         * </pre>
          */
         loadScript: function(url) {
             return using.loadText(url, window.execScript || function(statements){
@@ -2451,14 +2400,14 @@ function imports(ns){
         /**
          * 异步载入样式。
          * @param {String} uri 地址。
-         * @example <code>
+         * @example <pre>
          * System.loadStyle('./v.css');
-         * </code>
+         * </pre>
          */
         loadStyle: function(url) {
 
             // 在顶部插入一个css，但这样肯能导致css没加载就执行 js 。所以，要保证样式加载后才能继续执行计算。
-            return document.getElementsByTagName("HEAD")[0].appendChild(apply(document.createElement('link'), {
+            return document.getElementsByTagName("HEAD")[0].appendChild(extend(document.createElement('link'), {
                 href: url,
                 rel: trace.useLess ? 'stylesheet/less' : 'stylesheet',
                 type: 'text/css'
@@ -2492,9 +2441,9 @@ function imports(ns){
          * @param {String} uri 地址。
          * @param {Function} [callback] 对返回值的处理函数。
          * @return {String} 载入的值。 因为同步，所以无法跨站。
-         * @example <code>
+         * @example <pre>
          * trace(  System.loadText('./v.html')  );
-         * </code>
+         * </pre>
          */
         loadText: function(url, callback) {
 
@@ -2604,7 +2553,7 @@ function imports(ns){
 	 * @param {Object} src 要复制的内容。
 	 * @return {Object} 复制后的对象。
 	 */
-	function apply(dest, src) {
+	function extend(dest, src) {
 
 		assert(dest != null, "Object.extend(dest, src): {dest} 不可为空。", dest);
 
@@ -2650,13 +2599,13 @@ function imports(ns){
 		 * Object 简写。
 		 * @type Object
 		 */
-		o = Object,
+		Object = window.Object,
 	
 		/**
 		 * Object.extend 简写。
 		 * @type Function
 		 */
-		apply = o.extend,
+		extend = Object.extend,
 	
 		/**
 		 * 数组原型。
@@ -2668,7 +2617,7 @@ function imports(ns){
 		 * Object.map 缩写。
 		 * @type Object
 		 */
-		map = o.map,
+		map = Object.map,
 
 		/**
 		 * System 简写。
@@ -2679,40 +2628,38 @@ function imports(ns){
 		/**
 		 * 指示当前浏览器是否为标签浏览器。
 		 */
-		isStandard = navigator.isStd,
-	
-		/**
-		 * 用于测试的元素。
-		 * @type Element
-		 */
-		div = document.createElement('DIV'),
+		isStd = navigator.isStd,
 	
 		/**
 		 * 所有Dom 对象基类。
 		 * @class Dom
-		 * @abstract
-		 * Dom 对象的周期： 
-		 * constructor - 创建Dom 对象对应的 Javascript 类。不建议重写构造函数，除非你知道你在做什么。 
-		 * create - 创建本身的 dom 节点。 可重写 - 默认使用 this.tpl 创建。
-		 * init - 初始化Dom 对象本身。 可重写 - 默认为无操作。 
-		 * attach - 渲染Dom 对象到文档。不建议重写，如果你希望额外操作渲染事件，则重写。 
-		 * detach - 删除Dom 对象。不建议重写，如果一个Dom 对象用到多个 dom 内容需重写。
 		 */
 		Dom = Class({
-	
+			
 			/**
 			 * 当前Dom 对象实际对应的 HTMLNode 实例。
 			 * @type Node
 			 * @protected
 			 */
 			dom: null,
+			
+			/**
+			 * 获取当前类对应的数据字段。
+			 * @proteced override
+			 * @returns {Object} 一个可存储数据的对象。
+			 */
+			dataField: function(){
+				
+				// 由于 IE 6/7 即将退出市场。此处忽略 IE 6/7 内存泄露问题。
+				return this.dom.$data || (this.dom.$data = {});
+			},
 		
 			/**
 			 * Dom 对象的封装。
 			 * @param {Node} dom 封装的元素。
 			 */
 			constructor: function (dom) {
-				assert(dom, "Dom.prototype.constructor(dom): {dom} 必须是 DOM 节点。");
+				assert.isNode(dom, "Dom.prototype.constructor(dom): {dom} 必须是 DOM 节点。");
 				this.dom = dom;
 			},
 		
@@ -2757,26 +2704,15 @@ function imports(ns){
 			removeChild: function(childControl) {
 				assert(childControl && childControl.detach, 'Dom.prototype.removeChild(childControl): {childControl} 必须是Dom 对象。', childControl);
 				childControl.detach(this.dom);
-			},
-
-			/**
-			 * 判断 2 个 Dom 对象是否相同。
-			 * @param {Dom} other 要判断的Dom 对象。
-			 */
-			equals: function(other){
-				return other && other.dom === this.dom;
-			},
-
-			/**
-			 * xtype 。
-			 * @virtual
-			 */
-			xtype: "dom"
+			}
+			
 		}),
 	
 		/**
 		 * 表示节点的集合。用于批量操作节点。
 		 * @class DomList
+		 * @extends Dom
+		 * @remark
 		 * DomList 是对元素数组的只读包装。 DomList 允许快速操作多个节点。 DomList 的实例一旦创建，则不允许修改其成员。
 		 */
 		DomList = Class({
@@ -2818,10 +2754,12 @@ function imports(ns){
 				if(nodes) {
 
 					assert(nodes.length !== undefined, 'DomList.prototype.constructor(nodes): {nodes} 必须是一个 DomList 或 Array 类型的变量。', nodes);
-	
-					var len = this.length = nodes.length;
-					while(len--)
-						this[len] = nodes[len].dom || nodes[len];
+					
+					var node;
+					
+					while(node = nodes[this.length]) {
+						this[this.length++] = node.dom || node;	
+					}
 
 				}
 
@@ -2850,12 +2788,7 @@ function imports(ns){
 				}
 	
 				return this;
-			},
-			
-			/**
-			 * xtype
-			 */
-			xtype: "domlist"
+			}
 	
 		}),
 	
@@ -2881,9 +2814,9 @@ function imports(ns){
 			 * @param {Point} System 值。
 			 * @return {Point} this
 			 */
-			add: function(System) {
-				assert(System && 'x' in System && 'y' in System, "Point.prototype.add(System): {System} 必须有 'x' 和 'y' 属性。", System);
-				return new Point(this.x + System.x, this.y + System.y);
+			add: function(p) {
+				assert(p && 'x' in p && 'y' in p, "Point.prototype.add(p): {p} 必须有 'x' 和 'y' 属性。", p);
+				return new Point(this.x + p.x, this.y + p.y);
 			},
 
 			/**
@@ -2891,188 +2824,30 @@ function imports(ns){
 			 * @param {Point} System 值。
 			 * @return {Point} this
 			 */
-			sub: function(System) {
-				assert(System && 'x' in System && 'y' in System, "Point.prototype.sub(System): {System} 必须有 'x' 和 'y' 属性。", System);
-				return new Point(this.x - System.x, this.y - System.y);
+			sub: function(p) {
+				assert(p && 'x' in p && 'y' in p, "Point.prototype.sub(p): {p} 必须有 'x' 和 'y' 属性。", p);
+				return new Point(this.x - p.x, this.y - p.y);
 			}
 		}),
+		
+		/**
+		 * 用于测试的元素。
+		 * @type Element
+		 */
+		div = document.createElement('DIV'),
 	
 		/**
 		 * 函数 Dom.parseNode使用的新元素缓存。
 		 * @type Object
 		 */
 		cache = {},
-	
-		/**
-		 * 处理 <div/> 格式标签的正则表达式。
-		 * @type RegExp
-		 */
-		rXhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/ig,
-	
-		/**
-		 * 在 Dom.parseNode 和 setHtml 中对 HTML 字符串进行包装用的字符串。
-		 * @type Object 部分元素只能属于特定父元素， wrapMap 列出这些元素，并使它们正确地添加到父元素中。 IE678
-		 *       会忽视第一个标签，所以额外添加一个 div 标签，以保证此类浏览器正常运行。
-		 */
-		wrapMap = {
-			$default: isStandard ? [1, '', '']: [2, '$<div>', '</div>'],
-			option: [2, '<select multiple="multiple">', '</select>'],
-			legend: [2, '<fieldset>', '</fieldset>'],
-			thead: [2, '<table>', '</table>'],
-			tr: [3, '<table><tbody>', '</tbody></table>'],
-			td: [4, '<table><tbody><tr>', '</tr></tbody></table>'],
-			col: [3, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
-			area: [2, '<map>', '</map>']
-		},
 		
-		styles = {
-			height: 'setHeight',
-			width: 'setWidth'
-		},
-	
 		/**
-		 * 特殊属性的列表。
+		 * 样式表。
+		 * @static
 		 * @type Object
 		 */
-		attributes = {
-			innerText: 'innerText' in div ? 'innerText': 'textContent',
-			'for': 'htmlFor',
-			'class': 'className'
-		},
-		
-		/**
-		 * 字符串字段。
-		 * @type Object
-		 */
-		textField = {
-			
-		},
-	
-		/// #if CompactMode
-		
-		/**
-		 * 透明度的正则表达式。
-		 * @type RegExp IE8 使用滤镜支持透明度，这个表达式用于获取滤镜内的表示透明度部分的子字符串。
-		 */
-		rOpacity = /opacity=([^)]*)/,
-	
-		/**
-		 * 获取元素的实际的样式属性。
-		 * @param {Element} elem 需要获取属性的节点。
-		 * @param {String} name 需要获取的CSS属性名字。
-		 * @return {String} 返回样式字符串，肯能是 undefined、 auto 或空字符串。
-		 */
-		getStyle = window.getComputedStyle ? function(elem, name) {
-	
-			// getComputedStyle为标准浏览器获取样式。
-			assert.isElement(elem, "Dom.getStyle(elem, name): {elem} ~");
-	
-			// 获取真实的样式owerDocument返回elem所属的文档对象
-			// 调用getComputeStyle的方式为(elem,null)
-			var computedStyle = elem.ownerDocument.defaultView.getComputedStyle(elem, null);
-	
-			// 返回 , 在 火狐如果存在 IFrame， 则 computedStyle == null
-			// http://drupal.org/node/182569
-			return computedStyle ? computedStyle[name]: null;
-	
-		}: function(elem, name) {
-	
-			assert.isElement(elem, "Dom.getStyle(elem, name): {elem} ~");
-	
-			// 特殊样式保存在 styles 。
-			if( name in styles) {
-				switch (name) {
-					case 'height':
-						return elem.offsetHeight === 0 ? 'auto': elem.offsetHeight -  Dom.calc(elem, 'by+py') + 'px';
-					case 'width':
-						return elem.offsetWidth === 0 ? 'auto': elem.offsetWidth -  Dom.calc(elem, 'bx+px') + 'px';
-					case 'opacity':
-						return new Dom(elem).getOpacity().toString();
-				}
-			}
-			// currentStyle：IE的样式获取方法,runtimeStyle是获取运行时期的样式。
-			// currentStyle是运行时期样式与style属性覆盖之后的样式
-			var r = elem.currentStyle;
-	
-			if(!r)
-				return "";
-			r = r[name];
-	
-			// 来自 jQuery
-			// 如果返回值不是一个带px的 数字。 转换为像素单位
-			if(/^-?\d/.test(r) && !/^-?\d+(?:px)?$/i.test(r)) {
-	
-				// 保存初始值
-				var style = elem.style, left = style.left, rsLeft = elem.runtimeStyle.left;
-	
-				// 放入值来计算
-				elem.runtimeStyle.left = elem.currentStyle.left;
-				style.left = name === "fontSize" ? "1em": (r || 0);
-				r = style.pixelLeft + "px";
-	
-				// 回到初始值
-				style.left = left;
-				elem.runtimeStyle.left = rsLeft;
-	
-			}
-	
-			return r;
-		},
-		
-		/// #else
-		
-		/// getStyle = function (elem, name) {
-		///
-		/// 	// 获取样式
-		/// 	var computedStyle = elem.ownerDocument.defaultView.getComputedStyle(elem, null);
-		///
-		/// 	// 返回
-		/// 	return computedStyle ? computedStyle[ name ]: null;
-		///
-		/// },
-		/// #endif
-		
-		/**
-		 * 是否属性的正则表达式。
-		 * @type RegExp
-		 */
-		rStyle = /-(\w)|float/,
-		
-		/**
-		 * float 属性的名字。
-		 * @type String
-		 */
-		styleFloat = 'cssFloat' in div.style ? 'cssFloat': 'styleFloat',
-		
-		// IE：styleFloat Other：cssFloat
-		
-		/**
-		 * 获取滚动大小的方法。
-		 * @type Function
-		 */
-		getScroll = function() {
-			var elem = this.dom;
-			return new Point(elem.scrollLeft, elem.scrollTop);
-		},
-		
-		/**
-		 * 获取窗口滚动大小的方法。
-		 * @type Function
-		 */
-		getWindowScroll = 'pageXOffset' in window ? function() {
-			var win = this.defaultView;
-			return new Point(win.pageXOffset, win.pageYOffset);
-		}: getScroll,
-	
-		/**
-		 * 判断 body 节点的正则表达式。
-		 * @type RegExp
-		 */
-		rBody = /^(?:BODY|HTML|#document)$/i,
-		
-		t,
-
-		pep,
+		sizeMap = {},
 		
 		/**
 		 * 默认事件。
@@ -3130,20 +2905,200 @@ function imports(ns){
 		},
 
 		/**
+		 * 处理 <div/> 格式标签的正则表达式。
+		 * @type RegExp
+		 */
+		rXhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/ig,
+		
+		/// #if CompactMode
+		
+		/**
+		 * 透明度的正则表达式。
+		 * @type RegExp IE8 使用滤镜支持透明度，这个表达式用于获取滤镜内的表示透明度部分的子字符串。
+		 */
+		rOpacity = /opacity=([^)]*)/,
+		
+		/// #endif
+		
+		/**
+		 * 是否属性的正则表达式。
+		 * @type RegExp
+		 */
+		rStyle = /-(\w)|float/,
+		
+		/**
+		 * 判断 body 节点的正则表达式。
+		 * @type RegExp
+		 */
+		rBody = /^(?:BODY|HTML|#document)$/i,
+		
+		/**
+		 * 在 Dom.parseNode 和 setHtml 中对 HTML 字符串进行包装用的字符串。
+		 * @type Object 部分元素只能属于特定父元素， tagFix 列出这些元素，并使它们正确地添加到父元素中。 IE678
+		 *       会忽视第一个标签，所以额外添加一个 div 标签，以保证此类浏览器正常运行。
+		 */
+		tagFix = {
+			$default: isStd ? [1, '', '']: [2, '$<div>', '</div>'],
+			option: [2, '<select multiple="multiple">', '</select>'],
+			legend: [2, '<fieldset>', '</fieldset>'],
+			thead: [2, '<table>', '</table>'],
+			tr: [3, '<table><tbody>', '</tbody></table>'],
+			td: [4, '<table><tbody><tr>', '</tr></tbody></table>'],
+			col: [3, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
+			area: [2, '<map>', '</map>']
+		},
+		
+		styleFix = {
+			height: 'setHeight',
+			width: 'setWidth'
+		},
+	
+		/**
+		 * 特殊属性的列表。
+		 * @type Object
+		 */
+		attrFix = {
+			innerText: 'innerText' in div ? 'innerText': 'textContent',
+			'for': 'htmlFor',
+			'class': 'className'
+		},
+		
+		/**
+		 * 字符串字段。
+		 * @type Object
+		 */
+		textFix = {
+			
+		},
+		
+		/// #if CompactMode
+		 
+		/**
+		 * 获取元素的实际的样式属性。
+		 * @param {Element} elem 需要获取属性的节点。
+		 * @param {String} name 需要获取的CSS属性名字。
+		 * @return {String} 返回样式字符串，肯能是 undefined、 auto 或空字符串。
+		 */
+		getStyle = window.getComputedStyle ? function(elem, name) {
+	
+			// getComputedStyle为标准浏览器获取样式。
+			assert.isElement(elem, "Dom.getStyle(elem, name): {elem} ~");
+	
+			// 获取真实的样式owerDocument返回elem所属的文档对象
+			// 调用getComputeStyle的方式为(elem,null)
+			var computedStyle = elem.ownerDocument.defaultView.getComputedStyle(elem, null);
+	
+			// 返回 , 在 火狐如果存在 IFrame， 则 computedStyle == null
+			// http://drupal.org/node/182569
+			return computedStyle ? computedStyle[name]: null;
+	
+		}: function(elem, name) {
+	
+			assert.isElement(elem, "Dom.getStyle(elem, name): {elem} ~");
+	
+			// 特殊样式保存在 styleFix 。
+			if( name in styleFix) {
+				switch (name) {
+					case 'height':
+						return elem.offsetHeight === 0 ? 'auto': elem.offsetHeight -  Dom.calc(elem, 'by+py') + 'px';
+					case 'width':
+						return elem.offsetWidth === 0 ? 'auto': elem.offsetWidth -  Dom.calc(elem, 'bx+px') + 'px';
+					case 'opacity':
+						return new Dom(elem).getOpacity().toString();
+				}
+			}
+			// currentStyle：IE的样式获取方法,runtimeStyle是获取运行时期的样式。
+			// currentStyle是运行时期样式与style属性覆盖之后的样式
+			var r = elem.currentStyle;
+	
+			if(!r)
+				return "";
+			r = r[name];
+	
+			// 来自 jQuery
+			// 如果返回值不是一个带px的 数字。 转换为像素单位
+			if(/^-?\d/.test(r) && !/^-?\d+(?:px)?$/i.test(r)) {
+	
+				// 保存初始值
+				var style = elem.style, left = style.left, rsLeft = elem.runtimeStyle.left;
+	
+				// 放入值来计算
+				elem.runtimeStyle.left = elem.currentStyle.left;
+				style.left = name === "fontSize" ? "1em": (r || 0);
+				r = style.pixelLeft + "px";
+	
+				// 回到初始值
+				style.left = left;
+				elem.runtimeStyle.left = rsLeft;
+	
+			}
+	
+			return r;
+		},
+		
+		/// #else
+		
+		/// getStyle = function (elem, name) {
+		///
+		/// 	// 获取样式
+		/// 	var computedStyle = elem.ownerDocument.defaultView.getComputedStyle(elem, null);
+		///
+		/// 	// 返回
+		/// 	return computedStyle ? computedStyle[ name ]: null;
+		///
+		/// },
+		/// #endif
+		
+		/**
+		 * 获取滚动大小的方法。
+		 * @type Function
+		 */
+		getScroll = function() {
+			var elem = this.dom;
+			return new Point(elem.scrollLeft, elem.scrollTop);
+		},
+		
+		/**
+		 * 获取窗口滚动大小的方法。
+		 * @type Function
+		 */
+		getWindowScroll = 'pageXOffset' in window ? function() {
+			var win = this.defaultView;
+			return new Point(win.pageXOffset, win.pageYOffset);
+		}: getScroll,
+	
+		returnTrue = Function.from(true),
+
+		/**
+		 * float 属性的名字。
+		 * @type String
+		 */
+		styleFloat = 'cssFloat' in div.style ? 'cssFloat': 'styleFloat',
+		
+		/**
 		 * 浏览器使用的真实的 DOMContentLoaded 事件名字。
 		 * @type String
 		 */
-		domReady;
+		domReady,
+		
+		// IE：styleFloat Other：cssFloat
+
+		t,
+
+		pep;
+	
+	/// #region Dom
 	
 	/**
-	 * @namespace Dom
+	 * @class Dom
 	 */
-	apply(Dom, {
+	extend(Dom, {
 		
 		/**
 		 * 根据一个 id 获取元素。如果传入的id不是字符串，则直接返回参数。
 		 * @param {String/Node/Dom/DomList} id 要获取元素的 id 或元素本身。
 	 	 * @return {Dom} 元素。
+	 	 * @static
 		 */
 		get: function(id) {
 			
@@ -3163,6 +3118,7 @@ function imports(ns){
 		 * 执行一个选择器，返回一个新的 {DomList} 对象。
 		 * @param {String} selecter 选择器。 如 "h2" ".cls" "[attr=value]" 。
 		 * @return {Element/undefined} 节点。
+	 	 * @static
 		 */
 		query: function(selector) {
 			
@@ -3182,6 +3138,7 @@ function imports(ns){
 		
 		/**
 		 * 判断一个元素是否符合一个选择器。
+	 	 * @static
 		 */
 		match: function (elem, selector) {
 			assert.isString(selector, "Dom.prototype.find(selector): selector ~。");
@@ -3207,6 +3164,7 @@ function imports(ns){
 		 * @param {Element} context=document 生成节点使用的文档中的任何节点。
 		 * @param {Boolean} cachable=true 指示是否缓存节点。
 		 * @return {Dom} Dom 对象。
+	 	 * @static
 		 */
 		parse: function(html, context, cachable) {
 
@@ -3219,6 +3177,7 @@ function imports(ns){
 		 * 创建一个节点。
 		 * @param {String} tagName 创建的节点的标签名。
 		 * @param {String} className 创建的节点的类名。
+	 	 * @static
 		 */
 		create: function(tagName, className) {
 			return new Dom(Dom.createNode(tagName, className || ''));
@@ -3228,6 +3187,7 @@ function imports(ns){
 		 * 创建一个节点。
 		 * @param {String} tagName 创建的节点的标签名。
 		 * @param {String} className 创建的节点的类名。
+	 	 * @static
 		 */
 		createNode: function(tagName, className) {
 			assert.isString(tagName, 'Dom.create(tagName, className): {tagName} ~');
@@ -3240,6 +3200,7 @@ function imports(ns){
 		 * 根据一个 id 获取元素。如果传入的id不是字符串，则直接返回参数。
 		 * @param {String/Node/Dom} id 要获取元素的 id 或元素本身。
 	 	 * @return {Node} 元素。
+	 	 * @static
 		 */
 		getNode: function (id) {
 			return typeof id === "string" ?
@@ -3258,6 +3219,7 @@ function imports(ns){
 		 * @param {Element} context=document 生成节点使用的文档中的任何节点。
 		 * @param {Boolean} cachable=true 指示是否缓存节点。
 		 * @return {Element/TextNode/DocumentFragment} 元素。
+	 	 * @static
 		 */
 		parseNode: function(html, context, cachable) {
 
@@ -3288,7 +3250,7 @@ function imports(ns){
 						assert.isString(srcHTML, 'Dom.parseNode(html, context, cachable): {html} ~');
 						html = context.createElement("div");
 
-						var wrap = wrapMap[tag[1].toLowerCase()] || wrapMap.$default;
+						var wrap = tagFix[tag[1].toLowerCase()] || tagFix.$default;
 
 						html.innerHTML = wrap[1] + srcHTML.trim().replace(rXhtmlTag, "<$1></$2>") + wrap[2];
 
@@ -3337,6 +3299,7 @@ function imports(ns){
 		 * @param {Element} elem 节点。
 		 * @param {Element} child 子节点。
 		 * @return {Boolean} 如果确实存在子节点，则返回 true ， 否则返回 false 。
+	 	 * @static
 		 */
 		hasChild: div.compareDocumentPosition ? function(elem, child) {
 			assert.isNode(elem, "Dom.hasChild(elem, child): {elem} ~");
@@ -3356,11 +3319,12 @@ function imports(ns){
 		 * 获取一个元素对应的文本。
 		 * @param {Element} elem 元素。
 		 * @return {String} 值。对普通节点返回 text 属性。
+	 	 * @static
 		 */
 		getText: function(elem) {
 
 			assert.isNode(elem, "Dom.getText(elem, name): {elem} ~");
-			return elem[textField[elem.nodeName] || attributes.innerText] || '';
+			return elem[textFix[elem.nodeName] || attrFix.innerText] || '';
 		},
 
 		/**
@@ -3368,6 +3332,7 @@ function imports(ns){
 		 * @param {Element} elem 元素。
 		 * @param {String} name 名字。
 		 * @return {String} 属性。
+	 	 * @static
 		 */
 		getAttr: function(elem, name) {
 
@@ -3377,7 +3342,7 @@ function imports(ns){
 			// elem.parentNode) { elem.parentNode.selectIndex;
 			// if(elem.parentNode.parentNode)
 			// elem.parentNode.parentNode.selectIndex; }
-			var fix = attributes[name];
+			var fix = attrFix[name];
 
 			// 如果是特殊属性，直接返回Property。
 			if(fix) {
@@ -3406,6 +3371,7 @@ function imports(ns){
 		 * 判断一个节点是否隐藏。
 		 * @method isHidden
 		 * @return {Boolean} 隐藏返回 true 。
+	 	 * @static
 		 */
 		
 		/**
@@ -3413,18 +3379,24 @@ function imports(ns){
 		 * @param {Element} elem 元素。
 		 * @param {String} className 类名。
 		 * @return {Boolean} 如果存在返回 true。
+	 	 * @static
 		 */
 		hasClass: function(elem, className) {
 			assert.isNode(elem, "Dom.hasClass(elem, className): {elem} ~");
 			assert(className && (!className.indexOf || !/[\s\r\n]/.test(className)), "Dom.hasClass(elem, className): {className} 不能空，且不允许有空格和换行。");
 			return (" " + elem.className + " ").indexOf(" " + className + " ") >= 0;
 		},
+			
+		dataField: function(elem){
+			return Dom.prototype.dataField.call({dom: elem});
+		},
 		
 		/**
 		 * 特殊属性集合。
 		 * @type Object 特殊的属性，在节点复制时不会被复制，因此需要额外复制这些属性内容。
+	 	 * @static
 		 */
-		properties: {
+		propFix: {
 			INPUT: 'checked',
 			OPTION: 'selected',
 			TEXTAREA: 'value'
@@ -3437,29 +3409,28 @@ function imports(ns){
 		 * @static
 		 * @private
 		 */
-		attributes: attributes,
-		
-		/**
-		 * 选择器中关系选择符的处理函数列表。
-		 * @private
-		 */
-		combinators: {
-			' ': 'getAll',
-			'>': 'getChildren',
-			'+': 'getNext',
-			'~': 'getAllNext',
-			'<': 'getAllParent'
-		},
+		attrFix: attrFix,
 		
 		/**
 		 * 获取文本时应使用的属性值。
 		 * @private
+	 	 * @static
 		 */
-		textField: textField,
+		textFix: textFix,
+		
+		/**
+		 * 特殊的样式集合。
+		 * @property
+		 * @type Object
+		 * @private
+	 	 * @static
+		 */
+		styleFix: styleFix,
 	
 		/**
 		 * 用于查找所有支持的伪类的函数集合。
 		 * @private
+	 	 * @static
 		 */
 		pseudos: {
 			
@@ -3516,8 +3487,8 @@ function imports(ns){
 					result.push(args);
 			},
 			"only-child": function(elem){ 
-				var System = new Dom(elem.parentNode).getFirst(elem.nodeName);
-				return System && System.getNext(); 
+				var p = new Dom(elem.parentNode).first(elem.nodeName);
+				return p && p.next(); 
 			},
 			odd: function(args, oldResult, result){
 				var index = 0, elem, t;
@@ -3532,39 +3503,24 @@ function imports(ns){
 			}
 			
 		},
-		
-		/**
-		 * 特殊的样式集合。
-		 * @property
-		 * @type Object
-		 * @private
-		 */
-		styles: styles,
-
-		/**
-		 * 样式表。
-		 * @static
-		 * @type Object
-		 */
-		sizeMap: {},
 
 		/**
 		 * 显示元素的样式。
 		 * @static
 		 * @type Object
 		 */
-		display: {
+		displayFix: {
 			position: "absolute",
 			visibility: "visible",
 			display: "block"
 		},
-
+		
 		/**
 		 * 不需要单位的 css 属性。
 		 * @static
 		 * @type Object
 		 */
-		styleNumbers: map('fillOpacity fontWeight lineHeight opacity orphans widows zIndex zoom', Function.returnTrue, {}),
+		styleNumbers: map('fillOpacity fontWeight lineHeight opacity orphans widows zIndex zoom', returnTrue, {}),
 
 		/**
 		 * 默认最大的 z-index 。
@@ -3574,9 +3530,17 @@ function imports(ns){
 		 * @static
 		 */
 		zIndex: 10000,
-
+		
+		/**
+		 * 
+	 	 * @static
+		 */
 		window: new Dom(window),
-
+		
+		/**
+		 * 
+	 	 * @static
+		 */
 		document: new Dom(document),
 
 		/**
@@ -3584,6 +3548,7 @@ function imports(ns){
 		 * @param {Element} dom 节点。
 		 * @param {String} name 名字。
 		 * @return {String} 样式。
+	 	 * @static
 		 */
 		getStyle: getStyle,
 
@@ -3592,6 +3557,7 @@ function imports(ns){
 		 * @param {Element} elem 元素。
 		 * @param {String} name 属性名。必须使用骆驼规则的名字。
 		 * @return {String} 字符串。
+	 	 * @static
 		 */
 		styleString: styleString,
 
@@ -3605,35 +3571,9 @@ function imports(ns){
 		styleNumber: styleNumber,
 
 		/**
-		 * 获取指定css属性的当前值。
-		 * @param {Element} elem 元素。
-		 * @param {Object} styles 需要收集的属性。
-		 * @return {Object} 收集的属性。
-		 */
-		getStyles: function(elem, styles) {
-			assert.isElement(elem, "Dom.getStyles(elem, styles): {elem} ~");
-
-			var r = {};
-			for(var style in styles) {
-				r[style] = elem.style[style];
-			}
-			return r;
-		},
-		
-		/**
-		 * 设置指定css属性的当前值。
-		 * @param {Element} elem 元素。
-		 * @param {Object} styles 需要收集的属性。
-		 */
-		setStyles: function(elem, styles) {
-			assert.isElement(elem, "Dom.getStyles(elem, styles): {elem} ~");
-
-			apply(elem.style, styles);
-		},
-
-		/**
 		 * 清空元素的 display 属性。
 		 * @param {Element} elem 元素。
+	 	 * @static
 		 */
 		show: function(elem) {
 			assert.isElement(elem, "Dom.show(elem): {elem} ~");
@@ -3643,18 +3583,19 @@ function imports(ns){
 
 			// 如果元素的 display 仍然为 none , 说明通过 CSS 实现的隐藏。这里默认将元素恢复为 block。
 			if(getStyle(elem, 'display') === 'none')
-				elem.style.display = System.getData(elem, 'display') || 'block';
+				elem.style.display = elem.style.$display || 'block';
 		},
 		
 		/**
 		 * 赋予元素的 display 属性 none。
 		 * @param {Element} elem 元素。
+	 	 * @static
 		 */
 		hide: function(elem) {
 			assert.isElement(elem, "Dom.hide(elem): {elem} ~");
 			var currentDisplay = styleString(elem, 'display');
 			if(currentDisplay !== 'none') {
-				System.setData(elem, 'display', currentDisplay);
+				elem.style.$display = currentDisplay;
 				elem.style.display = 'none';
 			}
 		},
@@ -3667,6 +3608,7 @@ function imports(ns){
 		 *            m b System t l r b h w 第二个字可以是下列字符之一: x y l t b r
 		 *            b。词语也可以是: outer inner 。
 		 * @return {Number} 计算值。 mx+sx -> 外大小。 mx-sx -> 内大小。
+	 	 * @static
 		 */
 		calc: (function() {
 
@@ -3731,13 +3673,14 @@ function imports(ns){
 			return function(elem, type) {
 				assert.isElement(elem, "Dom.calc(elem, type): {elem} ~");
 				assert.isString(type, "Dom.calc(elem, type): {type} ~");
-				return (Dom.sizeMap[type] || (Dom.sizeMap[type] = new Function("e", init + type.replace(/\w+/g, format))))(elem);
+				return (sizeMap[type] || (sizeMap[type] = new Function("e", init + type.replace(/\w+/g, format))))(elem);
 			}
 		})(),
 
 		/**
 		 * 设置一个元素可拖动。
 		 * @param {Element} elem 要设置的节点。
+	 	 * @static
 		 */
 		movable: function(elem) {
 			assert.isElement(elem, "Dom.movable(elem): 参数 elem ~");
@@ -3749,6 +3692,7 @@ function imports(ns){
 		 * 获取元素的文档。
 		 * @param {Element} elem 元素。
 		 * @return {Document} 文档。
+	 	 * @static
 		 */
 		getDocument: getDocument,
 	
@@ -3768,7 +3712,7 @@ function imports(ns){
 		implement: function(members, listType, copyIf) {
 			assert.notNull(members, "Dom.implement" + ( copyIf ? 'If' : '') + "(members, listType): {members} ~");
 		
-			o.each(members, function(value, func) {
+			Object.each(members, function(value, func) {
 		
 				var i = this.length;
 				while(i--) {
@@ -3883,7 +3827,7 @@ function imports(ns){
 				var me = this;
 				me.target = target;
 				me.type = type;
-				apply(me, e);
+				extend(me, e);
 			},
 			
 			/**
@@ -3924,7 +3868,8 @@ function imports(ns){
 
 		/**
 		 * 文档对象。
-		 * @class Dom.Document 
+		 * @constructor Dom.Document 
+		 * @extends Dom
 		 * @remark 因为 IE6/7 不存在这些对象, 文档对象是对原生 HTMLDocument 对象的补充。 扩展
 		 *        Document 也会扩展 HTMLDocument。
 		 */
@@ -3932,12 +3877,11 @@ function imports(ns){
 			prototype: document
 		})
 
-	});
+	})
 	
-	/**
-	 * @class Dom
-	 */
-	Dom.implement({
+	/**@class Dom*/
+	
+	.implement({
 	
 		/**
 		 * 将当前节点添加到其它节点。
@@ -3964,7 +3908,7 @@ function imports(ns){
 			if (arguments.length) {
 				assert(childControl && this.hasChild(childControl), 'Dom.prototype.remove(childControl): {childControl} 不是当前节点的子节点', childControl);
 				this.removeChild(childControl);
-			} else if (childControl = this.parentControl || this.getParent()){
+			} else if (childControl = this.parentControl || this.parent()){
 				childControl.removeChild(this);
 			}
 	
@@ -3978,8 +3922,8 @@ function imports(ns){
 		empty: function() {
 			var elem = this.dom;
 			if(elem.nodeType == 1)
-				o.each(elem.getElementsByTagName("*"), clean);
-			while (elem = this.getLast(true))
+				Object.each(elem.getElementsByTagName("*"), clean);
+			while (elem = this.last(true))
 				this.removeChild(elem);
 			return this;
 		},
@@ -3989,7 +3933,7 @@ function imports(ns){
 		 */
 		dispose: function() {
 			if(this.dom.nodeType == 1){
-				o.each(this.dom.getElementsByTagName("*"), clean)
+				Object.each(this.dom.getElementsByTagName("*"), clean)
 				clean(this.dom);
 			}
 			
@@ -4015,10 +3959,10 @@ function imports(ns){
 				me.dom.style.cssText += ';' + name;
 				
 			// 特殊的属性值。
-			} else if( name in styles) {
+			} else if( name in styleFix) {
 		
 				// setHeight setWidth setOpacity
-				return me[styles[name]](value);
+				return me[styleFix[name]](value);
 		
 			} else {
 				name = name.replace(rStyle, formatStyle);
@@ -4142,7 +4086,7 @@ function imports(ns){
 			return this;
 		}: 'onselectstart' in div ? function(value) {
 			assert.isElement(this.dom, "Dom.prototype.unselectable(value): 当前 dom 不支持此操作");
-			this.dom.onselectstart = value !== false ? Function.returnFalse: null;
+			this.dom.onselectstart = value !== false ? Function.from(false): null;
 			return this;
 		}: function(value) {
 			assert.isElement(this.dom, "Dom.prototype.unselectable(value): 当前 dom 不支持此操作");
@@ -4183,15 +4127,15 @@ function imports(ns){
 		
 			/// #endif
 			// 如果是节点具有的属性。
-			if( name in attributes) {
+			if( name in attrFix) {
 		
-				if(attributes[name].set)
-					attributes[name].set(elem, name, value);
+				if(attrFix[name].set)
+					attrFix[name].set(elem, name, value);
 				else {
 		
 					assert(elem.tagName !== 'FORM' || name !== 'className' || typeof elem.className === 'string', "Dom.prototype.setAttr(name, type): 表单内不能存在 name='className' 的节点。");
 		
-					elem[attributes[name]] = value;
+					elem[attrFix[name]] = value;
 		
 				}
 		
@@ -4246,7 +4190,7 @@ function imports(ns){
 				else
 					me.setAttr(name, value);
 		
-			} else if(o.isObject(name)) {
+			} else if(Object.isObject(name)) {
 		
 				for(value in name)
 					me.set(value, name[value]);
@@ -4316,8 +4260,8 @@ function imports(ns){
 		 * @param {Boolean} [toggle] 自定义切换的方式。如果为 true， 则加上类名，否则删除。
 		 * @return {Element} this
 		 */
-		toggleClass: function(className, toggle) {
-			return (toggle !== undefined ? !toggle: this.hasClass(className)) ? this.removeClass(className): this.addClass(className);
+		toggleClass: function(className, stateVal) {
+			return (stateVal !== undefined ? !stateVal: this.hasClass(className)) ? this.removeClass(className): this.addClass(className);
 		},
 	
 		/**
@@ -4327,7 +4271,7 @@ function imports(ns){
 		 */
 		setText: function(value) {
 			var elem = this.dom;
-			elem[textField[elem.nodeName] || attributes.innerText] = value;
+			elem[textFix[elem.nodeName] || attrFix.innerText] = value;
 			return this;
 		},
 	
@@ -4338,12 +4282,12 @@ function imports(ns){
 		 */
 		setHtml: function(value) {
 			var elem = this.dom,
-				map = wrapMap.$default;
+				map = tagFix.$default;
 			
 			assert(elem.nodeType === 1, "Dom.prototype.setHtml(value): 仅当 dom.nodeType === 1 时才能使用此函数。"); 
 			
 			value = (map[1] + value + map[2]).replace(rXhtmlTag, "<$1></$2>");
-			// o.each(elem.getElementsByTagName("*"), function(node){
+			// Object.each(elem.getElementsByTagName("*"), function(node){
 			// 	node.$data = null;
 			// });
 			
@@ -4410,16 +4354,16 @@ function imports(ns){
 		 * @param {Point} System
 		 * @return {Element} this
 		 */
-		setOffset: function(System) {
+		setOffset: function(offsetPoint) {
 		
-			assert(o.isObject(System), "Dom.prototype.setOffset(System): {System} 必须有 'x' 和 'y' 属性。", System);
+			assert(Object.isObject(offsetPoint), "Dom.prototype.setOffset(System): {System} 必须有 'x' 和 'y' 属性。", System);
 			var s = this.dom.style;
 			
-			if(System.y != null)
-				s.top = System.y + 'px';
+			if(offsetPoint.y != null)
+				s.top = offsetPoint.y + 'px';
 				
-			if(System.x != null)
-				s.left = System.x + 'px';
+			if(offsetPoint.x != null)
+				s.left = offsetPoint.x + 'px';
 			return this;
 		},
 	
@@ -4432,12 +4376,12 @@ function imports(ns){
 		setPosition: function(x, y) {
 			var me = this,
 				offset = me.getOffset().sub(me.getPosition()),
-				System = formatPoint(x, y);
+				offsetPoint = formatPoint(x, y);
 		
-			if (System.y != null) offset.y += System.y; 
+			if (offsetPoint.y != null) offset.y += offsetPoint.y; 
 			else offset.y = null;
 		
-			if (System.x != null) offset.x += System.x; 
+			if (offsetPoint.x != null) offset.x += offsetPoint.x; 
 			else offset.x = null;
 		
 			Dom.movable(me.dom);
@@ -4454,10 +4398,10 @@ function imports(ns){
 		 */
 		setScroll: function(x, y) {
 			var elem = this.dom,
-				System = formatPoint(x, y);
+				offsetPoint = formatPoint(x, y);
 		
-			if (System.x != null) elem.scrollLeft = System.x;
-			if (System.y != null) elem.scrollTop = System.y;
+			if (offsetPoint.x != null) elem.scrollLeft = offsetPoint.x;
+			if (offsetPoint.y != null) elem.scrollTop = offsetPoint.y;
 			return this;
 	
 		},
@@ -4602,7 +4546,7 @@ function imports(ns){
 		
 				// 绝对定位需要返回绝对位置。
 				if(styleString(elem, "position") === 'absolute') {
-					top = this.getOffsetParent();
+					top = this.offsetParent();
 					left = this.getPosition();
 					if(!rBody.test(top.dom.nodeName))
 						left = left.sub(top.getPosition());
@@ -4691,42 +4635,27 @@ function imports(ns){
 	.implement({
 		
 		// 父节点。
-		getParent: createTreeWalker(true, 'parentNode'),
-		
-		// 全部父节点。
-		getAllParent: createTreeWalker(false, 'parentNode'),
+		parent: createTreeWalker('parentNode'),
 
 		// 第一个节点。
-		getFirst: createTreeWalker(true, 'nextSibling', 'firstChild'),
-
-		// 后面的节点。
-		getNext: createTreeWalker(true, 'nextSibling'),
-
-		// 前面的节点。
-		getPrevious: createTreeWalker(true, 'previousSibling'),
-
-		// 后面的节点。
-		getAllNext: createTreeWalker(false, 'nextSibling'),
+		first: createTreeWalker('nextSibling', 'firstChild'),
 
 		// 最后的节点。
-		getLast: createTreeWalker(true, 'previousSibling', 'lastChild'),
+		last: createTreeWalker('previousSibling', 'lastChild'),
 
-		// 第一个节点。
-		getChild: createTreeWalker(true, 'nextSibling', 'firstChild'),
+		// 后面的节点。
+		next: createTreeWalker('nextSibling'),
 
 		// 前面的节点。
-		getAllPrevious: createTreeWalker(false, 'previousSibling'),
+		prev: createTreeWalker('previousSibling'),
 
 		// 全部子节点。
-		getChildren: createTreeWalker(false, 'nextSibling', 'firstChild'),
-		
-		// 兄弟节点。
-		getSiblings: function(args) {
-			return this.getAllPrevious(args).concat(this.getAllNext(args));
+		children: function(args){
+			return dir(this.dom.firstChild, 'nextSibling', args);
 		},
 		
 		// 号次。
-		getIndex: 'nodeIndex' in div ? function(){
+		index: 'nodeIndex' in div ? function(){
 			return this.dom.nodeIndex;
 		} : function() {
 			var i = 0, elem = this.dom;
@@ -4735,21 +4664,31 @@ function imports(ns){
 					i++;
 			return i;
 		},
-
-		// 全部子节点。
-		getAll: function(args) {
-			if(!args)
-				args = '*';	
-			else if(typeof args === 'function')
-				return this.getAll().filter(args);
-			var r = new DomList, nodes = this.dom.getElementsByTagName(args), i = 0, node;
-			while( node = nodes[i++] ) {
-				if(node.nodeType === 1){
-					r.push(node);
-				}	
+		
+		/**
+		 * 获取全部满足要求的节点的集合。
+		 * @param {String} direction 遍历的方向方向，可以是以下值之一:
+		 * - previousSibling: 遍历当前节点以前的节点。
+		 * - previousSibling: 遍历当前节点以后的节点。
+		 * - parentNode: 遍历当前节点的父节点。
+		 */
+		getAll: function(direction, args){
+			switch(direction) {
+				case 'child':
+					return new DomList(this.dom.getElementsByTagName(args || '*'));
+				case 'next':
+					direction += 'Sibling';
+					break;
+				case 'prev':
+					direction += 'iousSibling';
+					break;
+				case 'parent':
+					direction += 'Node';
+					break;
+				case 'sibling':
+					return this.getAll('prev').concat(this.getAll('next'));
 			}
-
-			return r;
+			return dir(this.dom[direction], direction, args);
 		},
 
 		/**
@@ -4818,7 +4757,7 @@ function imports(ns){
 		},
 			
 		// 偏移父位置。
-		getOffsetParent: function() {
+		offsetParent: function() {
 			var me = this.dom;
 			while(( me = me.offsetParent) && !rBody.test(me.nodeName) && styleString(me, "position") === "static");
 			return new Dom(me || getDocument(this.dom).body);
@@ -4843,15 +4782,15 @@ function imports(ns){
 		
 			switch (where) {
 				case "afterEnd":
-					refChild = me.getNext(true);
+					refChild = me.next(true);
 				
 					// 继续。
 				case "beforeBegin":
-					parentControl = me.getParent();
+					parentControl = me.parent();
 					assert(parentControl, "Dom.prototype.insert(where, html): 节点无父节点时无法执行 insert({where})。", where);
 					break;
 				case "afterBegin":
-					refChild = me.getFirst(true);
+					refChild = me.first(true);
 					break;
 				default:
 					refChild = null;
@@ -4881,7 +4820,7 @@ function imports(ns){
 		replaceWith: function(html) {
 			var elem;
 			html = Dom.parse(html, this.dom);
-			if (elem = this.getParent()) {
+			if (elem = this.parent()) {
 				elem.insertBefore(html, this);
 				elem.removeChild(this);
 			}
@@ -4925,32 +4864,34 @@ function imports(ns){
 		},
 		
 		/**
-		 * 判断一个节点是否包含一个节点。 一个节点包含自身。
-		 * @param {Element} Dom 子节点。
-		 * @return {Boolean} 有返回true 。
-		 */
-		contains: function(dom) {
-			var elem = this.dom;
-			dom = Dom.getNode(dom);
-			assert.notNull(dom, "Dom.prototype.contains(Dom):{Dom} ~");
-			return dom == elem || Dom.hasChild(elem, dom);
-		},
-		
-		/**
 		 * 判断一个节点是否有子节点。
 		 * @param {Element} [Dom] 子节点。
 		 * @return {Boolean} 有返回true 。
 		 */
-		hasChild: function(dom) {
-			return dom ? Dom.hasChild(this.dom, Dom.getNode(dom)): !Dom.isEmpty(this.dom);
+		hasChild: function(dom, allowSelf) {
+			var elem = this.dom;
+			if(dom){
+				dom = Dom.getNode(dom);
+				return (allowSelf && elem === dom) || Dom.hasChild(elem, dom);
+			}
+			
+			return Dom.isEmpty(elem);
 		}
 		
 	}, 4);
+	
+	/// #endif
+	
+	/// #region Dom.Document
 	
 	/**
 	 * @class Dom.Document
 	 */
 	Dom.Document.implement({
+		
+		dataField: function(){
+			return this.$data;
+		},
 		
 		/**
 		 * 插入一个HTML 。
@@ -4973,7 +4914,7 @@ function imports(ns){
 		/**
 		 * 插入一个HTML 。
 		 * @param {String/Dom} html 内容。
-		 * @return {Element} 元素。
+@return {Element} 元素。
 		 */
 		remove: function() {
 			var body = new Dom(this.body);
@@ -5008,24 +4949,6 @@ function imports(ns){
 			}
 			return new DomList(result);
 		},
-		
-		// /**
-		 // * 根据元素返回节点。
-		 // * @param {String} ... 对象的 id 或对象。
-		 // * @return {DomList} 如果只有1个参数，返回元素，否则返回元素集合。
-		 // */
-		// getDom: function(id) {
-			// return typeof id == "string" ? this.getElementById(id): id;
-		// },
-// 		
-		// /**
-		 // * 根据元素返回封装后的Dom 对象。
-		 // * @param {String} ... 对象的 id 或对象。
-		 // * @return {DomList} 如果只有1个参数，返回元素，否则返回元素集合。
-		 // */
-		// getControl: function() {
-			// return arguments.length === 1 ? new Dom(this.getDom(arguments[0])): new DomList(o.update(arguments, this.getDom, null, this));
-		// },
 		
 		/**
 		 * 获取元素可视区域大小。包括 padding 和 border 大小。
@@ -5068,35 +4991,35 @@ function imports(ns){
 		 * @return {Document} this 。
 		 */
 		setScroll: function(x, y) {
-			var doc = this, System = formatPoint(x, y);
-			if(System.x == null)
-				System.x = doc.getScroll().x;
-			if(System.y == null)
-				System.y = doc.getScroll().y;
-			(doc.defaultView || doc.parentWindow).scrollTo(System.x, System.y);
+			var doc = this, offsetPoint = formatPoint(x, y);
+			if(offsetPoint.x == null)
+				offsetPoint.x = doc.getScroll().x;
+			if(offsetPoint.y == null)
+				offsetPoint.y = doc.getScroll().y;
+			(doc.defaultView || doc.parentWindow).scrollTo(offsetPoint.x, offsetPoint.y);
 
 			return doc;
-		},
-		
-		xtype: 'dom'
+		}
 		
 	});
 
+	/// #endif
+	
 	// 变量初始化。
 
-	// 初始化 wrapMap
-	wrapMap.optgroup = wrapMap.option;
-	wrapMap.tbody = wrapMap.tfoot = wrapMap.colgroup = wrapMap.caption = wrapMap.thead;
-	wrapMap.th = wrapMap.td;
+	// 初始化 tagFix
+	tagFix.optgroup = tagFix.option;
+	tagFix.tbody = tagFix.tfoot = tagFix.colgroup = tagFix.caption = tagFix.thead;
+	tagFix.th = tagFix.td;
 
 	// 下列属性应该直接使用。
 	map("checked selected disabled value innerHTML textContent className autofocus autoplay async controls hidden loop open required scoped compact nowrap ismap declare noshade multiple noresize defer readOnly tabIndex defaultValue accessKey defaultChecked cellPadding cellSpacing rowSpan colSpan frameBorder maxLength useMap contentEditable", function (value) {
-		attributes[value.toLowerCase()] = attributes[value] = value;
+		attrFix[value.toLowerCase()] = attrFix[value] = value;
 	});
 
-	textField.INPUT = textField.SELECT = textField.TEXTAREA = 'value';
+	textFix.INPUT = textFix.SELECT = textFix.TEXTAREA = 'value';
 
-	textField['#text'] = textField['#comment'] = 'nodeValue';
+	textFix['#text'] = textFix['#comment'] = 'nodeValue';
 
 	pep = Dom.Event.prototype;
 
@@ -5133,7 +5056,7 @@ function imports(ns){
 
 	/// #if CompactMode
 
-	if(isStandard) {
+	if(isStd) {
 
 		/// #endif
 
@@ -5194,12 +5117,12 @@ function imports(ns){
 		domReady = 'readystatechange';
 
 		if (!('opacity' in div.style)) {
-			styles.opacity = 'setOpacity';
+			styleFix.opacity = 'setOpacity';
 		}
 		
-		Dom.properties.OBJECT = 'outerHTML';
+		Dom.propFix.OBJECT = 'outerHTML';
 
-		attributes.style = {
+		attrFix.style = {
 
 			get: function(elem, name) {
 				return elem.style.cssText.toLowerCase();
@@ -5211,7 +5134,7 @@ function imports(ns){
 
 		if(navigator.isQuirks) {
 
-			attributes.value = {
+			attrFix.value = {
 
 				node: function(elem, name) {
 					assert(elem.getAttributeNode, "Dom.prototype.getAttr(name, type): 当前元素不存在 getAttributeNode 方法");
@@ -5229,7 +5152,7 @@ function imports(ns){
 				}
 			};
 
-			attributes.href = attributes.src = attributes.usemap = {
+			attrFix.href = attrFix.src = attrFix.usemap = {
 
 				get: function(elem, name) {
 					return elem.getAttribute(name, 2);
@@ -5276,7 +5199,7 @@ function imports(ns){
 		Dom[readyOrLoad] = function (fn, bind) {
 			
 			// 忽略参数不是函数的调用。
-			var isFn = Function.isFunction(fn);
+			var isFn = Object.isFunction(fn);
 
 			// 如果已载入，则直接执行参数。
 			if(Dom[isReadyOrIsLoad]) {
@@ -5342,7 +5265,7 @@ function imports(ns){
 		/// #if CompactMode
 		
 		// 只对 IE 检查。
-		if(!isStandard) {
+		if(!isStd) {
 
 			// 来自 jQuery
 			// 如果是 IE 且不是框架
@@ -5384,7 +5307,7 @@ function imports(ns){
 	
 	div = null;
 
-	apply(window, {
+	extend(window, {
 
 		Dom: Dom,
 
@@ -5396,7 +5319,7 @@ function imports(ns){
 
 	});
 
-	o.extendIf(window, {
+	Object.extendIf(window, {
 		$: Dom.get,
 		$$: Dom.query
 	});
@@ -5422,38 +5345,41 @@ function imports(ns){
 	 * @param {String} first=next 获取第一个成员使用的名字。
 	 * @return {Function} 遍历函数。
 	 */
-	function createTreeWalker(getFirst, next, first) {
+	function createTreeWalker(next, first) {
 		first = first || next;
-		return getFirst ? function(args) {
+		return function(args) {
 			var node = this.dom[first];
 			
-			// 如果参数为空，则表示仅仅获取第一个节点，加速本函数的执行。
-			if(args == null) {
-				while(node) {
-					if(node.nodeType === 1)
-						return new Dom(node);
-					node = node[next];
-				}
-			} else {
+			// 如果存在 args 编译为函数。
+			if(args){
 				args = getFilter(args);
-				while(node) {
-					if(args.call(this.dom, node))
-						return new Dom(node);
-					node = node[next];
-				}
+			}
+			
+			while(node) {
+				if(args ? args.call(this, node) : node.nodeType === 1)
+					return new Dom(node);
+				node = node[next];
 			}
 			
 			return null;
-		}: function(args) {
-			args = getFilter(args);
-			var node = this.dom[first], r = new DomList;
-			while(node) {
-				if(args.call(this.dom, node))
-					r.push(node);
-				node = node[next];
-			}
-			return r;
 		};
+	}
+	
+	function dir(node, next, args){
+			
+		// 如果存在 args 编译为函数。
+		if(args){
+			args = getFilter(args);
+		}
+		
+		var r = new DomList;
+		while(node){
+			if(args ? args.call(this, node) : node.nodeType === 1)
+				r.push(node);	
+			node = node[next];
+		}
+		
+		return r;
 	}
 	
 	/**
@@ -5464,48 +5390,36 @@ function imports(ns){
 	function getFilter(args) {
 		
 		// 如果存在 args，则根据不同的类型返回不同的检查函数。
-		if(args){
-			switch (typeof args) {
+		switch (typeof args) {
+			
+			// 数字返回一个计数器函数。
+			case 'number':
+				return function(elem) {
+					return elem.nodeType === 1 && --args < 0;
+				};
 				
-				// 数字返回一个计数器函数。
-				case 'number':
+			// 字符串，表示选择器。
+			case 'string':
+				if(/^(?:[-\w:]|[^\x00-\xa0]|\\.)+$/.test(args)) {
+					args = args.toUpperCase();
 					return function(elem) {
-						return elem.nodeType === 1 && --args < 0;
+						return elem.nodeType === 1 && elem.tagName === args;
 					};
-					
-				// 字符串，表示选择器。
-				case 'string':
-					if(/^(?:[-\w:]|[^\x00-\xa0]|\\.)+$/.test(args)) {
-						args = args.toUpperCase();
-						return function(elem) {
-							return elem.nodeType === 1 && elem.tagName === args;
-						};
-					}
-					return args === '*' ? isElement : function(elem) {
-						return elem.nodeType === 1 && Dom.match(elem, args);
-					};
-					
-				// 布尔类型，而且是 true, 返回 Function.returnTrue，  表示不过滤。
-				case 'boolean':
-					return Function.returnTrue;
+				}
+				return args === '*' ? null : function(elem) {
+					return elem.nodeType === 1 && Dom.match(elem, args);
+				};
 				
-			}
-	
-			assert.isFunction(args, "Dom.prototype.getXXX(args): {args} 必须是一个函数、空、数字或字符串。", args);
+			// 布尔类型，而且是 true, 返回 Function.from(true)，  表示不过滤。
+			case 'boolean':
+				args = returnTrue;
+				break;
 			
-		} else {
-			
-			// 默认返回只判断节点的函数。
-			args = isElement;
 		}
+
+		assert.isFunction(args, "Dom.prototype.getAll(direction, args): {args} 必须是一个函数、空、数字或字符串。", args);
+		
 		return args;
-	}
-	
-	/**
-	 * 判断一个节点是否为元素。
-	 */
-	function isElement(elem){
-		return elem.nodeType === 1;
 	}
 	
 	/**
@@ -5529,8 +5443,11 @@ function imports(ns){
 			destElem.mergeAttributes(srcElem);
 			destElem.$data = null;
 
-			if(srcElem.options)
-				o.update(srcElem.options, 'selected', destElem.options, true);
+			if(srcElem.options) {
+				Object.each(srcElem.options, function(value){
+					destElem.options.seleced = value.seleced;
+				});
+			}
 		}
 
 		/// #endif
@@ -5538,7 +5455,7 @@ function imports(ns){
 		if(cloneEvent !== false) {
 			
 		    // event 作为系统内部对象。事件的拷贝必须重新进行 on 绑定。
-		    var event = System.getData(srcElem, '$event'), dest;
+		    var event = srcElem.$data && srcElem.$data.$event, dest;
 
 		    if (event) {
 		    	dest = new Dom(destElem);
@@ -5555,7 +5472,7 @@ function imports(ns){
 		}
 
 		// 特殊属性复制。
-		if( keepId = Dom.properties[srcElem.tagName])
+		if( keepId = Dom.propFix[srcElem.tagName])
 			destElem[keepId] = srcElem[keepId];
 	}
 
@@ -5611,11 +5528,16 @@ function imports(ns){
 			value = parseFloat(getStyle(elem, name));
 
 			if(!value && value !== 0) {
-				if( name in styles) {
-					var style = Dom.getStyles(elem, Dom.display);
-					Dom.setStyles(elem, Dom.display);
+				if( name in styleFix) {
+					
+					var styles = {};
+					for(var style in Dom.displayFix) {
+						styles[style] = elem.style[style];
+					}
+					
+					extend(elem.style, Dom.displayFix);
 					value = parseFloat(getStyle(elem, name)) || 0;
-					Dom.setStyles(elem, style);
+					extend(elem.style, styles);
 				} else {
 					value = 0;
 				}
@@ -5667,7 +5589,13 @@ function imports(ns){
 	 */
 	function query(selector, result) {
 
-		var prevResult = result, rBackslash = /\\/g, m, key, value, lastSelector, filterData;
+		var prevResult = result,
+			rBackslash = /\\/g, 
+			m, 
+			key, 
+			value, 
+			lastSelector, 
+			filterData;
 		
 		selector = selector.trim();
 
@@ -5702,7 +5630,7 @@ function imports(ns){
 							
 						// ‘*’ ‘tagName’
 						default:
-							result = result.getAll(m[2].replace(rBackslash, ""));
+							result = result.getAll('child', m[2].replace(rBackslash, ""));
 							break;
 								
 					}
@@ -5713,23 +5641,49 @@ function imports(ns){
 					
 				// 无法加速，等待第四步进行过滤。
 				} else {
-					result = result.getAll();
+					result = result.getAll('child');
 				}
 			
 			// 解析的第二步: 解析父子关系操作符(比如子节点筛选)
 			
 			// ‘a>b’ ‘a+b’ ‘a~b’ ‘a b’ ‘a *’
-			} else if(m = /^\s*([\s>+~])\s*(\*|(?:[-\w*]|[^\x00-\xa0]|\\.)*)/.exec(selector)) {
+			} else if(m = /^\s*([\s>+~<])\s*(\*|(?:[-\w*]|[^\x00-\xa0]|\\.)*)/.exec(selector)) {
 				selector = RegExp.rightContext;
-				result = result[Dom.combinators[m[1]] || throwError(m[1])](m[2].replace(rBackslash, ""));
-
+				
+				var value = m[2].replace(rBackslash, "");
+				
+				switch(m[1]){
+					case ' ':
+						result = result.getAll('child', value);
+						break;
+						
+					case '>':
+						result = result.children(value);
+						break;
+						
+					case '+':
+						result = result.next(value);
+						break;
+						
+					case '~':
+						result = result.getAll('next', value);
+						break;
+						
+					case '<':
+						result = result.getAll('parent', value);
+						break;
+						
+					default:
+						throwError(m[1]);
+				}
+				
 				// ‘a>b’: m = ['>', 'b']
 				// ‘a>.b’: m = ['>', '']
 				// result 始终实现了 IDom 接口，所以保证有 Dom.combinators 内的方法。
 
 			// 解析的第三步: 解析剩余的选择器:获取所有子节点。第四步再一一筛选。
 			} else {
-				result = result.getAll();
+				result = result.getAll('child');
 			}
 			
 			// 解析的第四步: 筛选以上三步返回的结果。
@@ -5996,7 +5950,7 @@ Object.map("indexOf forEach each invoke lastIndexOf item filter", function(value
 	// getContainer: function(){
 		// return this;
 	// },		/**	 * 从 DOM 树更新 controls 属性。	 * @protected virtual
-	 */	init: function(){		this.container = Dom.get(this.container.dom);		this.controls.addRange(this.container.getChildren(true));	},		/**	 * 根据用户的输入创建一个新的子控件。	 * @param {Object} item 新添加的元素。	 * @return {Control} 一个控件，根据用户的输入决定。	 * @protected virtual	 * 默认地，如果输入字符串和DOM节点，将转为对应的控件。	 */	initChild: Dom.parse,		removeChild: function (childControl) {		return this.controls.remove(childControl);	},		insertBefore: function (newControl, childControl) {		return childControl === null ? this.controls.add(newControl) : this.controls.insert(this.controls.indexOf(childControl), newControl);	},		/**	 * 获取目前所有子控件。	 * @type {Control.ControlCollection}	 * @name controls	 */	constructor: function(){		this.container = this;		this.controls = this.createControlsInstance();		//   this.loadControls();		Control.prototype.constructor.apply(this, arguments);	},		empty: function(){		this.controls.clear();		return this;	}});/** * 存储控件的集合。 * @class * @extends Collection */ScrollableControl.ControlCollection = Collection.extend({		/**	 * 初始化 Control.ControlCollection 的新实例。	 * @constructor	 * @param {ScrollableControl} owner 当前集合的所属控件。	 */	constructor: function(owner){		this.owner = owner;	},		/**	 * 当被子类重写时，初始化子元素。	 * @param {Object} item 添加的元素。	 * @return {Object} 初始化完成后的元素。	 */	initItem: function(item){		return this.owner.initChild(item);	},		/**	 * 通知子类一个新的元素被添加。	 * @param {Object} childControl 新添加的元素。	 * @param {Number} index 元素被添加的位置。	 */	onInsert: function(childControl, index){				// 如果控件已经有父控件。		if(childControl.parentControl) {			childControl.parentControl.controls.remove(childControl);		}		childControl.parentControl = this.owner;				// 执行控件添加函数。		this.owner.onControlAdded(childControl, index);	},		/**	 * 通知子类一个元素被移除。	 * @param {Object} childControl 新添加的元素。	 * @param {Number} index 元素被添加的位置。	 */	onRemove: function(childControl, index){		this.owner.onControlRemoved(childControl, index);		childControl.parentControl = null;	}	});/**********************************************
+	 */	init: function(){		this.container = Dom.get(this.container.dom);		this.controls.addRange(this.container.children(true));	},		/**	 * 根据用户的输入创建一个新的子控件。	 * @param {Object} item 新添加的元素。	 * @return {Control} 一个控件，根据用户的输入决定。	 * @protected virtual	 * 默认地，如果输入字符串和DOM节点，将转为对应的控件。	 */	initChild: Dom.parse,		removeChild: function (childControl) {		return this.controls.remove(childControl);	},		insertBefore: function (newControl, childControl) {		return childControl === null ? this.controls.add(newControl) : this.controls.insert(this.controls.indexOf(childControl), newControl);	},		/**	 * 获取目前所有子控件。	 * @type {Control.ControlCollection}	 * @name controls	 */	constructor: function(){		this.container = this;		this.controls = this.createControlsInstance();		//   this.loadControls();		Control.prototype.constructor.apply(this, arguments);	},		empty: function(){		this.controls.clear();		return this;	}});/** * 存储控件的集合。 * @class * @extends Collection */ScrollableControl.ControlCollection = Collection.extend({		/**	 * 初始化 Control.ControlCollection 的新实例。	 * @constructor	 * @param {ScrollableControl} owner 当前集合的所属控件。	 */	constructor: function(owner){		this.owner = owner;	},		/**	 * 当被子类重写时，初始化子元素。	 * @param {Object} item 添加的元素。	 * @return {Object} 初始化完成后的元素。	 */	initItem: function(item){		return this.owner.initChild(item);	},		/**	 * 通知子类一个新的元素被添加。	 * @param {Object} childControl 新添加的元素。	 * @param {Number} index 元素被添加的位置。	 */	onInsert: function(childControl, index){				// 如果控件已经有父控件。		if(childControl.parentControl) {			childControl.parentControl.controls.remove(childControl);		}		childControl.parentControl = this.owner;				// 执行控件添加函数。		this.owner.onControlAdded(childControl, index);	},		/**	 * 通知子类一个元素被移除。	 * @param {Object} childControl 新添加的元素。	 * @param {Number} index 元素被添加的位置。	 */	onRemove: function(childControl, index){		this.owner.onControlRemoved(childControl, index);		childControl.parentControl = null;	}	});/**********************************************
  * Controls.Core.ListControl
  **********************************************/
 /**
@@ -6025,7 +5979,7 @@ var ListControl = ScrollableControl.extend({
 		}
 		
 		index = this.controls[index];
-		this.container.insertBefore(childControl, index && index.getParent());
+		this.container.insertBefore(childControl, index && index.parent());
 		
 		// 更新选中项。
 		if(this.baseGetSelected(childControl)){
@@ -6037,7 +5991,7 @@ var ListControl = ScrollableControl.extend({
 	onControlRemoved: function(childControl, index){
 		var t = childControl;
 		if(childControl.dom.tagName !== 'LI'){
-			childControl = childControl.getParent();
+			childControl = childControl.parent();
 			childControl.removeChild(t);
 		}
 		
@@ -6054,7 +6008,7 @@ var ListControl = ScrollableControl.extend({
 	 * 获取指定子控件的最外层 <li>元素。
 	 */
 	getContainerOf: function(childControl){
-		return childControl.dom.tagName === 'LI' ? childControl : childControl.getParent('li');
+		return childControl.dom.tagName === 'LI' ? childControl : childControl.parent('li');
 	},
 	
 	/**
@@ -6083,7 +6037,7 @@ var ListControl = ScrollableControl.extend({
 		this.addClass(classNamePreFix);
 		
 		// 获取容器。
-		var container = this.container = this.getFirst('ul');
+		var container = this.container = this.first('ul');
 		if(container) {
 			// 已经存在了一个 UL 标签，转换为 items 属性。
 			this.controls.addRange(container.query('>li').addClass(classNamePreFix + '-content'));
@@ -6388,7 +6342,7 @@ Browser.setCookie = function (name, value, expires, props) {
 /**********************************************
  * System.Browser.LocalStorage
  **********************************************/
-/** * @author  */Object.extend(Browser, {		setData: window.localStorage ? function(name, value){		localStorage[name] = value;	} : Browser.setCookie,		getData: window.localStorage ? function (name) {		return localStorage[name];	} : Cookies.get,		setJSON: function (name, value) {		Browser.setData(name, JSON.encode(value));	},		getJSON: function (name) {		name = Browser.getData(name);		if(name)			try{				return JSON.decode(name);			}catch(e){}							return null;	}	});/**********************************************
+/** * @author  */Object.extend(Browser, {		setData: window.localStorage ? function(name, value){		localStorage[name] = value;	} : Browser.setCookie,		getData: window.localStorage ? function (name) {		return localStorage[name];	} : Browser.getCookie,		setJSON: function (name, value) {		Browser.setData(name, JSON.encode(value));	},		getJSON: function (name) {		name = Browser.getData(name);		if(name)			try{				return JSON.decode(name);			}catch(e){}							return null;	}	});/**********************************************
  * System.Dom.HashChange
  **********************************************/
 /** * @author xuld *//** * Convert certain characters (&, <, >, and ") to their HTML character equivalents for literal display in web pages. * @param {String} value The string to encode * @return {String} The encoded text * @method */String.htmlEncode = (function() {    var entities = {        '&': '&amp;',        '>': '&gt;',        '<': '&lt;',        '"': '&quot;'    };        function match(match, capture){    	return entities[capture];    }        return function(value) {        return value ? value.replace(/[&><"]/g, match) : '';    };})();location.getHash = function() {	var href = location.href,	i = href.indexOf("#");	return i >= 0 ? href.substr(i + 1) : '';};(function() {	var hashchange = 'hashchange',		document = window.document,		win = Dom.window,		getHash = location.getHash;	/**	 * 当 hashchange 事件发生时，执行函数。	 */	Dom[hashchange] = function(fn) {		fn ? win.on(hashchange, fn) && fn.call(win) : win.trigger(hashchange);	};		// 并不是所有浏览器都支持 hashchange 事件，	// 当浏览器不支持的时候，使用自定义的监视器，每隔50ms监听当前hash是否被修改。	if ('on' + hashchange in window && !(document.documentMode < 8)) return;	var currentHash, 			timer, 				onChange = function() {			win.trigger(hashchange);		},				poll = function() {			var newToken = getHash();				if (currentHash !== newToken) {				currentHash = newToken;				onChange();			}			timer = setTimeout(poll, 50);			},				start = function() {			currentHash = getHash();			timer = setTimeout(poll, 50);		},				stop = function() {			clearTimeout(timer);		};			// 如果是 IE6/7，使用 iframe 模拟成历史记录。	if (navigator.isQuirks) {		var iframe;		// 初始化的时候，同时创建 iframe		start = function() {			if (!iframe) {				Dom.ready(function(){					iframe = Dom.parse('<iframe style="display: none" height="0" width="0" tabindex="-1" title="empty"/>');					iframe.once('load', function() {												// 绑定当 iframe 内容被重写后处理。						this.on("load", function() {							// iframe 的 load 载入有 2 个原因：							//	1. hashchange 重写 iframe							//	2. 用户点击后退按钮														// 获取当前保存的 hash							var newHash = iframe.contentWindow.document.body.innerText,								oldHash = getHash();																					// 如果是用户点击后退按钮导致的iframe load， 则 oldHash !== newHash							if (oldHash != newHash) {																// 将当前的 hash 更新为旧的 newHash								location.hash = currentHash = newHash;																// 手动触发 hashchange 事件。								win.trigger(hashchange);							}													});												// 首次执行，先保存状态。						currentHash = getHash();						poll();					});										iframe = iframe.dom;					document.dom.appendChild(iframe);									});			} else {								// 开始监听。				currentHash = getHash();				poll();			}		};		// iframe: onChange 时，保存状态到 iframe 。		onChange = function() {			var hash = getHash();						// 将历史记录存到 iframe 。			var html = "<html><body>" + String.htmlEncode(hash) + "</body></html>";			try {				var doc = iframe.contentWindow.document;				doc.open();				doc.write(html);				doc.close();			} catch(e) {}			win.trigger(hashchange);		};			}	Dom.addEvent('hashchange', {		add: start,		remove: stop	});})();/**********************************************
@@ -6617,7 +6571,7 @@ Dom.implement({
 	 * @return this
 	 */
 	draggable: function(handle) {
-		var draggable = System.getData(this, 'draggable');
+		var draggable = this.dataField().draggable;
 		if(handle !== false) {
 			if (handle === true) handle = null;
 			if(draggable) {
@@ -6625,7 +6579,7 @@ Dom.implement({
 				draggable.draggable();
 			} else  {
 				Dom.movable(this.dom);
-				draggable = System.setData(this, 'draggable', new Draggable(this, handle));
+				draggable = this.dataField().draggable = new Draggable(this, handle);
 			}
 			
 			
@@ -6646,13 +6600,13 @@ Dom.implement({
 /** * @author  *//**********************************************
  * Controls.Core.ICollapsable
  **********************************************/
-/** * @author  *//** * 表示一个可折叠的控件。 * @interface ICollapsable */var ICollapsable = {		/**	 * 获取目前是否折叠。	 * @virtual	 * @return {Boolean} 获取一个值，该值指示当前面板是否折叠。	 */	isCollapsed: function() {		return !this.container || Dom.isHidden(this.container.dom);	},		collapseDuration: -1,		onToggleCollapse: function(value){			},		onCollapsing: function(duration){		return this.trigger('collapse', duration);	},		onExpanding: function(duration){		return this.trigger('expanding', duration);	},		onCollapse: function(){		this.trigger('collapse');		this.onToggleCollapse(true);	},		onExpand: function(){		this.trigger('expand');		this.onToggleCollapse(false);	},		collapse: function(duration){		var me = this;		if(me.onCollapsing(duration) && me.container)			me.container.hide(duration === undefined ? me.collapseDuration : duration, function(){			me.addClass('x-' + me.xtype + '-collapsed');			me.onCollapse();		}  , 'height');		return this;	},		expand: function(duration){		if(this.onExpanding(duration)  ) {			this.removeClass('x-' + this.xtype + '-collapsed');			this.container && this.container.show(duration === undefined ? this.collapseDuration : duration, this.onExpand.bind(this), 'height');		}		return this;	},		/**	 * 切换面板的折叠。	 * @method toggleCollapse	 * @param {Number} collapseDuration 时间。	 */	toggleCollapse: function(duration) {		return this.isCollapsed() ? this.expand(duration) : this.collapse(duration);	}	};/**********************************************
+/** * @author  *//** * 表示一个可折叠的控件。 * @interface ICollapsable */var ICollapsable = {		/**	 * 获取目前是否折叠。	 * @virtual	 * @return {Boolean} 获取一个值，该值指示当前面板是否折叠。	 */	isCollapsed: function() {		return !this.container || Dom.isHidden(this.container.dom);	},		collapseDuration: -1,		onToggleCollapse: function(value){			},		onCollapsing: function(duration){		return this.trigger('collapse', duration);	},		onExpanding: function(duration){		return this.trigger('expanding', duration);	},		onCollapse: function(){		this.trigger('collapse');		this.onToggleCollapse(true);	},		onExpand: function(){		this.trigger('expand');		this.onToggleCollapse(false);	},		collapse: function(duration){		var me = this;		if(me.onCollapsing(duration) && me.container)			me.container.hide('height', duration === undefined ? me.collapseDuration : duration, function(){			me.addClass('x-' + me.xtype + '-collapsed');			me.onCollapse();		});		return this;	},		expand: function(duration){		if(this.onExpanding(duration)  ) {			this.removeClass('x-' + this.xtype + '-collapsed');			this.container && this.container.show('height', duration === undefined ? this.collapseDuration : duration, this.onExpand.bind(this));		}		return this;	},		/**	 * 切换面板的折叠。	 * @method toggleCollapse	 * @param {Number} collapseDuration 时间。	 */	toggleCollapse: function(duration) {		return this.isCollapsed() ? this.expand(duration) : this.collapse(duration);	}	};/**********************************************
  * Controls.DataView.TreeView
  **********************************************/
-/** * @author  */var TreeNode = ScrollableControl.extend(ICollapsable).implement({		/**	 * 更新节点前面的占位符状态。	 */	_updateSpan: function(){				var span = this.getSpan(0), current = this;				while((current = current.parentControl) && (span = span.getPrevious())){						span.dom.className = current.isLastNode() ? 'x-treenode-space x-treenode-none' : 'x-treenode-space';				}				this.updateNodeType();	},		/**	 * 更新一个节点前面指定的占位符的类名。	 */	_setSpan: function(depth, className){				this.nodes.each(function(node){			var first = node.getFirst(depth).dom;			if(first.tagName == 'SPAN')				first.className = className;			node._setSpan(depth, className);		});			},		_markAsLastNode: function(){		this.addClass('x-treenode-last');		this._setSpan(this.depth - 1, 'x-treenode-space x-treenode-none');	},		_clearMarkAsLastNode: function(){		this.removeClass('x-treenode-last');		this._setSpan(this.depth - 1, 'x-treenode-space');	},		_initContainer: function(childControl){		var me = this, li = Dom.create('li', 'x-treeview-content');		li.append(childControl);				// 如果 子节点有子节点，那么插入子节点的子节点。		if(childControl.container){			li.append(childControl.container);		}				if(childControl.duration === -1){			childControl.duration = me.duration;		}				return li;	},		updateNodeType: function(){		this.setNodeType(this.nodes.length === 0 ? 'normal' : this.isCollapsed() ? 'plus' : 'minus');	},		xtype: 'treenode',		   	depth: 0,		create: function(){		var a = document.createElement('a');		a.href = 'javascript:;';		a.className = 'x-' + this.xtype;		a.innerHTML = '<span></span>';		return a;	},		onDblClick: function(e){		this.toggleCollapse();		e.stop();	},		init: function(options){		this.content = this.getLast();		this.unselectable();		this.on('dblclick', this.onDblClick, this);		this.nodes = this.controls;		this.container = null;		System.setData(this.dom, 'treenode', this);	},		initChild: function(childControl){		if(!(childControl instanceof TreeNode)) {			var t = childControl;			childControl = new TreeNode();			if(typeof t === 'string')				childControl.setText(t);			else				Dom.get(childControl).append(t);		}		return childControl;	},		onControlAdded: function(childControl, index){		var me = this,			t = this.initContainer(childControl),			re = this.controls[index];				this.container.insertBefore(t, re && re.getParent());				// 只有 已经更新过 才去更新。		if(this.depth || this instanceof TreeView){			childControl.setDepth(this.depth + 1);		}				me.update();	},		onControlRemoved: function(childControl, index){		this.container.removeChild(childControl.getParent());		this.update();	},		initContainer: function(childControl){				// 第一次执行创建容器。		this.container = Dom.create('ul', 'x-treeview-container');				if(this instanceof TreeView){			this.dom.appendChild(this.container.dom);			} else if(this.dom.parentNode){			this.dom.parentNode.appendChild(this.container.dom);			}				this.initContainer = this._initContainer;				return this.initContainer (childControl);			},		// 由于子节点的改变刷新本节点和子节点状态。	update: function(){				// 更新图标。		this.updateNodeType();				// 更新 lastNode		if(this.nodes.length){			var currentLastNode = this.nodes[this.nodes.length - 1],				lastNode = this.lastNode;			if (lastNode !== currentLastNode) {				currentLastNode._markAsLastNode();				this.lastNode = currentLastNode;				if (lastNode) lastNode._clearMarkAsLastNode();			}		}			},		setNodeType: function(type){		var handle = this.getSpan(0);		if(handle) {			handle.dom.className = 'x-treenode-space x-treenode-' + type;		}		return this;	},		expandAll: function(duration, maxDepth){		if (this.container && maxDepth !== 0) {			this.expand(duration);			this.nodes.invoke('expandAll', [duration, --maxDepth]);		}		return this;	},		collapseAll: function(duration, maxDepth){		if (this.container && maxDepth !== 0) {			this.nodes.invoke('collapseAll', [duration, --maxDepth]);			this.collapse(duration);		}		return this;	},		isLastNode: function(){		return this.parentControl &&  this.parentControl.lastNode === this;	},		onToggleCollapse: function(value){		this.setNodeType(this.nodes.length === 0 ? 'normal' : value ? 'plus' : 'minus');		if(!value && (value = this.getNext('ul'))){			value.dom.style.height = 'auto';		}	},		setSelected: function(value){		this.toggleClass('x-treenode-selected', value);	},		// 获取当前节点的占位 span 。 最靠近右的是 index == 0	getSpan: function(index){		return this.content.getPrevious(index);	},	// 设置当前节点的深度。	setDepth: function(value){				var me = this;			var currentDepth = this.depth, span, elem = this.dom;				assert(value >= 0, "value 非法。 value = {0}", value);				// 删除已经存在的占位符。				while(currentDepth > value){			elem.removeChild(elem.firstChild);			currentDepth--;		}			// 重新生成占位符。			while(currentDepth < value){			span = document.createElement('span');			span.className ='x-treenode-space';			elem.insertBefore(span, elem.firstChild);			currentDepth++;		}				if(elem.lastChild.previousSibling)			elem.lastChild.previousSibling.onclick = function(){				me.toggleCollapse();				return !(/\bx-treenode-(minus|plus|loading|uninit)\b/.test(this.className));			};				// 更新深度。				this.depth = value;				this._updateSpan();				// 对子节点设置深度+1		this.nodes.invoke('setDepth', [value + 1]);	},		setHref: function(value){		this.setAttr('href', value);		return this;	},		getTreeView: function(){		var n = this;		while(n && !(n instanceof TreeView))			n = n.parentControl;							return  n;	},		ensureVisible: function(duration){		duration = duration === undefined ? 0 : duration;		var n = this;		while(n = n.parentControl) {			n.expand(duration);		}		this.scrollIntoView();	},		/**	 * 展开当前节点，但折叠指定深度以后的节点。	 */	collapseTo: function(depth, duration){		duration = duration === undefined ? 0 : duration;		depth = depth === undefined ? 1 : depth;				if(depth > 0){			this.expand(duration);		} else {			this.collapse(duration);		}				this.nodes.invoke('collapseTo', [--depth, duration]);	},		toString: function(){		return String.format("{0}#{1}", this.getText(), this.depth);	}});Dom.define	(TreeNode, 'content', 'setHtml setText')	(TreeNode, 'content', 'getHtml getText', true);var TreeView = TreeNode.extend({		xtype: 'treeview',		create: function(){		var div = document.createElement('div');		div.className = 'x-' + this.xtype;		div.innerHTML = '<a href="javascript:;"></a>';		return div;	},		/**	 * 当用户点击一项时触发。	 */	onNodeClick: function (node) {		return this.trigger('nodeclick', node);	},		init: function(){		this.base('init');		this.on('click', this.onClick);	},		/**	 * 当一个选项被选中时触发。	 */	onSelect: function(node){		return this.trigger('select', node);	},		/**	 * 点击时触发。	 */	onClick: function (e) {				var target = e.target;				//if(/\bx-treenode-(minus|plus|loading)\b/.test(target.className))		//	return;				while(target && !Dom.hasClass(target, 'x-treenode')) {			target = target.parentNode;		}				if(target){			target = System.getData(target, 'treenode');						if(target && !this.clickNode(target)){				e.stop();			}		}					},		/**	 * 当选中的项被更新后触发。	 */	onChange: function (old, item){		return this.trigger('change', old);	},		/**	 * 模拟点击一项。	 */	clickNode: function(node){		if(this.onNodeClick(node)){			this.setSelectedNode(node);			return true;		}				return false;	},		setSelectedNode: function(node){				// 先反选当前选择项。		var old = this.getSelectedNode();		if(old)			old.setSelected(false);			if(this.onSelect(node)){					// 更新选择项。			this.selectedNode = node;						if(node != null){				node.setSelected(true);			}					}					if(old !== node)			this.onChange(old, node);					return this;	},		getSelectedNode: function(){		return this.selectedNode;	}	});/**********************************************
+/** * @author  */var TreeNode = ScrollableControl.extend(ICollapsable).implement({		/**	 * 更新节点前面的占位符状态。	 */	_updateSpan: function(){				var span = this.getSpan(0), current = this;				while((current = current.parentControl) && (span = span.prev())){						span.dom.className = current.isLastNode() ? 'x-treenode-space x-treenode-none' : 'x-treenode-space';				}				this.updateNodeType();	},		/**	 * 更新一个节点前面指定的占位符的类名。	 */	_setSpan: function(depth, className){				this.nodes.each(function(node){			var first = node.first(depth).dom;			if(first.tagName == 'SPAN')				first.className = className;			node._setSpan(depth, className);		});			},		_markAsLastNode: function(){		this.addClass('x-treenode-last');		this._setSpan(this.depth - 1, 'x-treenode-space x-treenode-none');	},		_clearMarkAsLastNode: function(){		this.removeClass('x-treenode-last');		this._setSpan(this.depth - 1, 'x-treenode-space');	},		_initContainer: function(childControl){		var me = this, li = Dom.create('li', 'x-treeview-content');		li.append(childControl);				// 如果 子节点有子节点，那么插入子节点的子节点。		if(childControl.container){			li.append(childControl.container);		}				if(childControl.duration === -1){			childControl.duration = me.duration;		}				return li;	},		updateNodeType: function(){		this.setNodeType(this.nodes.length === 0 ? 'normal' : this.isCollapsed() ? 'plus' : 'minus');	},		xtype: 'treenode',		   	depth: 0,		create: function(){		var a = document.createElement('a');		a.href = 'javascript:;';		a.className = 'x-' + this.xtype;		a.innerHTML = '<span></span>';		return a;	},		onDblClick: function(e){		this.toggleCollapse();		e.stop();	},		init: function(options){		this.content = this.last();		this.unselectable();		this.on('dblclick', this.onDblClick, this);		this.nodes = this.controls;		this.container = null;		this.dataField().treenode = this;	},		initChild: function(childControl){		if(!(childControl instanceof TreeNode)) {			var t = childControl;			childControl = new TreeNode();			if(typeof t === 'string')				childControl.setText(t);			else				Dom.get(childControl).append(t);		}		return childControl;	},		onControlAdded: function(childControl, index){		var me = this,			t = this.initContainer(childControl),			re = this.controls[index];				this.container.insertBefore(t, re && re.parent());				// 只有 已经更新过 才去更新。		if(this.depth || this instanceof TreeView){			childControl.setDepth(this.depth + 1);		}				me.update();	},		onControlRemoved: function(childControl, index){		this.container.removeChild(childControl.parent());		this.update();	},		initContainer: function(childControl){				// 第一次执行创建容器。		this.container = Dom.create('ul', 'x-treeview-container');				if(this instanceof TreeView){			this.dom.appendChild(this.container.dom);			} else if(this.dom.parentNode){			this.dom.parentNode.appendChild(this.container.dom);			}				this.initContainer = this._initContainer;				return this.initContainer (childControl);			},		// 由于子节点的改变刷新本节点和子节点状态。	update: function(){				// 更新图标。		this.updateNodeType();				// 更新 lastNode		if(this.nodes.length){			var currentLastNode = this.nodes[this.nodes.length - 1],				lastNode = this.lastNode;			if (lastNode !== currentLastNode) {				currentLastNode._markAsLastNode();				this.lastNode = currentLastNode;				if (lastNode) lastNode._clearMarkAsLastNode();			}		}			},		setNodeType: function(type){		var handle = this.getSpan(0);		if(handle) {			handle.dom.className = 'x-treenode-space x-treenode-' + type;		}		return this;	},		expandAll: function(duration, maxDepth){		if (this.container && maxDepth !== 0) {			this.expand(duration);			this.nodes.invoke('expandAll', [duration, --maxDepth]);		}		return this;	},		collapseAll: function(duration, maxDepth){		if (this.container && maxDepth !== 0) {			this.nodes.invoke('collapseAll', [duration, --maxDepth]);			this.collapse(duration);		}		return this;	},		isLastNode: function(){		return this.parentControl &&  this.parentControl.lastNode === this;	},		onToggleCollapse: function(value){		this.setNodeType(this.nodes.length === 0 ? 'normal' : value ? 'plus' : 'minus');		if(!value && (value = this.next('ul'))){			value.dom.style.height = 'auto';		}	},		setSelected: function(value){		this.toggleClass('x-treenode-selected', value);	},		// 获取当前节点的占位 span 。 最靠近右的是 index == 0	getSpan: function(index){		return this.content.prev(index);	},	// 设置当前节点的深度。	setDepth: function(value){				var me = this;			var currentDepth = this.depth, span, elem = this.dom;				assert(value >= 0, "value 非法。 value = {0}", value);				// 删除已经存在的占位符。				while(currentDepth > value){			elem.removeChild(elem.firstChild);			currentDepth--;		}			// 重新生成占位符。			while(currentDepth < value){			span = document.createElement('span');			span.className ='x-treenode-space';			elem.insertBefore(span, elem.firstChild);			currentDepth++;		}				if(elem.lastChild.previousSibling)			elem.lastChild.previousSibling.onclick = function(){				me.toggleCollapse();				return !(/\bx-treenode-(minus|plus|loading|uninit)\b/.test(this.className));			};				// 更新深度。				this.depth = value;				this._updateSpan();				// 对子节点设置深度+1		this.nodes.invoke('setDepth', [value + 1]);	},		setHref: function(value){		this.setAttr('href', value);		return this;	},		getTreeView: function(){		var n = this;		while(n && !(n instanceof TreeView))			n = n.parentControl;							return  n;	},		ensureVisible: function(duration){		duration = duration === undefined ? 0 : duration;		var n = this;		while(n = n.parentControl) {			n.expand(duration);		}		this.scrollIntoView();	},		/**	 * 展开当前节点，但折叠指定深度以后的节点。	 */	collapseTo: function(depth, duration){		duration = duration === undefined ? 0 : duration;		depth = depth === undefined ? 1 : depth;				if(depth > 0){			this.expand(duration);		} else {			this.collapse(duration);		}				this.nodes.invoke('collapseTo', [--depth, duration]);	},		toString: function(){		return String.format("{0}#{1}", this.getText(), this.depth);	}});Dom.define	(TreeNode, 'content', 'setHtml setText')	(TreeNode, 'content', 'getHtml getText', true);var TreeView = TreeNode.extend({		xtype: 'treeview',		create: function(){		var div = document.createElement('div');		div.className = 'x-' + this.xtype;		div.innerHTML = '<a href="javascript:;"></a>';		return div;	},		/**	 * 当用户点击一项时触发。	 */	onNodeClick: function (node) {		return this.trigger('nodeclick', node);	},		init: function(){		this.base('init');		this.on('click', this.onClick);	},		/**	 * 当一个选项被选中时触发。	 */	onSelect: function(node){		return this.trigger('select', node);	},		/**	 * 点击时触发。	 */	onClick: function (e) {				var target = e.target;				//if(/\bx-treenode-(minus|plus|loading)\b/.test(target.className))		//	return;				while(target && !Dom.hasClass(target, 'x-treenode')) {			target = target.parentNode;		}				if(target){			target = Dom.dataField(target).treenode;						if(target && !this.clickNode(target)){				e.stop();			}		}					},		/**	 * 当选中的项被更新后触发。	 */	onChange: function (old, item){		return this.trigger('change', old);	},		/**	 * 模拟点击一项。	 */	clickNode: function(node){		if(this.onNodeClick(node)){			this.setSelectedNode(node);			return true;		}				return false;	},		setSelectedNode: function(node){				// 先反选当前选择项。		var old = this.getSelectedNode();		if(old)			old.setSelected(false);			if(this.onSelect(node)){					// 更新选择项。			this.selectedNode = node;						if(node != null){				node.setSelected(true);			}					}					if(old !== node)			this.onChange(old, node);					return this;	},		getSelectedNode: function(){		return this.selectedNode;	}	});/**********************************************
  * Controls.Core.ContentControl
  **********************************************/
-/** * @fileOverview 表示一个包含文本内容的控件。 * @author xuld *//** * 表示一个有内置呈现的控件。 * @abstract * @class ContentControl * @extends Control * <p> * ContentControl 控件把 content 属性作为自己的内容主体。 * ContentControl 控件的大小将由 content 决定。 * 当执行 appendChild/setWidth/setHtml 等操作时，都转到对 content 的操作。  * 这个类的应用如: dom 是用于显示视觉效果的辅助层， content 是实际内容的控件。 * 默认 content 和  dom 相同。子类应该重写 init ，并重新赋值  content 。 * </p> *  * <p> * 这个控件同时允许在子控件上显示一个图标。 * </p> *  * <p> * ContentControl 的外元素是一个根据内容自动改变大小的元素。它自身没有设置大小，全部的大小依赖子元素而自动决定。 * 因此，外元素必须满足下列条件的任何一个: *  <ul> * 		<li>外元素的 position 是 absolute<li> * 		<li>外元素的 float 是 left或 right <li> * 		<li>外元素的 display 是  inline-block (在 IE6 下，使用 inline + zoom模拟) <li> *  </ul> * </p> */var ContentControl = Control.extend({		/**	 * 当前正文。	 * @type Element/Control	 * @property container	 * @proected	 */		/**	 * 当被子类改写时，实现创建添加和返回一个图标节点。	 * @protected	 * @virtual	 */	createIcon: function(){		return  Dom.create('span', 'x-icon');	},		insertIcon: function(icon){		if(icon)			this.container.insert('afterBegin', icon);	},		init: function(){		this.container = new Dom(this.dom);	},		/**	 * 获取当前显示的图标。	 * @name icon	 * @type {Element}	 */		/**	 * 设置图标。	 * @param {String} icon 图标。	 * @return {Panel} this	 */	setIcon: function(icon) {				if(icon === null){			if(this.icon) {				this.icon.remove();				this.icon = null;			}						return this;						}				if(!this.icon || !this.icon.getParent()) {						this.insertIcon(this.icon = this.createIcon());		}				this.icon.dom.className = "x-icon x-icon-" + icon;				return this;	},		setText: function(value){		this.container.setText(value);		this.insertIcon(this.icon);				return this;	},		setHtml: function(value){		this.container.setHtml(value);		this.insertIcon(this.icon);				return this;	}	});Dom.define(ContentControl, 'container', 'setWidth setHeight empty', 'insertBefore removeChild contains append getHtml getText getWidth getHeight');/**********************************************
+/** * @fileOverview 表示一个包含文本内容的控件。 * @author xuld *//** * 表示一个有内置呈现的控件。 * @abstract * @class ContentControl * @extends Control * <p> * ContentControl 控件把 content 属性作为自己的内容主体。 * ContentControl 控件的大小将由 content 决定。 * 当执行 appendChild/setWidth/setHtml 等操作时，都转到对 content 的操作。  * 这个类的应用如: dom 是用于显示视觉效果的辅助层， content 是实际内容的控件。 * 默认 content 和  dom 相同。子类应该重写 init ，并重新赋值  content 。 * </p> *  * <p> * 这个控件同时允许在子控件上显示一个图标。 * </p> *  * <p> * ContentControl 的外元素是一个根据内容自动改变大小的元素。它自身没有设置大小，全部的大小依赖子元素而自动决定。 * 因此，外元素必须满足下列条件的任何一个: *  <ul> * 		<li>外元素的 position 是 absolute<li> * 		<li>外元素的 float 是 left或 right <li> * 		<li>外元素的 display 是  inline-block (在 IE6 下，使用 inline + zoom模拟) <li> *  </ul> * </p> */var ContentControl = Control.extend({		/**	 * 当前正文。	 * @type Element/Control	 * @property container	 * @proected	 */		/**	 * 当被子类改写时，实现创建添加和返回一个图标节点。	 * @protected	 * @virtual	 */	createIcon: function(){		return  Dom.create('span', 'x-icon');	},		insertIcon: function(icon){		if(icon)			this.container.insert('afterBegin', icon);	},		init: function(){		this.container = new Dom(this.dom);	},		/**	 * 获取当前显示的图标。	 * @name icon	 * @type {Element}	 */		/**	 * 设置图标。	 * @param {String} icon 图标。	 * @return {Panel} this	 */	setIcon: function(icon) {				if(icon === null){			if(this.icon) {				this.icon.remove();				this.icon = null;			}						return this;						}				if(!this.icon || !this.icon.parent()) {						this.insertIcon(this.icon = this.createIcon());		}				this.icon.dom.className = "x-icon x-icon-" + icon;				return this;	},		setText: function(value){		this.container.setText(value);		this.insertIcon(this.icon);				return this;	},		setHtml: function(value){		this.container.setHtml(value);		this.insertIcon(this.icon);				return this;	}	});Dom.define(ContentControl, 'container', 'setWidth setHeight empty', 'insertBefore removeChild contains append getHtml getText getWidth getHeight');/**********************************************
  * System.Dom.Align
  **********************************************/
 ﻿/**
@@ -6839,7 +6793,7 @@ Dom.implement((function(){
 /**********************************************
  * Controls.Button.Menu-Alt
  **********************************************/
-/** * @author  */var MenuItem = ContentControl.extend({		xtype: 'menuitem',		tpl: '<a class="x-menuitem"><span class="x-icon x-icon-none"></span></a>',		subMenu: null,		/**	 * 	 */	init: function(){		this.base('init');		this.unselectable();		this.on('mouseover', this.onMouseEnter);		this.on('mouseout', this.onMouseLeave);				var subMenu = this.find('.x-menu');		if(subMenu){			this.setSubMenu(new Menu(subMenu));		}	},		setSubMenu: function(menu){		if (menu) {			this.subMenu = menu.hide();			menu.floating = false;			this.addClass('x-menuitem-menu');			this.on('mouseup', this._cancelHideMenu);		} else {			menu.floating = true;			this.removeClass('x-menuitem-menu');			this.un('mouseup', this._cancelHideMenu);		}	},		_cancelHideMenu: function(e){		e.stopPropagation();	},		toggleIcon: function(icon, val){		this.icon.toggleClass(icon, val);		return this;	},		onMouseEnter: function(){				// 使用父菜单打开本菜单，显示子菜单。		this.parentControl && this.parentControl.showSub(this);	},		_hideTargetMenu: function(e){		var tg = e.relatedTarget;		while(tg && tg.className != 'x-menu') {			tg = tg.parentNode;		}				if (tg) {   			var dt = System.data(tg, 'menu');									tg.hideSub();		}			},		onMouseLeave: function(e){				// 没子菜单，需要自取消激活。		// 否则，由父菜单取消当前菜单的状态。		// 因为如果有子菜单，必须在子菜单关闭后才能关闭激活。				if(!this.subMenu)			 this.setSelected(false);			 	},		setSelected: function(value){		this.getParent().toggleClass('x-menuitem-selected', value);		this.toggleClass('x-menuitem-selected', value);		return this;	},		getSelected: function(){		return this.hasClass('x-menuitem x-menuitem-selected');	},		setChecked: function(value){		this.find('.x-icon').dom.className = 'x-icon x-icon-' + (value === false ? 'unchecked' : value !== null ? 'checked' : 'none');		return this;	},		getChecked: function(){		return this.hasClass('x-menuitem x-menuitem-checked');	},		setDisabled: function(value){		this.getParent().toggleClass('x-menuitem-disabled', value);		this.toggleClass('x-menuitem-disabled', value);		return this;	},		getDisabled: function(){		return this.hasClass('x-menuitem x-menuitem-disabled');	}});var MenuSeperator = Control.extend({		tpl: '<div class="x-menu-seperator"></div>',		init: Function.empty	});var Menu = ListControl.extend({		xtype: 'menu',		initChild: function (item) {		if(item instanceof MenuItem || item instanceof MenuSeperator){			return item;		}		if(item === '-'){			return new 	MenuSeperator();		}				if(item instanceof Control && item.hasClass('x-menuitem')){			return new MenuItem(item);		}				var menu = new MenuItem();		menu.append(item);		return menu;	},		init: function(){		var me = this;		me.base('init');				// 绑定节点和控件，方便发生事件后，根据事件源得到控件。		System.setData(this.dom, 'menu', this);	},		showMenu: function(){		this.show();		this.onShow();	},		hideMenu: function(){		this.hide();		this.onHide();	},		/**	 * 当前菜单依靠某个控件显示。	 * @param {Control} ctrl 方向。	 */	showAt: function(x, y){				if(!this.getParent('body')){			this.appendTo();		}				// 显示节点。		this.showMenu();				this.setPosition(x, y);				return this;	},		/**	 * 当前菜单依靠某个控件显示。	 * @param {Control} ctrl 方向。	 */	showBy: function(ctrl, pos, offsetX, offsetY, enableReset){				if(!this.getParent('body')){			this.appendTo(ctrl.getParent());		}				// 显示节点。		this.showMenu();				this.align(ctrl, pos || 'rt', offsetX != null ? offsetX : -5, offsetY != null ? offsetY : -5, enableReset);				return this;	},		onShow: function(){		this.floating = true;		document.once('mouseup', this.hideMenu, this);		this.trigger('show');	},		/**	 * 关闭本菜单。	 */	onHide: function(){				// 先关闭子菜单。		this.hideSub();		this.trigger('hide');	},		/**	 * 打开本菜单子菜单。	 * @protected	 */	showSub: function(item){				// 如果不是右键的菜单，在打开子菜单后监听点击，并关闭此子菜单。		if(!this.floating)			document.once('mouseup', this.hideSub, this);				// 隐藏当前项子菜单。		this.hideSub();				// 激活本项。		item.setSelected(true);				if (item.subMenu) {						// 设置当前激活的项。			this.currentSubMenu = item;						// 显示子菜单。			item.subMenu.showBy(item);					}	},		/**	 * 关闭本菜单打开的子菜单。	 * @protected	 */	hideSub: function(){				// 如果有子菜单，就隐藏。		if(this.currentSubMenu) {						// 关闭子菜单。			this.currentSubMenu.subMenu.hide();						// 取消激活菜单。			this.currentSubMenu.setSelected(false);			this.currentSubMenu = null;		}	}	});/**********************************************
+/** * @author  */var MenuItem = ContentControl.extend({		xtype: 'menuitem',		tpl: '<a class="x-menuitem"><span class="x-icon x-icon-none"></span></a>',		subMenu: null,		/**	 * 	 */	init: function(){		this.base('init');		this.unselectable();		this.on('mouseover', this.onMouseEnter);		this.on('mouseout', this.onMouseLeave);				var subMenu = this.find('.x-menu');		if(subMenu){			this.setSubMenu(new Menu(subMenu));		}	},		setSubMenu: function(menu){		if (menu) {			this.subMenu = menu.hide();			menu.floating = false;			this.addClass('x-menuitem-menu');			this.on('mouseup', this._cancelHideMenu);		} else {			menu.floating = true;			this.removeClass('x-menuitem-menu');			this.un('mouseup', this._cancelHideMenu);		}	},		_cancelHideMenu: function(e){		e.stopPropagation();	},		toggleIcon: function(icon, val){		this.icon.toggleClass(icon, val);		return this;	},		onMouseEnter: function(){				// 使用父菜单打开本菜单，显示子菜单。		this.parentControl && this.parentControl.showSub(this);	},		_hideTargetMenu: function(e){		var tg = e.relatedTarget;		while(tg && tg.className != 'x-menu') {			tg = tg.parentNode;		}				if (tg) {   			var dt = System.data(tg, 'menu');									tg.hideSub();		}			},		onMouseLeave: function(e){				// 没子菜单，需要自取消激活。		// 否则，由父菜单取消当前菜单的状态。		// 因为如果有子菜单，必须在子菜单关闭后才能关闭激活。				if(!this.subMenu)			 this.setSelected(false);			 	},		setSelected: function(value){		this.parent().toggleClass('x-menuitem-selected', value);		this.toggleClass('x-menuitem-selected', value);		return this;	},		getSelected: function(){		return this.hasClass('x-menuitem x-menuitem-selected');	},		setChecked: function(value){		this.find('.x-icon').dom.className = 'x-icon x-icon-' + (value === false ? 'unchecked' : value !== null ? 'checked' : 'none');		return this;	},		getChecked: function(){		return this.hasClass('x-menuitem x-menuitem-checked');	},		setDisabled: function(value){		this.parent().toggleClass('x-menuitem-disabled', value);		this.toggleClass('x-menuitem-disabled', value);		return this;	},		getDisabled: function(){		return this.hasClass('x-menuitem x-menuitem-disabled');	}});var MenuSeperator = Control.extend({		tpl: '<div class="x-menu-seperator"></div>',		init: Function.empty	});var Menu = ListControl.extend({		xtype: 'menu',		initChild: function (item) {		if(item instanceof MenuItem || item instanceof MenuSeperator){			return item;		}		if(item === '-'){			return new 	MenuSeperator();		}				if(item instanceof Control && item.hasClass('x-menuitem')){			return new MenuItem(item);		}				var menu = new MenuItem();		menu.append(item);		return menu;	},		init: function(){		var me = this;		me.base('init');				// 绑定节点和控件，方便发生事件后，根据事件源得到控件。		this.dataField().menu = this;	},		showMenu: function(){		this.show();		this.onShow();	},		hideMenu: function(){		this.hide();		this.onHide();	},		/**	 * 当前菜单依靠某个控件显示。	 * @param {Control} ctrl 方向。	 */	showAt: function(x, y){				if(!this.parent('body')){			this.appendTo();		}				// 显示节点。		this.showMenu();				this.setPosition(x, y);				return this;	},		/**	 * 当前菜单依靠某个控件显示。	 * @param {Control} ctrl 方向。	 */	showBy: function(ctrl, pos, offsetX, offsetY, enableReset){				if(!this.parent('body')){			this.appendTo(ctrl.parent());		}				// 显示节点。		this.showMenu();				this.align(ctrl, pos || 'rt', offsetX != null ? offsetX : -5, offsetY != null ? offsetY : -5, enableReset);				return this;	},		onShow: function(){		this.floating = true;		document.once('mouseup', this.hideMenu, this);		this.trigger('show');	},		/**	 * 关闭本菜单。	 */	onHide: function(){				// 先关闭子菜单。		this.hideSub();		this.trigger('hide');	},		/**	 * 打开本菜单子菜单。	 * @protected	 */	showSub: function(item){				// 如果不是右键的菜单，在打开子菜单后监听点击，并关闭此子菜单。		if(!this.floating)			document.once('mouseup', this.hideSub, this);				// 隐藏当前项子菜单。		this.hideSub();				// 激活本项。		item.setSelected(true);				if (item.subMenu) {						// 设置当前激活的项。			this.currentSubMenu = item;						// 显示子菜单。			item.subMenu.showBy(item);					}	},		/**	 * 关闭本菜单打开的子菜单。	 * @protected	 */	hideSub: function(){				// 如果有子菜单，就隐藏。		if(this.currentSubMenu) {						// 关闭子菜单。			this.currentSubMenu.subMenu.hide();						// 取消激活菜单。			this.currentSubMenu.setSelected(false);			this.currentSubMenu = null;		}	}	});/**********************************************
  * System.Utils.Deferrable
  **********************************************/
 /**
@@ -6873,6 +6827,7 @@ var Deferrable = Class({
 			firstTask[0].run(firstTask[1]);
 		}
 
+		return this;
 		
 	},
 
@@ -7067,13 +7022,23 @@ Fx.Base = (function(){
 			var me = this;
             if (me.defer(options, link))
                 return me;
+			
+			var duration = this.duration;
+			Object.extend(me, options);
+			
+			// 防止 duration 覆盖了值。
+			if(options.duration == undefined)
+				me.duration = duration;
+			else if(options.duration < 0)
+				me.duration = duration / -options.duration;
+
+			if (me.start && me.start(options) === false) {
+				return me.progress();
+			}
+		
 			me.init(options);
 			me.set(0);
 			me.time = 0;
-
-			if (me.start) {
-				me.start(options);
-			}
 			
 			me.resume();
 			return me;
@@ -7085,7 +7050,7 @@ Fx.Base = (function(){
 			if(this.complete){
 				this.complete();
 			}
-			this.progress();
+			return this.progress();
 		},
 		
 		/**
@@ -7157,22 +7122,10 @@ Fx.compute = function(from, to, delta){
 
 
 
-(function(p){
+(function(){
 	
 	
 	/// #region 字符串扩展
-	
-	/**
-	 * 表示 十六进制颜色。
-	 * @type RegExp
-	 */
-	var rhex = /^#([\da-f]{1,2})([\da-f]{1,2})([\da-f]{1,2})$/i,
-	
-		/**
-		 * 表示 RGB 颜色。
-		 * @type RegExp
-		 */
-		rRgb = /(\d+),\s*(\d+),\s*(\d+)/;
 	
 	/**
 	 * @namespace String
@@ -7188,7 +7141,7 @@ Fx.compute = function(from, to, delta){
 			assert.isString(hex, "String.hexToArray(hex): 参数 {hex} ~。");
 			if(hex == 'transparent')
 				return [255, 255, 255];
-			var m = hex.match(rhex);
+			var m = hex.match(/^#([\da-f]{1,2})([\da-f]{1,2})([\da-f]{1,2})$/i);
 			if(!m)return null;
 			var i = 0, r = [];
 			while (++i <= 3) {
@@ -7205,7 +7158,7 @@ Fx.compute = function(from, to, delta){
 		 */
 		rgbToArray: function(rgb){
 			assert.isString(rgb, "String.rgbToArray(rgb): 参数 {rgb} ~。");
-			var m = rgb.match(rRgb);
+			var m = rgb.match(/(\d+),\s*(\d+),\s*(\d+)/);
 			if(!m) return null;
 			var i = 0, r = [];
 			while (++i <= 3) {
@@ -7305,15 +7258,9 @@ Fx.compute = function(from, to, delta){
 					form,
 					to,
 					key;
-
-				Object.extend(this, options);
-				
+					
 				// 生成新的 current 对象。
 				me.current = {};
-
-				if (this.start) {
-					this.start(options);
-				}
 
 				from = this.from || emptyObj;
 				to = this.to;
@@ -7358,7 +7305,7 @@ Fx.compute = function(from, to, delta){
 							parser: parser
 						};
 						
-						assert(me.current[key].from !== null && me.current[key].to !== null, "Animate.prototype.complie(from, to): 无法正确获取属性 {key} 的值({from} {to})。", key, me.current[key].from, me.current[key].to);
+						assert(me.current[key].from !== null && me.current[key].to !== null, "Animate.prototype.init(options): 无法正确获取属性 {key} 的值({from} {to})。", key, me.current[key].from, me.current[key].to);
 					}
 					
 				}
@@ -7469,27 +7416,61 @@ Fx.compute = function(from, to, delta){
 		return v;
 	}
 	
-	/// #region 元素
+	/// #region Dom
 	
 	var height = 'height marginTop paddingTop marginBottom paddingBottom',
 		
-		maps = Animate.maps = {
-			all: height + ' opacity width',
-			opacity: 'opacity',
-			height: height,
-			width: 'width marginLeft paddingLeft marginRight paddingRight'
-		},
+		return0 = Function.from(0),
 	
 		ep = Dom.prototype,
 		show = ep.show,
 		hide = ep.hide;
+		
+	Fx.toggleTypes = {};
+		
+	Fx.toggleTypes.opacity = Function.from({opacity: 0});
+
+	Object.each({
+		all: height + ' opacity width',
+		height: height,
+		width: 'width marginLeft paddingLeft marginRight paddingRight'
+	}, function(value, key){
+		value = Object.map(value, return0, {});
+		Fx.toggleTypes[key] = function(animate, elem){
+			animate.orignal.overflow = elem.style.overflow;
+			elem.style.overflow = 'hidden';
+			
+			return value;
+		};
+	});
 	
-	Object.map(maps, function(value){
-		return Object.map(value, Function.from(0), {});
-	}, maps);
-	
-	Object.map('left right top bottom', Function.from({$slide: true}), maps);
-	
+	Object.map('left right top bottom', function(key, index){
+		Fx.toggleTypes[key] = function(animate, elem, show){
+			
+			var from = animate.from = {},
+				to = animate.to = {};
+			
+			if(show) {
+				to = from;
+				from = animate.to;
+			}
+			
+			elem.parentNode.style.overflow = 'hidden';
+			if(index <= 1){
+				from[key] = -elem.offsetWidth;
+				var margin2 = index === 0 ? 'marginRight' : 'marginLeft';
+				from[margin2] = elem.offsetWidth;
+				to[key] = to[margin2] = 0;
+			} else {
+				from[key] = -elem.offsetHeight;
+				to[key] = 0;
+			}
+		
+		};
+		
+		key = 'margin' + key.capitalize();
+	});
+
 	Dom.implement({
 		
 		/**
@@ -7497,7 +7478,8 @@ Fx.compute = function(from, to, delta){
 		 * @return {Animate} 一个 Animate 的实例。
 		 */
 		fx: function(){
-			return p.getData(this, 'fx') || p.setData(this, 'fx', new Fx.Animate(this));
+			var data = this.dataField();
+			return data.$fx || (data.$fx = new Fx.Animate(this));
 		}
 		
 	}, 2)
@@ -7509,33 +7491,24 @@ Fx.compute = function(from, to, delta){
 		 * @param {String/Object} [name] 变化的名字或变化的末值或变化的初值。
 		 * @param {Object} value 变化的值或变化的末值。
 		 * @param {Number} duration=-1 变化的时间。
-		 * @param {Function} [onStop] 停止回调。
+		 * @param {Function} [oncomplete] 停止回调。
 		 * @param {Function} [onStart] 开始回调。
 		 * @param {String} link='wait' 变化串联的方法。 可以为 wait, 等待当前队列完成。 rerun 柔和转换为目前渐变。 cancel 强制关掉已有渐变。 ignore 忽视当前的效果。
 		 * @return this
 		 */
-		animate: function (from, to, duration, onstop, onstart, link) {
-			if (typeof to === 'string') {
-				var t = {};
-				t[from] = to;
-				to = t;
-				from = null;
-			} else if (typeof to !== 'object') {
-				link = onstart;
-				onstart = onstop;
-				onstop = duration;
-				to = from;
-				from = null;
+		animate: function (params, duration, callback, link) {
+			if(params.to){
+				link = duration;
+			} else {
+				params = {
+					target: this,
+					to: params,
+					duration: duration,
+					complete: callback
+				};
 			}
-
-			this.fx().run({
-				target: this,
-				duration: duration === undefined ? Fx.Base.prototype.duration : duration,
-				complete: onstop,
-				start: onstart,
-				from: from,
-				to: to
-			}, link);
+			
+			this.fx().run(params, link);
 			
 			return this;
 		},
@@ -7543,145 +7516,181 @@ Fx.compute = function(from, to, delta){
 		/**
 		 * 显示当前元素。
 		 * @param {Number} duration=500 时间。
-		 * @param {Function} [callBack] 回调。
+		 * @param {Function} [callback] 回调。
 		 * @param {String} [type] 方式。
 		 * @return {Element} this
 		 */
-		show: function(duration, callBack, type, link){
-			var me = this;
-			if (duration) {
-				var elem = me.dom, savedStyle = {};
-		       
-				me.fx().run({
-					from: getAnimate(type),
-					to: {},
-					duration: duration,
-					start: function () {
-						var from = this.from,
-							to = this.to;
-						if (!Dom.isHidden(elem))
-							return false;
-						Dom.show(elem);
-
-						if (from.$slide) {
-							initSlide(from, elem, type, savedStyle);
-						} else {
-							savedStyle.overflow = elem.style.overflow;
-							elem.style.overflow = 'hidden';
-						}
-
-						for (var style in from) {
-							savedStyle[style] = elem.style[style];
-							to[style] = Dom.styleNumber(elem, style);
-						}
-					},
-					complete:  function(){
-						Dom.setStyles(elem, savedStyle);
-					
-						if(callBack)
-							callBack.call(me, true);
-					}
-				}, link);
-			} else {
-				show.apply(me, arguments);
+		show: function(duration, callback, link){
+			var me = this,
+				type = 'opacity';
+			
+			// 肯能是同步的请求。
+			if(!duration){
+				Dom.show(me.dom);
+				return me;
 			}
+			
+			if(typeof duration === 'string'){
+				type = duration;
+				duration = callback;
+				callback = link;
+				link = arguments[3];
+			}
+		
+			me.fx().run({
+				target: this,
+				duration: duration,
+				start: function (options) {
+					
+					var elem = this.target.dom;
+						
+					if(!Dom.isHidden(elem)){
+						if(callback)
+							callback.call(this.target, true, true);
+						return false;
+					}
+					
+					Dom.show(elem);
+					
+					this.orignal = {};
+					
+					var from = Fx.toggleTypes[type](this, elem, false);
+					
+					if(from){
+						this.from = from;
+						this.to = {};	
+							
+						for(from in this.from) {
+							this.to[from] = Dom.styleNumber(elem, from);
+						}
+					}
+					
+					for(from in this.to){
+						this.orignal[from] = elem.style[from];
+					}
+				},
+				complete:  function(){
+					Object.extend(this.target.dom.style, this.orignal);
+				
+					if(callback)
+						callback.call(this.target, true);
+				}
+			}, link);
+		
 			return me;
 		},
 		
 		/**
 		 * 隐藏当前元素。
 		 * @param {Number} duration=500 时间。
-		 * @param {Function} [callBack] 回调。
+		 * @param {Function} [callback] 回调。
 		 * @param {String} [type] 方式。
 		 * @return {Element} this
 		 */
-		hide: function (duration, callBack, type) {
-			var me = this;
-			if (duration) {
-				var  elem = me.dom || me, savedStyle = {};
-				me.fx().run({
-					from: null,
-					to: getAnimate(type),
-					duration: duration,
-					start: function () {
-						var to = this.to;
-						if (Dom.isHidden(elem))
-							return false;
-						if (to.$slide) {
-							initSlide(to, elem, type, savedStyle);
-						} else {
-							savedStyle.overflow = elem.style.overflow;
-							elem.style.overflow = 'hidden';
-						}
-						for (var style in to) {
-							savedStyle[style] = elem.style[style];
-						}
-					},
-					complete: function () {
-						Dom.hide(elem);
-						Dom.setStyles(elem, savedStyle);
-						if (callBack)
-							callBack.call(me, false);
-					}
-				});
-			}else{
-				hide.apply(me, arguments);
+		hide: function (duration, callback, link) {
+			var me = this,
+				type = 'opacity';
+			
+			// 肯能是同步的请求。
+			if(!duration){
+				Dom.hide(me.dom);
+				return me;
 			}
+			
+			if(typeof duration === 'string'){
+				type = duration;
+				duration = callback;
+				callback = link;
+				link = arguments[3];
+			}
+		
+			me.fx().run({
+				duration: duration,
+				start: function () {
+					
+					var elem = this.target.dom;
+						
+					if(Dom.isHidden(elem)){
+						if(callback)
+							callback.call(this.target, false, true);
+						return false;
+					}
+					
+					this.orignal = {};
+					
+					var to = Fx.toggleTypes[type](this, elem, true);
+					
+					if(to){
+						this.from = null;
+						this.to = to;
+					}
+					
+					for(var i in this.to){
+						this.orignal[i] = elem.style[i];
+					}
+				},
+				complete: function () {
+					
+					var elem = this.target.dom;
+					Object.extend(elem.style, this.orignal);
+					Dom.hide(elem);
+					if (callback)
+						callback.call(this.target, false);
+				}
+			});
+			
 			return this;
 		},
 	
+		toggle: function(){
+			var args = arguments;
+			this.fx().then(function(){
+				this.target[Dom.isHidden(this.target.dom) ? 'show' : 'hide'].apply(this.target, args);
+				return false;
+			});
+		},
+		
 		/**
 		 * 高亮元素。
 		 * @param {String} color 颜色。
-		 * @param {Function} [callBack] 回调。
+		 * @param {Function} [callback] 回调。
 		 * @param {Number} duration=500 时间。
 		 * @return this
 		 */
-		highlight: function(color, duration, callBack){
-			assert(!callBack || Function.isFunction(callBack), "Dom.prototype.highlight(color, duration, callBack): 参数 {callBack} 不是可执行的函数。", callBack);
+		highlight: function(color, duration, callback){
+			assert(!callback || Object.isFunction(callback), "Dom.prototype.highlight(color, duration, callback): 参数 {callback} 不是可执行的函数。", callback);
 			var from = {},
 				to = {
 					backgroundColor: color || '#ffff88'
-				};
+				},
+				fx = this.fx();
 			
-			duration /= 2;
+			fx.run({
+				target: this,
+				from: from,
+				to: to,
+				duration: duration,
+				start: function(){
+					this.from.backgroundColor = Dom.getStyle(this.target.dom, 'backgroundColor');
+				}
+			}).run({
+				target: this,
+				from: to,
+				to: from,
+				duration: duration,
+				stop: callback
+			});
 			
-			this.animate(from, to, duration, null, function (from) {
-				from.backgroundColor = Dom.getStyle(this.target.dom, 'backgroundColor');
-			}).animate(to, from, duration, callBack);
 			return this;
 		}
+	
 	});
 	
-	/**
-	 * 获取变换。
-	 */
-	function getAnimate(type){
-		return Object.extend({}, maps[type || 'opacity']);
-	}
-	
-	/**
-	 * 初始化滑动变换。
-	 */
-	function initSlide(animate, elem, type, savedStyle){
-		delete animate.$slide;
-		elem.parentNode.style.overflow = 'hidden';
-		var margin = 'margin' + type.charAt(0).toUpperCase() + type.substr(1);
-		if(/^(l|r)/.test(type)){
-			animate[margin] = -elem.offsetWidth;
-			var margin2 = type.length === 4 ? 'marginRight' : 'marginLeft';
-			animate[margin2] = elem.offsetWidth;
-			savedStyle[margin2] = elem.style[margin2];
-		} else {
-			animate[margin] = -elem.offsetHeight;
-		}
-		 savedStyle[margin] = elem.style[margin];
-	}
-	
+				
 
 	/// #endregion
 	
-})(System);
+})();
 /**********************************************
  * Controls.Button.CloseButton
  **********************************************/
