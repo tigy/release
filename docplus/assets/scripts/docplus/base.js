@@ -162,6 +162,9 @@ var DocPlus = {
 
 	// 页面
 	
+	/**
+	 * 将页面重定向到指定哈希地址。
+	 */
 	redirect: function(hash){
 		location.hash = '!' + hash;
 	},
@@ -188,7 +191,7 @@ var DocPlus = {
 	navigate: function (hash) {
 
 		// 检查指定地址的视图是否存在，如果存在，则激活。否则，先创建该视图。
-		var view = DocPlus.views[hash] || DocPlus.createView(hash);
+		var view = DocPlus.views[hash] || (DocPlus.createView(hash));
 
 		// 如果无法创建，则无法打开页面，忽视操作。
 		if (view) {
@@ -232,8 +235,8 @@ var DocPlus = {
 	viewHistory: [],
 
 	/**
-       * 创建指定名的视图。
-       */
+	 * 根据指定的哈希值创建指定名的视图。
+	 */
 	createView: function (hash) {
 
 		var spa = hash.indexOf('/');
@@ -247,14 +250,24 @@ var DocPlus = {
 		}
 
 		// 如果控制器未载入，则先载入。
-		if(controller.dataJsPath) {
-			DocPlus.jsonp(controller.dataJsPath, controller.init.bind(controller), controller.initError);
-			delete controller.dataJsPath;
+		if(controller.indexPath) {
+			DocPlus.jsonp(controller.indexPath, controller.init.bind(controller), controller.initError);
+			controller.indexPath = null;
 		}
-
+		
+		var pathInfo = spa === -1 ? '' : hash.substr(spa + 1);
+		
+		if(!pathInfo){
+			if(!controller.homeViewInited) {
+				controller.homeViewInited = true;
+				controller.initHomeView();
+			}
+			return controller.homeView;
+		}
+		
 		// 用控制器创建真正的视图对象。
 		// 保存新打开的视图。
-		return controller.createView(hash, spa === -1 ? '' : hash.substr(spa + 1));
+		return controller.createView(hash, pathInfo);
 	},
 
 	// 视图界面
@@ -333,13 +346,11 @@ var DocPlus = {
 	 * @class
 	 */
 	Controller: Class({
-		
-		dataLoaded: false,
 
 		/**
 		 * 控制器所需数据源。
 		 */
-		dataJsPath: null,
+		indexPath: null,
 		
 		/**
 		 * 当前控制器主页对应的资源。
@@ -354,106 +365,49 @@ var DocPlus = {
 		},
 		
 		/**
-		 * 初始化当前控制器对应的视图。
-		 */
-		initView: function(view, pathInfo){
-			view.setContent('加载中...');
-		},
-		
-		/**
 		 * 向用户展示指定视图管理的导航节点。
 		 */
 		showTreeNode: function(view){
 			
 		},
+		
+		// 视图控制
+		
+		/**
+		 * 初始化主页视图。
+		 */
+		initHomeView: function(){
+			this.homeView.setHtml('<div>请从左边选择 API 信息</div>');
+		},
+		
+		/**
+		 * 创建主页视图。
+		 */
+		createHomeView: function(name, title, description){
+			return new DocPlus.HomeView(name, this, title, description);
+		},
 
 		/**
-		 * 创建指定路径的视图。
+		 * 创建和初始化当前控制器对应的指定路径的视图。
 		 */
 		createView: function(hash, pathInfo){
 			
-			if(!pathInfo){
-				return this.homeView;
-			}
-
 			var view = new DocPlus.View(hash, pathInfo, this);
 			
-			this.initView(view, pathInfo);
-
-			DocPlus.tabs.append(view.tab);
-
-			// 保存视图状态。
-
-			DocPlus.views[hash] = view;
-			DocPlus.viewCount++;
-			DocPlus.relayoutTab();
-
-			return view;
-		},
-
-		closeView: function (view) {
-
-			view.tab.remove();
-			view.content.remove();
+			view.setHtml('加载中...');
 			
-			DocPlus.viewHistory.remove(view);
-
-			if (DocPlus.currentView === view) {
-				DocPlus.currentView = null;
-				var topView = DocPlus.viewHistory.item(-1) || view.controller.homeView;
-				topView.active();
-				DocPlus.redirect(topView.hash);
-			}
-
-			// 保存视图状态。
-
-			DocPlus.lastView = view.hash;
-			delete DocPlus.views[view.hash];
-			DocPlus.viewCount--;
-			DocPlus.relayoutTab();
+			return view;
 		},
 
 		/**
 		 * 激活当前视图。
 		 */
 		activeView: function (view) {
-
-
-			// 首先让当前视图取消激活。
-			var currentView = DocPlus.currentView;
-
-			if (currentView) {
-
-				// 如果视图相同，则不操作。
-				if (currentView === view)
-					return;
-
-				currentView.deactive();
-
-			}
-
-			DocPlus.currentView = view;
-			
-			DocPlus.viewHistory.remove(view);
-			DocPlus.viewHistory.push(view);
-
-
-			// 显示当前选项卡。
-			view.tab.addClass('selected');
-			view.content.show();
-
 			this.updateView(view);
-
 		},
 
-		deactiveView: function (view) {
-			view.tab.removeClass('selected');
-			view.content.hide();
-
-			DocPlus.currentView = null;
-
-		},
-
+		deactiveView: Function.empty,
+		
 		/**
 		 * 刷新视图对应的菜单项。
 		 */
@@ -480,33 +434,31 @@ var DocPlus = {
 				DocPlus.tabContextMenu = menu = new ContextMenu();
 				menu.on('show', DocPlus.showMask);
 				menu.on('hide', DocPlus.hideMask);
-				menu.items.add('关闭').on('click', DocPlus.closeCurrentView);
+				menu.add('关闭').on('click', DocPlus.closeCurrentView);
 				// menu.items.add('-');
 				// var subMenu = new Menu();
 				// subMenu.items.add('默认');
 				// subMenu.items.add('红色');
 				// subMenu.items.add('绿色');
 				// menu.items.add('标记').setSubMenu(subMenu);
-				menu.items.add('-');
-				menu.items.add('恢复关闭的选项卡').on('click', DocPlus.closeCurrentView);
-				menu.items.add('-');
-				menu.items.add('关闭其它选项卡').on('click', DocPlus.closeOtherViews);
-				menu.items.add('全部关闭').on('click', DocPlus.closeAllViews);
+				menu.add('-');
+				menu.add('恢复关闭的选项卡').on('click', DocPlus.closeCurrentView);
+				menu.add('-');
+				menu.add('关闭其它选项卡').on('click', DocPlus.closeOtherViews);
+				menu.add('全部关闭').on('click', DocPlus.closeAllViews);
 			}
 
 			menu.showAt(e.pageX, e.pageY);
 			e.stop();
 		},
 
-		constructor: function (dataJsPath, dataPath, name, title, description) {
+		constructor: function (indexPath, dataPath, name, title, description) {
 
 			this.name = name;
-			this.dataJsPath = dataJsPath;
+			this.indexPath = indexPath;
 			this.dataPath = dataPath;
-
-			this.homeView = new DocPlus.HomeView(name, this, title, description);
-			this.homeView.tab.appendTo('navbar');
-			this.homeView.setContent('<div>请从左边选择 API 信息</div>').deactive();
+			
+			this.homeView = this.createHomeView(name, title, description).deactive();
 
 			this.treeView = new TreeView()
 					.addClass('x-treeview-plain')
@@ -604,16 +556,35 @@ var DocPlus = {
 				.setAttr('href', '#!' + hash)
 				.setText(hash)
 				.appendTo(this.tab);
+			
+			// 添加到 DOM 树中。
+			DocPlus.tabs.append(this.tab);
+			
+			this.init();
+			
+			DocPlus.views[this.hash] = this ;
+			DocPlus.viewCount++;
+			DocPlus.relayoutTab();
 		},
+		
+		init: Function.empty,
 
 		// UI
-
-		setTitle: function (value) {
-			this.title.setAttr('title', value).setText(value);
-			return this;
+		
+		getTitle: function(){
+			return this.title.getText();
 		},
 
-		setContent: function (content) {
+		setTitle: function (value) {
+			this.title.setText(value).setAttr('title', value);
+			return this;
+		},
+		
+		getHtml: function(){
+			return this.content ? this.content.getHtml() : '';
+		},
+
+		setHtml: function (content) {
 			if (!this.content) {
 				this.content = Dom.create('div', 'content').appendTo(DocPlus.contents);
 			}
@@ -625,25 +596,75 @@ var DocPlus = {
 		 * 激活当前视图。
 		 */
 		active: function () {
-			this.controller.activeView(this);
-			return this;
-		},
+			
+			// 首先让当前视图取消激活。
+			var currentView = DocPlus.currentView;
 
-		deactive: function () {
-			this.controller.deactiveView(this);
+			if (currentView) {
+
+				// 如果视图相同，则不操作。
+				if (currentView === this)
+					return;
+
+				currentView.deactive();
+
+			}
+
+			DocPlus.currentView = this;
+			
+			DocPlus.viewHistory.remove(this);
+			DocPlus.viewHistory.push(this);
+
+			// 显示当前选项卡。
+			this.tab.addClass('selected');
+			this.content.show();
+			this.controller.activeView(this);
+			
 			return this;
 		},
 
 		/**
-		 * 激活当前视图。
+		 * 反激活当前视图。
+		 */
+		deactive: function () {
+			this.controller.deactiveView(this);
+			this.tab.removeClass('selected');
+			this.content.hide();
+			DocPlus.currentView = null;
+			return this;
+		},
+
+		/**
+		 * 更新当前视图。
 		 */
 		update: function () {
 			this.controller.updateView(this);
 			return this;
 		},
 
+		/**
+		 * 关闭当前视图。
+		 */
 		close: function () {
-			this.controller.closeView(this);
+			this.tab.remove();
+			this.content.remove();
+			
+			DocPlus.viewHistory.remove(this);
+
+			if (DocPlus.currentView === this) {
+				DocPlus.currentView = null;
+				var topView = DocPlus.viewHistory.item(-1) || this.controller.homeView;
+				topView.active();
+				DocPlus.redirect(topView.hash);
+			}
+
+			// 保存视图状态。
+
+			DocPlus.lastView = this.hash;
+			delete DocPlus.views[this.hash];
+			DocPlus.viewCount--;
+			DocPlus.relayoutTab();
+			
 			return this;
 		}
 
@@ -651,3 +672,34 @@ var DocPlus = {
 
 	
 };
+
+
+/**
+ * 表示控制器主页的特殊视图。
+ */
+DocPlus.HomeView = DocPlus.View.extend({
+	
+	pathInfo: '',
+	
+	constructor: function (hash, controller, value, title) {
+
+		this.hash = hash;
+		this.controller = controller;
+
+		// 创建 tab 菜单。
+
+		this.tab = Dom.create('li');
+
+		this.title = Dom.create('a')
+			.setAttr('href', '#!' + hash)
+			.setAttr('title', title || value)
+			.setHtml(value)
+			.appendTo(this.tab);
+		
+		this.tab.appendTo('navbar');
+		this.setHtml("<div>请从左边选择</div>");
+	},
+
+	close: Function.empty
+	
+});
