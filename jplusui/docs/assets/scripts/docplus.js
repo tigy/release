@@ -309,13 +309,13 @@ var DocPlus = {
 
 	// 脚本动态载入。
 
-	_jsonpObj: new Request.JSONP({
-		jsonp: null,
-		callback: 'jsonp'
-	}),
+	_jsonpObj: new Ajax(),
 
 	getJSONP: function (url, callback, onerror) {
 		DocPlus._jsonpObj.run({
+			dataType: 'jsonp',
+			jsonp: null,
+			jsonpCallback: 'jsonp',
 			url: url,
 			success: callback,
 			error: onerror

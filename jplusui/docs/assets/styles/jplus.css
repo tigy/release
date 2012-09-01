@@ -1,15 +1,34 @@
-/**********************************************
- * This file is created by a tool at 2012/5/21 14:30
- **********************************************/
+
+/*********************************************************
+ * This file is created by a tool at 2012/9/1 11:49
+ *********************************************************/
 
 
 
-/**********************************************
+
+/*********************************************************
  * System.Core.Base
- **********************************************/
-/**********************************************
+ *********************************************************/
+
+/*********************************************************
+ * System.Fx.Animate
+ *********************************************************/
+
+/*********************************************************
+ * System.Dom.Base
+ *********************************************************/
+
+/*********************************************************
+ * System.Ajax.JSONP
+ *********************************************************/
+
+/*********************************************************
+ * System.Ajax.Submit
+ *********************************************************/
+
+/*********************************************************
  * Controls.Core.Base
- **********************************************/
+ *********************************************************/
 /**
  * 最底层的 CSS 样式。
  * @author xuld
@@ -231,65 +250,22 @@ address,
 cite {
   font-style: normal;
 }
-code,
-pre {
-  padding: 0 3px 2px;
-  font-family: "Courier New", Menlo, Monaco, monospace;
-  color: #333333;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-}
 code {
   padding: 0 4px;
   color: #1E347B;
   background-color: #f7f7f9;
   border: 1px solid #e1e1e8;
-}
-pre {
-  display: block;
-  padding: 8.5px;
-  margin: 9px 0;
-  background-color: #f5f5f5;
-  border: 1px solid #ccc;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
-  white-space: pre;
-  white-space: pre-wrap;
-  word-break: break-all;
-  box-shadow: 40px 0 0 #FBFBFC inset, 41px 0 0 #ECECF0 inset;
-  -moz-box-shadow: 40px 0 0 #FBFBFC inset, 41px 0 0 #ECECF0 inset;
-}
-pre ol {
-  margin: 0 0 0 33px;
-}
-pre li {
-  padding-left: 12px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  font-family: "Courier New", Menlo, Monaco, monospace;
 }
 pre code {
   padding: 0;
+  border: 0;
   background-color: transparent;
-}
-blockquote {
-  padding: 0 0 0 15px;
-  margin: 18px 0;
-  border-left: 5px solid #eeeeee;
-}
-blockquote p {
-  margin-bottom: 0;
-  font-size: 16px;
-  font-weight: 300;
-  line-height: 22.5px;
-}
-blockquote small {
-  display: block;
-  font-size: 100%;
-  color: #999999;
-}
-blockquote small:before {
-  content: '\2014 \00A0';
+  color: inherit;
+  font-family: inherit;
 }
 abbr {
   font-size: 90%;
@@ -324,30 +300,30 @@ legend small {
 select {
   background-color: #ffffff;
 }
-/**********************************************
- * Controls.Core.ScrollableControl
- **********************************************/
-/**
- * @author 
- */
-/**********************************************
- * Controls.Core.ListControl
- **********************************************/
-/**
- * @author 
- */
-/**********************************************
- * System.Browser.LocalStorage
- **********************************************/
-/**********************************************
- * System.Dom.HashChange
- **********************************************/
-/**********************************************
- * System.Dom.Drag
- **********************************************/
-/**********************************************
+
+/*********************************************************
+ * Controls.Display.Bubble
+ *********************************************************/
+.x-bubble {
+  padding: 15px;
+  background-color: #f5f5f5;
+  border: 1px solid #eee;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+.x-bubble blockquote {
+  border-color: #ddd;
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+/*********************************************************
  * Controls.Display.Icon
- **********************************************/
+ *********************************************************/
 .x-icon {
   display: inline-block;
   width: 14px;
@@ -730,11 +706,12 @@ select {
 .x-icon-resize-horizontal {
   background-position: -456px -118px;
 }
-/**********************************************
- * Controls.Core.Splitter
- **********************************************/
+
+/*********************************************************
+ * Controls.Layout.Splitter
+ *********************************************************/
 /**
- * @author 
+ * @author xuld
  */
 .x-splitter {
   z-index: 100;
@@ -763,18 +740,45 @@ select {
   height: 6px;
   left: 0;
 }
-/**********************************************
+
+/*********************************************************
  * Controls.Core.ICollapsable
- **********************************************/
+ *********************************************************/
 /**
  * @author 
  */
-/**********************************************
+
+/*********************************************************
+ * Controls.Core.ScrollableControl
+ *********************************************************/
+/**
+ * @author 
+ */
+
+/*********************************************************
+ * Controls.Core.ListControl
+ *********************************************************/
+/**
+ * @author 
+ */
+
+/*********************************************************
+ * Controls.Core.ContentControl
+ *********************************************************/
+/**
+ * @author 
+ */
+
+/*********************************************************
+ * Controls.Core.TreeControl
+ *********************************************************/
+/**
+ * @author 
+ */
+
+/*********************************************************
  * Controls.DataView.TreeView
- **********************************************/
-/**
- * @author 
- */
+ *********************************************************/
 /**
  * @author 
  */
@@ -789,7 +793,7 @@ select {
 .x-treeview-plain {
   border: 0;
 }
-.x-treeview-content {
+.x-treeview-item {
   white-space: nowrap;
 }
 .x-treenode,
@@ -854,31 +858,24 @@ select {
   background-image: url(../images/dataview/loading.gif) !important;
   background-position: 50% 50%;
 }
-/**********************************************
- * Controls.Core.ContentControl
- **********************************************/
-/**
- * @author 
- */
-/**********************************************
+
+/*********************************************************
  * Controls.Button.Menu-Alt
- **********************************************/
+ *********************************************************/
 /**
- * @author 
+ * @author  xuld
  */
-/* �˵�    */
+/*  菜单  */
 .x-menu {
   min-width: 130px;
   position: absolute;
   background: url(../images/button/menu.gif) #f0f0f0 repeat-y;
   border: 1px solid #999999;
   *width: 200px;
-}
-.x-menu-container {
   margin: 0px;
   padding: 2.8px;
 }
-.x-menu-content {
+.x-menu-item {
   outline-color: -moz-use-text-color;
   outline-style: none;
   outline-width: 0;
@@ -921,29 +918,30 @@ select {
   border-color: transparent;
   margin-left: -1px;
 }
-.x-menuitem-selected {
-  background-position: center;
-  background-image: url(../images/button/item-over.gif);
-  background-color: #dbecf4;
-}
-.x-menu-content,
+.x-menu-item,
 .x-menuitem,
 .x-menu-handle-top,
 .x-menu-handle-bottom {
   _border-color: #f0f0f0;
   _filter: chroma(color=#f0f0f0);
 }
-.x-menuitem-selected {
+.x-menu-hover {
+  background-position: center;
+  background-image: url(../images/button/item-over.gif);
+  background-color: #dbecf4;
   border-color: #aaccf6;
 }
-.x-menuitem-menu {
+.x-menuitem-hover {
+  border-color: #aaccf6;
+}
+.x-menuitem-submenu {
   background: url(../images/button/menu-arrow.gif) no-repeat right 5px;
   padding-right: 21px;
 }
 .x-menuitem-disabled {
   color: gray;
 }
-.x-menu-seperator {
+.x-menuseperator {
   display: block;
   margin: 0 0 0 22px;
   height: 0px;
@@ -951,7 +949,7 @@ select {
   border-bottom: 1px solid #FFFFFF;
   *font-size: expression(this.runtimeStyle.fontSize = this.parentNode.runtimeStyle.lineHeight = this.parentNode.runtimeStyle.fontSize = 0);
 }
-.x-menu-content .x-icon {
+.x-menu-item .x-icon {
   margin-left: 3px;
   margin-right: 10px;
 }
@@ -978,12 +976,10 @@ select {
 .x-icon-unchecked {
   background-image: url(../images/button/unchecked.gif);
 }
-/**********************************************
- * System.Fx.Animate
- **********************************************/
-/**********************************************
+
+/*********************************************************
  * Controls.Button.CloseButton
- **********************************************/
+ *********************************************************/
 .x-closebutton {
   font-size: 20px;
   font-weight: bold;
@@ -1004,15 +1000,14 @@ select {
   opacity: 0.4;
   filter: alpha(opacity=40);
 }
-/**********************************************
- * Controls.Form.IInput
- **********************************************/
-/**
- * @author 
- */
-/**********************************************
+
+/*********************************************************
+ * Controls.Core.IInput
+ *********************************************************/
+
+/*********************************************************
  * Controls.Form.TextBox
- **********************************************/
+ *********************************************************/
 .x-textbox {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   padding: 4px;
@@ -1041,8 +1036,8 @@ select {
 }
 .x-textbox[disabled],
 .x-textbox[readonly] {
-  border-color: #ddd;
-  background-color: #eee;
+  border-color: #dddddd;
+  background-color: #eeeeee;
 }
 input.x-textbox {
   height: 18px;
@@ -1088,9 +1083,89 @@ textarea.x-textbox {
 ::-webkit-input-placeholder {
   color: #999999;
 }
-/**********************************************
+
+/*********************************************************
+ * Controls.Core.IDropDownOwner
+ *********************************************************/
+/**
+ * @author  xuld
+ */
+.x-dropdown {
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  z-index: 1000;
+  max-height: 300px;
+}
+
+/*********************************************************
+ * Controls.Button.Menu
+ *********************************************************/
+.x-menu {
+  background-color: #ffffff;
+  border-color: #ccc;
+  border-color: rgba(0, 0, 0, 0.2);
+  border-style: solid;
+  border-width: 1px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  min-width: 140px;
+  _zoom: 0;
+  _display: block;
+  _width: 160px;
+  position: absolute;
+  z-index: 1000;
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding;
+  background-clip: padding-box;
+  padding: 4px 0;
+  margin: 0;
+  list-style: none;
+}
+.x-menuitem {
+  display: block;
+  padding: 3px 10px;
+  white-space: nowrap;
+  cursor: default;
+  _width: 100%;
+}
+.x-menuitem,
+.x-menuitem a {
+  color: #555555;
+}
+.x-menuseperator {
+  height: 1px;
+  margin: 1px;
+  overflow: hidden;
+  background-color: #e5e5e5;
+  border-bottom: 1px solid #ffffff;
+  display: block;
+  *font-size: 1px;
+  *width: 100%;
+}
+.x-menuitem-submenu {
+  padding-right: 20px;
+  background: url(../images/button/menu-arrow.gif) 100% 7px no-repeat;
+}
+.x-menuitem:hover {
+  text-decoration: none;
+}
+.x-menuitem-hover {
+  background-color: #0088cc;
+}
+.x-menuitem-hover,
+.x-menuitem-hover a {
+  color: #ffffff !important;
+}
+
+/*********************************************************
  * Controls.Button.Button
- **********************************************/
+ *********************************************************/
 .x-button {
   display: inline-block;
   *display: inline;
@@ -1126,9 +1201,7 @@ textarea.x-textbox {
 }
 .x-button:hover,
 .x-button:active,
-.x-button.x-button-actived,
-.x-button.x-button-disabled,
-.x-button[disabled] {
+.x-button.x-button-actived {
   background-color: #e6e6e6;
 }
 .x-button:active,
@@ -1174,12 +1247,12 @@ input.x-button:focus {
 .x-button-disabled {
   cursor: default;
   background-image: none;
-  background-color: #e6e6e6;
+  background-color: #eeeeee !important;
   opacity: 0.65;
   filter: alpha(opacity=65);
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  box-shadow: none;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  box-shadow: none !important;
 }
 .x-button-large {
   padding: 9px 14px;
@@ -1228,9 +1301,7 @@ input.x-button:focus {
 }
 .x-button-highlight:hover,
 .x-button-highlight:active,
-.x-button-highlight.x-button-actived,
-.x-button-highlight.x-button-disabled,
-.x-button-highlight[disabled] {
+.x-button-highlight.x-button-actived {
   background-color: #4a81ca;
 }
 .x-button-highlight:active,
@@ -1253,9 +1324,7 @@ input.x-button:focus {
 }
 .x-button-warning:hover,
 .x-button-warning:active,
-.x-button-warning.x-button-actived,
-.x-button-warning.x-button-disabled,
-.x-button-warning[disabled] {
+.x-button-warning.x-button-actived {
   background-color: #f89406;
 }
 .x-button-warning:active,
@@ -1278,9 +1347,7 @@ input.x-button:focus {
 }
 .x-button-error:hover,
 .x-button-error:active,
-.x-button-error.x-button-actived,
-.x-button-error.x-button-disabled,
-.x-button-error[disabled] {
+.x-button-error.x-button-actived {
   background-color: #bd362f;
 }
 .x-button-error:active,
@@ -1303,9 +1370,7 @@ input.x-button:focus {
 }
 .x-button-success:hover,
 .x-button-success:active,
-.x-button-success.x-button-actived,
-.x-button-success.x-button-disabled,
-.x-button-success[disabled] {
+.x-button-success.x-button-actived {
   background-color: #51a351;
 }
 .x-button-success:active,
@@ -1328,9 +1393,7 @@ input.x-button:focus {
 }
 .x-button-info:hover,
 .x-button-info:active,
-.x-button-info.x-button-actived,
-.x-button-info.x-button-disabled,
-.x-button-info[disabled] {
+.x-button-info.x-button-actived {
   background-color: #2f96b4;
 }
 .x-button-info:active,
@@ -1353,9 +1416,7 @@ input.x-button:focus {
 }
 .x-button-inverse:hover,
 .x-button-inverse:active,
-.x-button-inverse.x-button-actived,
-.x-button-inverse.x-button-disabled,
-.x-button-inverse[disabled] {
+.x-button-inverse.x-button-actived {
   background-color: #262626;
 }
 .x-button-inverse:active,
@@ -1386,22 +1447,10 @@ input.x-button-small {
   padding-left: 20px;
   padding-right: 20px;
 }
-/**********************************************
- * Controls.Core.IDropDownMenuContainer
- **********************************************/
-/**
- * @author 
- */
-.x-dropdownmenu {
-  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  position: absolute;
-  z-index: 1000;
-}
-/**********************************************
+
+/*********************************************************
  * Controls.Button.MenuButton
- **********************************************/
+ *********************************************************/
 .x-button-menu {
   display: inline-block;
   vertical-align: middle;
@@ -1437,28 +1486,22 @@ input.x-button-small {
   opacity: 0.3;
   filter: alpha(opacity=30);
 }
-/**********************************************
- * Controls.Form.CombinedTextbox
- **********************************************/
+
+/*********************************************************
+ * Controls.Form.Picker
+ *********************************************************/
 /**
- * @author 
+ * @author xuld
  */
-.x-combinedtextbox {
+.x-picker {
   position: relative;
   display: inline-block;
   *margin-left: .3em;
 }
-.x-combinedtextbox:first-child {
+.x-picker:first-child {
   *margin-left: 0;
 }
-.x-combinedtextbox .x-textbox {
-  padding-right: 30px;
-}
-.x-combinedtextbox .x-textbox[readonly] {
-  background-color: #ffffff;
-  cursor: default;
-}
-.x-combinedtextbox .x-button {
+.x-picker button {
   padding-left: 4px;
   padding-right: 8px;
   margin-left: 0;
@@ -1473,59 +1516,27 @@ input.x-button-small {
   _padding-bottom: 1px;
   _margin-right: -1px;
 }
-.x-textbox:focus + .x-button {
-  border-color: rgba(82, 168, 236, 0.8);
-}
-.x-combinedtextbox .x-button .x-icon {
+.x-picker button .x-icon {
   margin-left: 2px;
   margin-right: -2px;
 }
-/**********************************************
- * Controls.Form.CombinedTextBox
- **********************************************/
-/**
- * @author 
- */
-.x-combinedtextbox {
-  position: relative;
-  display: inline-block;
-  *margin-left: .3em;
-}
-.x-combinedtextbox:first-child {
-  *margin-left: 0;
-}
-.x-combinedtextbox .x-textbox {
+.x-picker input {
   padding-right: 30px;
 }
-.x-combinedtextbox .x-textbox[readonly] {
-  background-color: #ffffff;
-  cursor: default;
-}
-.x-combinedtextbox .x-button {
-  padding-left: 4px;
-  padding-right: 8px;
-  margin-left: 0;
-  *margin-top: 1px;
-  *padding: 3px 6px 3px 2px;
-  position: absolute;
-  -webkit-border-radius: 0 4px 4px 0;
-  -moz-border-radius: 0 4px 4px 0;
-  border-radius: 0 4px 4px 0;
-  right: 0;
-  top: 0;
-  _padding-bottom: 1px;
-  _margin-right: -1px;
-}
-.x-textbox:focus + .x-button {
+.x-picker input:focus + button {
   border-color: rgba(82, 168, 236, 0.8);
 }
-.x-combinedtextbox .x-button .x-icon {
-  margin-left: 2px;
-  margin-right: -2px;
+.x-picker a {
+  cursor: default!important;
+  text-align: left;
+  height: 18px;
+  display: inline-block;
+  padding-right: 35px;
 }
-/**********************************************
+
+/*********************************************************
  * Controls.Form.SearchTextBox
- **********************************************/
+ *********************************************************/
 /**
  * @author 
  */
@@ -1537,7 +1548,7 @@ input.x-button-small {
   -moz-border-radius: 14px;
   border-radius: 14px;
 }
-.x-searchtextbox-search {
+.x-picker .x-searchtextbox-search {
   padding-left: 10px;
   padding-right: 20px;
   margin-left: 0;
@@ -1559,15 +1570,17 @@ input.x-button-small {
   right: -1px;
   top: 1px;
 }
-/**********************************************
+
+/*********************************************************
  * Controls.Button.ContextMenu
- **********************************************/
+ *********************************************************/
 /**
  * @author 
  */
-/**********************************************
+
+/*********************************************************
  * Controls.DataView.Table
- **********************************************/
+ *********************************************************/
 .x-table {
   max-width: 100%;
   width: 100%;
@@ -1648,9 +1661,15 @@ input.x-button-small {
 .x-table tbody tr:hover th {
   background-color: #f3f3f3;
 }
-/**********************************************
- * System.Request.Jsonp
- **********************************************/
-/**********************************************
- * System.Utils.Tpl
- **********************************************/
+
+/*********************************************************
+ * System.Browser.LocalStorage
+ *********************************************************/
+
+/*********************************************************
+ * System.Dom.Drag
+ *********************************************************/
+
+/*********************************************************
+ * System.Dom.Drop
+ *********************************************************/
