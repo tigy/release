@@ -1,11 +1,11 @@
 
 DocPlus.initControllers = function(){
-	//	  new DocPlus.HomeController(null, '', '', '<span class="x-icon x-icon-home"></span>', '首页');
+	new DocPlus.HomeController('<span class="x-icon x-icon-home"></span>', '首页');
 
 	//    new DocPlus.APIController('api/index.js', 'api/data/', 'api', 'API');
 	
-	new DocPlus.ExampleController('examples/index.js', 'examples/', 'example', '示例');
-	new DocPlus.Controller('tools/index.js', 'tools/', 'tools', '工具');
+	new DocPlus.IFrameController('examples', '示例', '查看示例代码');
+	new DocPlus.IFrameController('tools', '工具', '开发常用的工具');
 
 	
 	if(!location.hash){

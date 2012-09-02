@@ -260,14 +260,18 @@ var DocPlus = {
 		if(!pathInfo){
 			if(!controller.homeViewInited) {
 				controller.homeViewInited = true;
-				controller.initHomeView();
+				controller.initHomeView(controller.homeView);
 			}
 			return controller.homeView;
 		}
 		
+		var view = controller.createView(hash, pathInfo);
+		
+		controller.initView(view);
+		
 		// 用控制器创建真正的视图对象。
 		// 保存新打开的视图。
-		return controller.createView(hash, pathInfo);
+		return view;
 	},
 
 	// 视图界面
@@ -315,7 +319,11 @@ var DocPlus = {
 			DocPlus.views[view].tab.setWidth(value);
 		}
 	},
-
+	
+	highlightCurrentView: function(){
+		DocPlus.currentView && DocPlus.currentView.highlight();
+	},
+	
 	relayoutTab: function () {
 		var totalWidth = DocPlus.tabs.getSize().x - 10;
 
@@ -338,6 +346,10 @@ var DocPlus = {
 			error: onerror
 		});
 	},
+	
+	// 数据
+	
+	menus: {},
 
 	// 控制器
 	
@@ -346,6 +358,16 @@ var DocPlus = {
 	 * @class
 	 */
 	Controller: Class({
+		
+		/**
+		 * 当前控制器的名字。
+		 */
+		name: null,
+		
+		/**
+		 * 当前控制器实际数据的存储路径。
+		 */
+		dataPath: null,
 
 		/**
 		 * 控制器所需数据源。
@@ -359,53 +381,55 @@ var DocPlus = {
 		
 		/**
 		 * 初始化当前控制器对应的导航菜单。
+		 * @param {Object} data 载入的数据。
 		 */
-		init: function (data) {
-			//trace(data);
-		},
+		init: Function.empty,
 		
 		/**
 		 * 向用户展示指定视图管理的导航节点。
 		 */
-		showTreeNode: function(view){
-			
-		},
+		showTreeNode: Function.empty,
 		
 		// 视图控制
 		
 		/**
-		 * 初始化主页视图。
-		 */
-		initHomeView: function(){
-			this.homeView.setHtml('<div>请从左边选择 API 信息</div>');
-		},
-		
-		/**
 		 * 创建主页视图。
 		 */
-		createHomeView: function(name, title, description){
-			return new DocPlus.HomeView(name, this, title, description);
+		createHomeView: function(hash, title, description){
+			return new DocPlus.HomeView(hash, this, title, description);
 		},
 
 		/**
-		 * 创建和初始化当前控制器对应的指定路径的视图。
+		 * 创建当前控制器对应的指定路径的视图。
 		 */
 		createView: function(hash, pathInfo){
-			
-			var view = new DocPlus.View(hash, pathInfo, this);
-			
+			return new DocPlus.View(hash, pathInfo, this).setHtml('加载中...');
+		},
+		
+		/**
+		 * 初始化主页视图。
+		 */
+		initHomeView: function(view){
+			view.setHtml('请从导航选择需要的项');
+		},
+		
+		/**
+		 * 初始化当前控制器对应的指定路径的视图。
+		 */
+		initView: function(view){
 			view.setHtml('加载中...');
-			
-			return view;
 		},
 
 		/**
 		 * 激活当前视图。
 		 */
-		activeView: function (view) {
-			this.updateView(view);
+		activeView: function(view){
+			this.updateView(view);	
 		},
 
+		/**
+		 * 反激活当前视图。
+		 */
 		deactiveView: Function.empty,
 		
 		/**
@@ -435,9 +459,10 @@ var DocPlus = {
 				menu.on('show', DocPlus.showMask);
 				menu.on('hide', DocPlus.hideMask);
 				menu.add('关闭').on('click', DocPlus.closeCurrentView);
-				// menu.items.add('-');
+				menu.add('-');
+				menu.add('高亮').on('click', DocPlus.highlightCurrentView).checked(view.isHighlighted());
 				// var subMenu = new Menu();
-				// subMenu.items.add('默认');
+				// subMenu.items.add();
 				// subMenu.items.add('红色');
 				// subMenu.items.add('绿色');
 				// menu.items.add('标记').setSubMenu(subMenu);
@@ -452,20 +477,18 @@ var DocPlus = {
 			e.stop();
 		},
 
-		constructor: function (indexPath, dataPath, name, title, description) {
+		constructor: function (name, title, description) {
 
 			this.name = name;
-			this.indexPath = indexPath;
-			this.dataPath = dataPath;
+			this.dataPath = name + '/';
+			this.indexPath = name + '/index.js';
 			
-			this.homeView = this.createHomeView(name, title, description).deactive();
+			this.homeView = this.createHomeView(name, title, description);
 
 			this.treeView = new TreeView()
 					.addClass('x-treeview-plain')
 					.appendTo(DocPlus.trees)
 					.hide();
-				
-			this.treeView.collapseTo();
 			
 			DocPlus.controllers[name] = this;
 		}
@@ -586,7 +609,7 @@ var DocPlus = {
 
 		setHtml: function (content) {
 			if (!this.content) {
-				this.content = Dom.create('div', 'content').appendTo(DocPlus.contents);
+				this.content = Dom.create('div', 'content').hide().appendTo(DocPlus.contents);
 			}
 			this.content.setHtml(content);
 			return this;
@@ -666,11 +689,18 @@ var DocPlus = {
 			DocPlus.relayoutTab();
 			
 			return this;
+		},
+		
+		highlight: function(){
+			this.tab.addClass('tab-highlight');
+		},
+		
+		isHighlighted: function(){
+			return this.tab.hasClass('tab-highlight');
 		}
 
 	})
 
-	
 };
 
 
@@ -697,7 +727,6 @@ DocPlus.HomeView = DocPlus.View.extend({
 			.appendTo(this.tab);
 		
 		this.tab.appendTo('navbar');
-		this.setHtml("<div>请从左边选择</div>");
 	},
 
 	close: Function.empty
