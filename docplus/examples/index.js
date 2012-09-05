@@ -10,7 +10,7 @@ jsonp({
 					"href": "examples/controls/form/textbox.html",
 					//"icon": "components",
 					"thumbnail": "examples/images/textbox.gif",
-					"description": "普通的文本框",
+					"description": "普通的文本框"
 				}
 			}
 		}

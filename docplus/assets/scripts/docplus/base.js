@@ -78,7 +78,9 @@ var DocPlus = {
 
 		// 刷新历史记录的视图。
 		if (DocPlus.options.views)
-			DocPlus.options.views.forEach(DocPlus.navigate);
+			DocPlus.options.views.forEach(function(hash){
+				DocPlus.viewHistory.push(DocPlus.createView(hash));
+			});
 
 		// 刷新当前激活的视图。
 		DocPlus.reload();
@@ -231,16 +233,11 @@ var DocPlus = {
      */
 	update: function () {
 		if(DocPlus.currentView) {
-			DocPlus.currentView.controller.active();
+			DocPlus.currentView.controller.activeView(DocPlus.currentView);
 		}
 	},
 
 	// 数据
-	
-	/**
-	 * 菜单。 
-	 */
-	menus: {},
 
 	// 视图
 	
@@ -413,33 +410,14 @@ var DocPlus = {
 					.hide()
 					.appendTo(DocPlus.trees);
 			
+			this.menus = {};
+			
 			DocPlus.jsonp(this.name + '/index.js', function(data){
 				me.loadData(data);
 			},  function(){
 				me.loadDataError(this.options.url);
 			});
 		
-		},
-		
-		_cacheMenuData: function(data, parent){
-			if(data.href){
-				DocPlus.menus[data.href] = data;
-			}
-			
-			data.parent = parent;
-			
-			for(var menu in data.menu){
-				this._cacheMenuData(data.menu[menu], data);
-			}
-		},
-		
-		initMenu: function(data, treeView){
-			var me = this;
-			this._expadingHandler = function(){
-				me.initTreeNodes(this.data, this);
-			};
-			this.initTreeNodes(data, treeView);
-			this._cacheMenuData(data, {treeNode: treeView});
 		},
 		
 		/**
@@ -452,13 +430,7 @@ var DocPlus = {
 			for(menu in data.menu){
 				menuData = data.menu[menu];
 				
-				// 修复一些错误的数据。
-				
-				menuData.name = menu;
-				menuData.title = menuData.title || menu;
-				
 				// 创建初始化节点。
-				
 				menuData.treeNode = treeNode = parentTreeNode.add(menu);
 				treeNode.data = menuData;
 				
@@ -475,6 +447,9 @@ var DocPlus = {
 			parentTreeNode.collapse();
 		},
 		
+		/**
+		 * 将 data 中的项添加为节点。
+		 */
 		initTreeNode: function (data, treeNode) {
 			treeNode.setAttr('href', '#!' + data.href);
 			treeNode.setAttr('title', data.title);
@@ -486,13 +461,80 @@ var DocPlus = {
 		},
 		
 		/**
+		 * 修复数据到标准的内容。 
+		 */
+		fixData: function(data){
+			
+			var menu, subData;
+			
+			for(menu in data.menu){
+				subData = data.menu[menu];
+				subData.parent = data;
+				subData.name = menu;
+				subData.title = subData.title || menu;
+				this.menus[subData.href] = subData;
+				
+				this.fixData(subData);
+			}
+			
+		},
+		
+		/**
+		 * 初始化菜单。 
+		 */
+		initMenu: function(data){
+			var me = this;
+			this._expadingHandler = function(){
+				me.initTreeNodes(this.data, this);
+			};
+			this.initTreeNodes(data, this.treeView);
+		},
+		
+		/**
+		 * 获取指定数据对应的树节点。 
+		 */
+		getTreeNode: function(data){
+			if(data){
+				if(!data.treeNode){
+					
+					// 令父节点展开并初始化子节点。
+					this.getTreeNode(data.parent).trigger('expanding');
+				}
+				
+				return data.treeNode;
+			}
+			
+			return null;
+		},
+		
+		/**
+		 * 获取指定视图对应的节点。 
+		 */
+		getTreeNodeOfView: function(view){
+			
+			if(!view.treeNode){
+				view.treeNode = this.getTreeNode(this.menus[view.hash]);
+			}
+			
+			return  view.treeNode;
+		},
+		
+		/**
+		 * 获取指定视图对应的数据。 
+		 */
+		getDataOfView: function(view){
+			return this.menus[view.hash];
+		},
+		
+		/**
 		 * 初始化当前控制器对应的导航菜单。
 		 * @param {Object} data 初始化的数据。
 		 * @protected virtual
 		 */
 		loadData: function(data){
-			this.initMenu(data, this.treeView);
-			DocPlus.update();
+			this.fixData(data);
+			this.initMenu(data);
+			DocPlus.reload();
 		},
 		
 		/**
@@ -573,31 +615,17 @@ var DocPlus = {
 			
 		},
 		
-		getTreeNode: function(data){
-			if(data){
-				if(!data.treeNode){
-					this.initTreeNodes(data, this.getTreeNode(data.parent).trigger('expanding'));
-				}
-				
-				return data.treeNode;
-			}
-			
-			return null;
-		},
-		
 		/**
 		 * 向用户展示指定视图管理的导航节点。
 		 */
 		showTreeNode: function(view) {
 			
-			if(!view.treeNode){
-				view.treeNode = this.getTreeNode(DocPlus.menus[view.hash]);
-			}
+			var treeNode = this.getTreeNodeOfView(view);
 			
-			if(view.treeNode) {
+			if(treeNode) {
 				// 激活 treeNode
-				this.treeView.setSelectedNode(view.treeNode);
-				view.treeNode.ensureVisible();
+				this.treeView.setSelectedNode(treeNode);
+				treeNode.ensureVisible();
 			}
 		},
 
