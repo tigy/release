@@ -7,6 +7,11 @@
  * 负责整个文档逻辑的管理对象。
  */
 var DocPlus = {
+	
+	/**
+	 * 首页的导航。
+	 */
+	navs: null,
 
 	/**
 	 * 顶部的导航菜单容器节点。
@@ -16,7 +21,7 @@ var DocPlus = {
 	/**
 	 * 存储内容的容器节点。
 	 */
-	contents: null,
+	containers: null,
 
 	/**
 	 * 存储导航树的容器节点。
@@ -30,9 +35,10 @@ var DocPlus = {
 
 		// 初始化节点。
 
+		DocPlus.navs = Dom.get("navbar");
 		DocPlus.tabs = Dom.get("tabs");
 		DocPlus.trees = Dom.get("doctree");
-		DocPlus.contents = Dom.get("content");
+		DocPlus.containers = Dom.get("container");
 
 		// 载入配置。
 		DocPlus.loadOptions();
@@ -79,9 +85,20 @@ var DocPlus = {
 	},
 
 	// 配置
-
+	
+	/**
+	 * 当前系统的配置对象。 
+	 */
 	options: {
+		
+		/**
+		 * 分割条的位置。 
+		 */
 		sidebarWidth: 200,
+		
+		/**
+		 * 已打开的视图。 
+		 */
 		views: []
 	},
 
@@ -96,7 +113,10 @@ var DocPlus = {
 			}
 		}
 	},
-
+	
+	/**
+	 * 保存当前配置。 
+	 */
 	saveOptions: function () {
 		if (DocPlus.options.views)
 			DocPlus.options.views.length = 0;
@@ -145,7 +165,7 @@ var DocPlus = {
 		height -= 10;
 		DocPlus.trees.setHeight(height - Dom.get('sidebar-toolbar').getSize().y - 10);
 
-		DocPlus.contents.setHeight(height);
+		DocPlus.containers.setHeight(height);
 		DocPlus.updateSplitter(DocPlus.options.sidebarWidth);
 		DocPlus.relayoutTab();
 	},
@@ -156,7 +176,7 @@ var DocPlus = {
 	updateSplitter: function (sidebarWidth) {
 		Dom.get('sidebar').setWidth(sidebarWidth - 10);
 		Dom.get('splitter').setOffset({ x: sidebarWidth - 3 });
-		DocPlus.contents.setWidth(document.getSize().x - sidebarWidth - 12);
+		DocPlus.containers.setWidth(document.getSize().x - sidebarWidth - 12);
 		DocPlus.options.sidebarWidth = sidebarWidth;
 	},
 
@@ -173,13 +193,13 @@ var DocPlus = {
 	 * 根据页面上当前哈希值，重新加载页面。
 	 */
 	reload: function () {
-		DocPlus.navigate(DocPlus.getCurrentHash());
+		DocPlus.navigate(DocPlus.getHash());
 	},
 
 	/**
 	 * 分析当前网址，获取当前正在显示的视图的哈希值。
 	 */
-	getCurrentHash: function () {
+	getHash: function () {
 		var href = location.href,
     		i = href.indexOf("#");
 		return i >= 0 ? href.substr(href.charAt(++i) === '!' ? i + 1 : i) : "";
@@ -211,9 +231,16 @@ var DocPlus = {
      */
 	update: function () {
 		if(DocPlus.currentView) {
-			DocPlus.currentView.update();
+			DocPlus.currentView.active();
 		}
 	},
+
+	// 数据
+	
+	/**
+	 * 菜单。 
+	 */
+	menus: {},
 
 	// 视图
 	
@@ -228,10 +255,13 @@ var DocPlus = {
 	views: {},
 
 	/**
-       * 当前打开的视图数目。
-       */
+	 * 当前打开的视图数目。
+	 */
 	viewCount: 0,
 	
+	/**
+	 * 视图的历史记录。 
+	 */
 	viewHistory: [],
 
 	/**
@@ -246,28 +276,27 @@ var DocPlus = {
 
 		// 如果找不到合适的控制器，则表示无法创建相应视图。返回空。
 		if(!controller){
-			return;
+			return null;
 		}
 
 		// 如果控制器未载入，则先载入。
-		if(controller.indexPath) {
-			DocPlus.jsonp(controller.indexPath, controller.init.bind(controller), controller.initError);
-			controller.indexPath = null;
+		if(controller.init !== Function.empty) {
+			controller.init();
+			controller.init = Function.empty;
 		}
 		
-		var pathInfo = spa === -1 ? '' : hash.substr(spa + 1);
+		var pathInfo = spa === -1 ? '' : hash.substr(spa + 1),
+			view;
 		
 		if(!pathInfo){
-			if(!controller.homeViewInited) {
-				controller.homeViewInited = true;
-				controller.initHomeView(controller.homeView);
+			view = controller.homeView;
+			if(!view.content) {
+				controller.initHomeView(view);
 			}
-			return controller.homeView;
+		} else {
+			view = controller.createView(hash, pathInfo);
+			controller.initView(view);
 		}
-		
-		var view = controller.createView(hash, pathInfo);
-		
-		controller.initView(view);
 		
 		// 用控制器创建真正的视图对象。
 		// 保存新打开的视图。
@@ -316,7 +345,7 @@ var DocPlus = {
 
 	setTabWidth: function (value) {
 		for (var view in DocPlus.views) {
-			DocPlus.views[view].tab.setWidth(value);
+			DocPlus.views[view].header.setWidth(value);
 		}
 	},
 	
@@ -347,10 +376,6 @@ var DocPlus = {
 		});
 	},
 	
-	// 数据
-	
-	menus: {},
-
 	// 控制器
 	
 	/**
@@ -365,49 +390,75 @@ var DocPlus = {
 		name: null,
 		
 		/**
-		 * 当前控制器实际数据的存储路径。
-		 */
-		dataPath: null,
-
-		/**
-		 * 控制器所需数据源。
-		 */
-		indexPath: null,
-		
-		/**
 		 * 当前控制器主页对应的资源。
 		 */
 		homeView: null,
+	
+		/**
+		 * 当前控制器对应的导航树。
+		 * @type {TreeView}
+		 */
+		treeView: null,
+			
+		/**
+		 * 初始化当前控制器。
+		 * @protected virtual
+		 */
+		init: function (){
+			
+			var me = this;
+		
+			this.treeView = new TreeView()
+					.addClass('x-treeview-plain')
+					.hide()
+					.appendTo(DocPlus.trees);
+			
+			DocPlus.jsonp(this.name + '/index.js', function(data){
+				me.loadData(data);
+			},  function(){
+				me.loadDataError(this.options.url);
+			});
+		
+		},
 		
 		/**
 		 * 初始化当前控制器对应的导航菜单。
-		 * @param {Object} data 载入的数据。
+		 * @param {Object} data 初始化的数据。
+		 * @protected virtual
 		 */
-		init: Function.empty,
+		loadData: function(data){
+			
+		},
 		
 		/**
-		 * 向用户展示指定视图管理的导航节点。
+		 * 数据载入失败的回调函数。
+		 * @protected virtual
 		 */
-		showTreeNode: Function.empty,
+		loadDataError: function(url){
+			this.treeView.setHtml('<li>无法载入索引文件: ' + url + '</li>');
+		},
 		
 		// 视图控制
 		
 		/**
 		 * 创建主页视图。
+		 * @protected virtual
 		 */
-		createHomeView: function(hash, title, description){
-			return new DocPlus.HomeView(hash, this, title, description);
+		createHomeView: function(headerHtml, headerTitle){
+			return new DocPlus.HomeView(this.name, this, headerHtml, headerTitle);
 		},
 
 		/**
 		 * 创建当前控制器对应的指定路径的视图。
+		 * @protected virtual
 		 */
 		createView: function(hash, pathInfo){
-			return new DocPlus.View(hash, pathInfo, this).setHtml('加载中...');
+			return new DocPlus.View(hash, pathInfo, this);
 		},
 		
 		/**
 		 * 初始化主页视图。
+		 * @protected virtual
 		 */
 		initHomeView: function(view){
 			view.setHtml('请从导航选择需要的项');
@@ -415,6 +466,7 @@ var DocPlus = {
 		
 		/**
 		 * 初始化当前控制器对应的指定路径的视图。
+		 * @protected virtual
 		 */
 		initView: function(view){
 			view.setHtml('加载中...');
@@ -422,73 +474,77 @@ var DocPlus = {
 
 		/**
 		 * 激活当前视图。
+		 * @protected virtual
 		 */
 		activeView: function(view){
-			this.updateView(view);	
+			
+			// 激活当前控制器对应的导航树。
+			if (DocPlus.currentController !== this) {
+				
+				if(DocPlus.currentController) {
+					DocPlus.currentController.treeView.hide();
+					DocPlus.currentController.homeView.header.removeClass('selected-alt');
+				}
+				
+				DocPlus.currentController = this;
+				this.treeView.show();
+				this.homeView.header.addClass('selected-alt');
+			}
+			
+			// 如果激活的是主页，则仅仅显示主页。
+			if(view === this.homeView) {
+				view.header.removeClass('selected-alt');
+			} else {
+				this.homeView.header.addClass('selected-alt');
+				this.showTreeNode(view);
+			}
 		},
 
 		/**
 		 * 反激活当前视图。
+		 * @protected virtual
 		 */
-		deactiveView: Function.empty,
+		deactiveView: function(view){
+			
+		},
 		
 		/**
-		 * 刷新视图对应的菜单项。
+		 * 向用户展示指定视图管理的导航节点。
 		 */
-		updateView: function(view){
-			
-			// 如果当前树不是激活的，则激活树。
-			if (DocPlus.currentTreeView !== this.treeView) {
-				
-				if(DocPlus.currentTreeView) {
-					this.homeView.tab.removeClass('selected');
-					DocPlus.currentTreeView.hide();
-				}
-				
-				DocPlus.currentTreeView = this.treeView.show();
-				this.homeView.tab.addClass('selected');
-			}
-			
-			this.showTreeNode(view);
+		showTreeNode: Function.empty,
+
+		/**
+		 * 生成视图对应的菜单项。
+		 * @protected virtual
+		 */
+		createContextMenu: function (veiw) {
+			var menu = new ContextMenu();
+			menu.on('show', DocPlus.showMask);
+			menu.on('hide', DocPlus.hideMask);
+			menu.add('关闭').on('click', DocPlus.closeCurrentView);
+			menu.add('-');
+			menu.add('高亮').on('click', DocPlus.highlightCurrentView).checked(view.isHighlighted());
+			// var subMenu = new Menu();
+			// subMenu.items.add();
+			// subMenu.items.add('红色');
+			// subMenu.items.add('绿色');
+			// menu.items.add('标记').setSubMenu(subMenu);
+			menu.add('-');
+			menu.add('恢复关闭的选项卡').on('click', DocPlus.closeCurrentView);
+			menu.add('-');
+			menu.add('关闭其它选项卡').on('click', DocPlus.closeOtherViews);
+			menu.add('全部关闭').on('click', DocPlus.closeAllViews);
+			return menu;
 		},
-
-		showTabContextMenu: function (veiw, e) {
-			var menu = DocPlus.tabContextMenu;
-			if (!menu) {
-				DocPlus.tabContextMenu = menu = new ContextMenu();
-				menu.on('show', DocPlus.showMask);
-				menu.on('hide', DocPlus.hideMask);
-				menu.add('关闭').on('click', DocPlus.closeCurrentView);
-				menu.add('-');
-				menu.add('高亮').on('click', DocPlus.highlightCurrentView).checked(view.isHighlighted());
-				// var subMenu = new Menu();
-				// subMenu.items.add();
-				// subMenu.items.add('红色');
-				// subMenu.items.add('绿色');
-				// menu.items.add('标记').setSubMenu(subMenu);
-				menu.add('-');
-				menu.add('恢复关闭的选项卡').on('click', DocPlus.closeCurrentView);
-				menu.add('-');
-				menu.add('关闭其它选项卡').on('click', DocPlus.closeOtherViews);
-				menu.add('全部关闭').on('click', DocPlus.closeAllViews);
-			}
-
-			menu.showAt(e.pageX, e.pageY);
-			e.stop();
-		},
-
-		constructor: function (name, title, description) {
+		
+		/**
+		 * 初始化当前控制器。 
+		 */
+		constructor: function (name, headerHtml, headerTitle) {
 
 			this.name = name;
-			this.dataPath = name + '/';
-			this.indexPath = name + '/index.js';
 			
-			this.homeView = this.createHomeView(name, title, description);
-
-			this.treeView = new TreeView()
-					.addClass('x-treeview-plain')
-					.appendTo(DocPlus.trees)
-					.hide();
+			this.homeView = this.createHomeView(headerHtml, headerTitle);
 			
 			DocPlus.controllers[name] = this;
 		}
@@ -502,38 +558,48 @@ var DocPlus = {
 	 * @class
 	 */
 	View: Class({
+		
+		// 视图
 
 		/**
 		 * 当前视图的哈希值。
+		 * @type {String}
 		 */
 		hash: null,
 
 		/**
-		 * 当前视图对应的选项卡节点。
+		 * 当前视图的显示路径。
+		 * @type {String}
 		 */
-		tab: null,
-
-		/**
-		 * 当前标题节点。
-		 */
-		title: null,
-
-		/**
-		 * 当前视图对应的内容节点。
-		 */
-		content: null,
-
-		/**
-		 * 当前视图对应的导航节点。
-		 */
-		treeNode: null,
+		pathInfo: null,
 
 		/**
 		 * 当前视图对应的控制器。
+		 * @type {Controller}
 		 */
 		controller: null,
+		
+		// UI
 
-		onTabMouseUp: function (e) {
+		/**
+		 * 当前视图对应的选项卡节点。
+		 * @type {Dom}
+		 */
+		header: null,
+
+		/**
+		 * 当前视图对应的内容节点。
+		 * @type {Dom}
+		 */
+		container: null,
+
+		/**
+		 * 当前视图的菜单。
+		 * @type {ContextMenu}
+		 */
+		contextMenu: null,
+
+		onHeaderMouseUp: function (e) {
 
 			switch (e.which) {
 
@@ -551,9 +617,19 @@ var DocPlus = {
 
 		},
 
-		onTabContextMenu: function (e) {
+		onHeaderContextMenu: function (e) {
+			
+			// 激活视图。
 			this.active();
-			this.controller.showTabContextMenu(this, e);
+			
+			// 创建右键菜单。
+			if(!this.contextMenu){
+				this.contextMenu = this.controller.createContextMenu(this);
+			}
+			
+			// 显示菜单。
+			this.contextMenu.showAt(e.pageX, e.pageY);
+			e.stop();
 		},
 
 		constructor: function (hash, pathInfo, controller) {
@@ -562,26 +638,15 @@ var DocPlus = {
 			this.pathInfo = pathInfo;
 			this.controller = controller;
 
-			// 创建 tab 菜单。
+			// 创建 header 菜单。
 
-			this.tab = Dom.create('li')
-				.on('mouseup', this.onTabMouseUp, this)
-				.on('contextmenu', this.onTabContextMenu, this);
-
-			Dom.create('a', 'x-closebutton')
-				.setAttr('href', 'javascript://关闭选项卡')
-				.setAttr('title', '关闭')
-				.setText('×')
-				.on('click', this.close, this)
-				.appendTo(this.tab);
-
-			this.title = Dom.create('a')
-				.setAttr('href', '#!' + hash)
-				.setText(hash)
-				.appendTo(this.tab);
+			this.header = Dom.create('li')
+				.setHtml('<a class="x-closebutton" href="javascript://关闭选项卡" title="关闭">×</a><a href="#!' + hash + '">' + (hash || '&nbsp;') + '</a>')
+				.on('mouseup', this.onHeaderMouseUp, this)
+				.on('contextmenu', this.onHeaderContextMenu, this)
+				.appendTo(DocPlus.tabs);
 			
-			// 添加到 DOM 树中。
-			DocPlus.tabs.append(this.tab);
+			this.header.find('.x-closebutton').on('click', this.close, this);
 			
 			this.init();
 			
@@ -590,28 +655,31 @@ var DocPlus = {
 			DocPlus.relayoutTab();
 		},
 		
+		/**
+		 * 初始化当前视图。 
+		 */
 		init: Function.empty,
 
 		// UI
 		
 		getTitle: function(){
-			return this.title.getText();
+			return this.header.last().getText();
 		},
 
 		setTitle: function (value) {
-			this.title.setText(value).setAttr('title', value);
+			this.header.last().setText(value || '　').setAttr('title', value);
 			return this;
 		},
 		
 		getHtml: function(){
-			return this.content ? this.content.getHtml() : '';
+			return this.container ? this.container.getHtml() : '';
 		},
 
-		setHtml: function (content) {
-			if (!this.content) {
-				this.content = Dom.create('div', 'content').hide().appendTo(DocPlus.contents);
+		setHtml: function (value) {
+			if (!this.container) {
+				this.container = Dom.create('div', 'container').hide().appendTo(DocPlus.containers);
 			}
-			this.content.setHtml(content);
+			this.container.setHtml(value);
 			return this;
 		},
 
@@ -639,8 +707,8 @@ var DocPlus = {
 			DocPlus.viewHistory.push(this);
 
 			// 显示当前选项卡。
-			this.tab.addClass('selected');
-			this.content.show();
+			this.header.addClass('selected');
+			this.container.show();
 			this.controller.activeView(this);
 			
 			return this;
@@ -651,17 +719,9 @@ var DocPlus = {
 		 */
 		deactive: function () {
 			this.controller.deactiveView(this);
-			this.tab.removeClass('selected');
-			this.content.hide();
+			this.header.removeClass('selected');
+			this.container.hide();
 			DocPlus.currentView = null;
-			return this;
-		},
-
-		/**
-		 * 更新当前视图。
-		 */
-		update: function () {
-			this.controller.updateView(this);
 			return this;
 		},
 
@@ -669,8 +729,8 @@ var DocPlus = {
 		 * 关闭当前视图。
 		 */
 		close: function () {
-			this.tab.remove();
-			this.content.remove();
+			this.header.remove();
+			this.container.remove();
 			
 			DocPlus.viewHistory.remove(this);
 
@@ -692,16 +752,17 @@ var DocPlus = {
 		},
 		
 		highlight: function(){
-			this.tab.addClass('tab-highlight');
+			this.header.addClass('header-highlight');
 		},
 		
 		isHighlighted: function(){
-			return this.tab.hasClass('tab-highlight');
+			return this.header.hasClass('header-highlight');
 		}
 
 	})
 
 };
+
 
 
 /**
@@ -711,24 +772,20 @@ DocPlus.HomeView = DocPlus.View.extend({
 	
 	pathInfo: '',
 	
-	constructor: function (hash, controller, value, title) {
+	constructor: function (hash, controller, headerHtml, headerTitle) {
 
 		this.hash = hash;
 		this.controller = controller;
 
-		// 创建 tab 菜单。
+		// 创建 header 菜单。
 
-		this.tab = Dom.create('li');
-
-		this.title = Dom.create('a')
-			.setAttr('href', '#!' + hash)
-			.setAttr('title', title || value)
-			.setHtml(value)
-			.appendTo(this.tab);
-		
-		this.tab.appendTo('navbar');
+		this.header = Dom.create('li')
+			.setHtml('<a href="#!' + hash + '" title="' + (headerTitle || headerHtml) + '">' + headerHtml + '</a>')
+			.appendTo(DocPlus.navs);
 	},
 
 	close: Function.empty
 	
 });
+
+

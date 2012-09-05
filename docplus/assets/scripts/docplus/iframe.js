@@ -4,6 +4,16 @@
  */
 DocPlus.IFrameController = DocPlus.Controller.extend({
 	
+	/**
+	 * 当前控制器实际数据的存储路径。
+	 */
+	dataPath: null,
+
+	/**
+	 * 控制器所需数据源。
+	 */
+	indexPath: null,
+
 	initMenu: function(data, treeView){
 		var me = this;
 		this._expadingHandler = function(){
@@ -57,7 +67,7 @@ DocPlus.IFrameController = DocPlus.Controller.extend({
 		//memberInfo.treeNode.last('span').addClass('icon-member icon-' + memberInfo.icon);
 	},
 	
-	init: function(data){
+	loadData: function(data){
 		this.initMenu(data, this.treeView);
 	},
 	
@@ -80,11 +90,11 @@ DocPlus.IFrameController = DocPlus.Controller.extend({
 	 * 加载一个内容主题是 IFrame 的视图。
 	 */
 	initIFrameView: function(view, url){
-		view.content = DocPlus.contents.append('<iframe class="content" frameborder="0"></iframe>');
-		view.content.on('load', function(){
+		view.container = DocPlus.containers.append('<iframe class="container" frameborder="0"></iframe>');
+		view.container.on('load', function(){
 			view.setTitle(this.node.contentDocument.title);
 		});
-		view.content.setAttr('src', url);
+		view.container.setAttr('src', url);
 	}
 	
 });

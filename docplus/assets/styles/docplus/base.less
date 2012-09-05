@@ -52,6 +52,16 @@ body {
     margin-right: -1px;
     overflow: hidden;
     
+    &.selected-alt {
+      background: lighten(#E6F2F9, 4%);
+      background-image: -moz-linear-gradient(top, #DDECF4, lighten(#E6F2F9, 4%));
+      background-image: -ms-linear-gradient(top, #DDECF4, lighten(#E6F2F9, 4%));
+      background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#DDECF4), to(lighten(#E6F2F9, 4%)));
+      background-image: -webkit-linear-gradient(top, #DDECF4, lighten(#E6F2F9, 4%));
+      background-image: -o-linear-gradient(top, #DDECF4,lighten(#E6F2F9, 4%));
+      background-image: linear-gradient(top, #DDECF4, lighten(#E6F2F9, 4%));
+    }
+    
     &.selected {
       background: @white;
     }
@@ -114,7 +124,7 @@ body {
   height:100%; 
 }
 
-#content {
+#container {
   margin: 5px;
   float: left;
 }
@@ -124,7 +134,7 @@ body {
    bottom: 0;
 }
 
-.content {
+.container {
   border: 0;
   width: 100%;
   height: 100%;
@@ -140,6 +150,6 @@ body {
 
 // Fx
 
-.tab-highlight {
+.header-highlight {
   color: red;
 }
