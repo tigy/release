@@ -231,7 +231,7 @@ var DocPlus = {
      */
 	update: function () {
 		if(DocPlus.currentView) {
-			DocPlus.currentView.active();
+			DocPlus.currentView.controller.active();
 		}
 	},
 
@@ -421,13 +421,78 @@ var DocPlus = {
 		
 		},
 		
+		_cacheMenuData: function(data, parent){
+			if(data.href){
+				DocPlus.menus[data.href] = data;
+			}
+			
+			data.parent = parent;
+			
+			for(var menu in data.menu){
+				this._cacheMenuData(data.menu[menu], data);
+			}
+		},
+		
+		initMenu: function(data, treeView){
+			var me = this;
+			this._expadingHandler = function(){
+				me.initTreeNodes(this.data, this);
+			};
+			this.initTreeNodes(data, treeView);
+			this._cacheMenuData(data, {treeNode: treeView});
+		},
+		
+		/**
+		 * 将 data.menu 中的项添加为节点。
+		 */
+		initTreeNodes: function(data, parentTreeNode){
+			var menu,
+				treeNode,
+				menuData;
+			for(menu in data.menu){
+				menuData = data.menu[menu];
+				
+				// 修复一些错误的数据。
+				
+				menuData.name = menu;
+				menuData.title = menuData.title || menu;
+				
+				// 创建初始化节点。
+				
+				menuData.treeNode = treeNode = parentTreeNode.add(menu);
+				treeNode.data = menuData;
+				
+				// 如果有子节点，绑定扩展事件。
+				if(menuData.menu) {
+					treeNode.setNodeType('plus');
+					treeNode.once('expanding', this._expadingHandler);
+				}
+				
+				this.initTreeNode(menuData, treeNode);
+			}
+			
+			// 默认折叠窗口。
+			parentTreeNode.collapse();
+		},
+		
+		initTreeNode: function (data, treeNode) {
+			treeNode.setAttr('href', '#!' + data.href);
+			treeNode.setAttr('title', data.title);
+			
+			if(data.icon){
+				treeNode.setIcon(data.icon);
+			}
+			//memberInfo.treeNode.last('span').addClass('icon-member icon-' + memberInfo.icon);
+		},
+		
 		/**
 		 * 初始化当前控制器对应的导航菜单。
 		 * @param {Object} data 初始化的数据。
 		 * @protected virtual
 		 */
 		loadData: function(data){
-			
+			this.initMenu(data, this.treeView);
+			DocPlus.update();
 		},
 		
 		/**
@@ -508,10 +573,33 @@ var DocPlus = {
 			
 		},
 		
+		getTreeNode: function(data){
+			if(data){
+				if(!data.treeNode){
+					this.initTreeNodes(data, this.getTreeNode(data.parent).trigger('expanding'));
+				}
+				
+				return data.treeNode;
+			}
+			
+			return null;
+		},
+		
 		/**
 		 * 向用户展示指定视图管理的导航节点。
 		 */
-		showTreeNode: Function.empty,
+		showTreeNode: function(view) {
+			
+			if(!view.treeNode){
+				view.treeNode = this.getTreeNode(DocPlus.menus[view.hash]);
+			}
+			
+			if(view.treeNode) {
+				// 激活 treeNode
+				this.treeView.setSelectedNode(view.treeNode);
+				view.treeNode.ensureVisible();
+			}
+		},
 
 		/**
 		 * 生成视图对应的菜单项。
