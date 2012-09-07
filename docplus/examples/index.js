@@ -1,11 +1,11 @@
 jsonp({
-	"menu": [
+	"menus": [
 		{
 			"name": "表单(Form)",
 			"title": "表单输入域",
 			"href": "controls/form/index.html",
-			"icon": "none",
-			"menu": [
+			//    "icon": "none",
+			"menus": [
 				{
 					"name": "文本框(TextBox)",
 					"title": "普通的文本框",

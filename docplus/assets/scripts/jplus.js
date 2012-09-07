@@ -1,6 +1,6 @@
 
 /*********************************************************
- * This file is created by a tool at 2012/9/2 10:31
+ * This file is created by a tool at 2012/9/7 22:13
  *********************************************************/
 
 
@@ -1491,6 +1491,8 @@
 				this.push(value);
 			return exists;
 		},
+		
+		/// TODO: clear
 
 		/**
 		 * 将指定的 *value* 插入到当前数组的指定位置。
@@ -1503,6 +1505,7 @@
 	     * </pre>
 		 */
 		insert: function (index, value) {
+			assert.deprected("Array#insert 即将从 System.Core.Base 移除。要使用此函数，可引用 System.Utils.Array 组件。");
 			assert.isNumber(index, "Array#insert(index, value): {index} ~");
 			var me = this, tmp;
 			if (index < 0 || index >= me.length) {
@@ -1516,6 +1519,8 @@
 			return index;
 
 		},
+		
+		/// TODO: clear
 
 		/**
 		 * 对当前数组的每个元素调用其指定属性名的函数，并将返回值放入新的数组返回。
@@ -8654,7 +8659,7 @@ var Ajax = (function() {
 
 					try {
 
-						if (error >= 0) {
+						if (error === 0) {
 							options.status = 200;
 							options.statusText = "OK";
 							options.errorMessage = null;
@@ -8699,7 +8704,7 @@ var Ajax = (function() {
 		script.onload = script.onreadystatechange = callback;
 
 		script.onerror = function(e) {
-			callback(e.message, 2);
+			callback('Network Error', 2);
 		};		
 		if (options.timeouts > 0) {
 			setTimeout(function() {
@@ -9236,7 +9241,7 @@ ListControl.aliasMethods = function(controlClass, targetProperty, removeChildPro
 /*********************************************************
  * Controls.Core.ContentControl
  *********************************************************/
-/** * @fileOverview 表示一个包含文本内容的控件。 * @author xuld *//** * 表示一个有内置呈现的控件。 * @abstract * @class ContentControl * @extends Control *  * <p> * 这个控件同时允许在子控件上显示一个图标。 * </p> *  * <p> * ContentControl 的外元素是一个根据内容自动改变大小的元素。它自身没有设置大小，全部的大小依赖子元素而自动决定。 * 因此，外元素必须满足下列条件的任何一个: *  <ul> * 		<li>外元素的 position 是 absolute<li> * 		<li>外元素的 float 是 left或 right <li> * 		<li>外元素的 display 是  inline-block (在 IE6 下，使用 inline + zoom模拟) <li> *  </ul> * </p> */var ContentControl = Control.extend({		/**	 * 获取当前显示的图标。	 * @getter {Control} icon	 * @proected	 */		icon: function(){		return this.find('.x-icon');	},		/**	 * 获取当前控件中显示文字的主 DOM 对象。	 */	content: function(){		return this.last(true) || this;	},		/**	 * 当被子类改写时，实现创建添加和返回一个图标节点。	 * @protected	 * @virtual	 */	createIcon: function(){		return this.prepend(Dom.create('i', 'x-icon'));	},		getIcon: function(){		var icon = this.icon();		return icon ? (/x-icon-(.*?)\b/.test(icon.node.className) || [0, ""])[1] : null;	},		/**	 * 设置图标。	 * @param {String} icon 图标。	 * @return {Panel} this	 */	setIcon: function(icon) {				if(icon != null){			(this.icon() || this.createIcon()).node.className = "x-icon x-icon-" + icon;		} else if(icon = this.icon()) {			icon.remove();		}				return this;	},		setText: function(value){		Dom.prototype.setText.call(this.content(), value);		return this;	},		getText: function(){		return Dom.getText(this.content().node);	}	});
+/** * @fileOverview 表示一个包含文本内容的控件。 * @author xuld *//** * 表示一个有内置呈现的控件。 * @abstract * @class ContentControl * @extends Control *  * <p> * 这个控件同时允许在子控件上显示一个图标。 * </p> *  * <p> * ContentControl 的外元素是一个根据内容自动改变大小的元素。它自身没有设置大小，全部的大小依赖子元素而自动决定。 * 因此，外元素必须满足下列条件的任何一个: *  <ul> * 		<li>外元素的 position 是 absolute<li> * 		<li>外元素的 float 是 left或 right <li> * 		<li>外元素的 display 是  inline-block (在 IE6 下，使用 inline + zoom模拟) <li> *  </ul> * </p> */var ContentControl = Control.extend({		/**	 * 获取当前显示的图标。	 * @getter {Control} icon	 * @proected	 */		icon: function(){		return this.find('.x-icon');	},		/**	 * 获取当前控件中显示文字的主 DOM 对象。	 */	content: function(){		return this.last(true) || this;	},		/**	 * 当被子类改写时，实现创建添加和返回一个图标节点。	 * @protected	 * @virtual	 */	createIcon: function(){		return this.content().prepend(Dom.create('i', 'x-icon'));	},		getIcon: function(){		var icon = this.icon();		return icon ? (/x-icon-(.*?)\b/.test(icon.node.className) || [0, ""])[1] : null;	},		/**	 * 设置图标。	 * @param {String} icon 图标。	 * @return {Panel} this	 */	setIcon: function(icon) {				if(icon != null){			(this.icon() || this.createIcon()).node.className = "x-icon x-icon-" + icon;		} else if(icon = this.icon()) {			icon.remove();		}				return this;	},		setText: function(value){		Dom.prototype.setText.call(this.content(), value);		return this;	},		getText: function(){		return Dom.getText(this.content().node);	}	});
 /*********************************************************
  * Controls.Core.TreeControl
  *********************************************************/
@@ -9450,11 +9455,7 @@ Dom.implement((function(){
 /*********************************************************
  * Controls.Form.Picker
  *********************************************************/
-/** * @author  xuld *//** * 表示一个数据选择器。 * @abstract class * @extends Control
- */var Picker = Control.extend(IInput).implement(IDropDownOwner).implement({		tpl: '<span class="x-picker">\			<input type="text" class="x-textbox"/>\		</span>',		dropDownListTpl: '<span class="x-picker">\			<a href="javascript:;" class="x-button">A</a>\		</span>',			menuButtonTpl: '<button class="x-button"><span class="x-button-menu"></span></button>',		/**	 * 当前控件是否为下拉列表。
-	 */	dropDownList: false,		/**	 * @config dropDownList 是否允许用户输入自定义的文本值。
-	 */		create: function(options){		return Dom.parseNode(options.dropDownList ? this.dropDownListTpl : this.tpl);	},		/**	 * 获取当前输入域实际用于提交数据的表单域。	 * @return {Dom} 一个用于提交表单的数据域。	 */	input: function(){				// 如果不存在隐藏域。		if(!this.hiddenField) {						var textBox = this.find('.x-textbox');						if(textBox){				return textBox;				}						this.hiddenField = Dom.parse('<input type="hidden">').appendTo(this);			this.hiddenField.setAttr('name', Dom.getAttr(this.node, 'name'));		}				return this.hiddenField;	},		/**	 * 获取当前控件的按钮部分。
-	 */	button: function(){		return this.find('button');	},		/**	 * @protected	 * @override	 */	init: function(){				// 如果是 <input> 或 <a> 直接替换为 x-picker		if(!this.first() && !this.hasClass('x-picker')) {			var elem = this.node;						// 创建 x-picker 组件。			this.node = Dom.createNode('span', 'x-picker x-' + this.xtype);						// 替换当前节点。			if(elem.parentNode){				elem.parentNode.replaceChild(this.node, elem);			}						// 插入原始 <input> 节点。			this.prepend(elem);		}				// 如果没有下拉菜单按钮，添加之。		if(!this.button()) {			this.append(this.menuButtonTpl);			}				// 初始化菜单。		elem = this.next();		if(elem && !elem.hasClass('x-dropdown')) {			elem = null;		}		this.setDropDown(this.createDropDown(elem));				// 设置菜单显示的事件。		(this.dropDownList ? this : this.button()).on('click', this.toggleDropDown, this);			},		setWidth: function(value){		var first = this.first();		if(value >= 0){			value -= this.getWidth() - first.getWidth();		}		first.setWidth(value);		return this;	},		disabled: function(value){		value = value !== false;				// 子节点全部设置样式。		this.children().setAttr("disabled", value);				// 为按钮增加 disabled 样式。		this.query('.x-textbox').toggleClass("x-textbox-disabled", value);				// 为按钮增加 disabled 样式。		this.query('.x-button').toggleClass("x-button-disabled", value);	},		readOnly: function(value){				value = value !== false;				// 子节点全部设置样式。		this.input().setAttr("readonly", value);				// 为按钮增加 disabled 样式。		this.query('.x-textbox').toggleClass("x-textbox-readonly", value);	},		// 下拉菜单		onDropDownShow: function(){		// 默认选择当前值。		this.updateDropDown();		this.button().addClass('x-button-actived');		return IDropDownOwner.onDropDownShow.apply(this, arguments);	},		onDropDownHide: function(){		this.button().removeClass('x-button-actived');		return IDropDownOwner.onDropDownHide.apply(this, arguments);	},		/**	 * 创建当前 Picker 的菜单。	 * @return {Control} 下拉菜单。	 */	createDropDown: function(existDom){		return existDom || Dom.parse('<div/>');	},		/**	 * 将当前文本的值同步到下拉菜单。	 * @protected virtual	 */	updateDropDown: Function.empty	}).addEvents('change', {	add: function(picker, type, fn){		Dom.$event.$default.add(picker.input(), type, fn);	},	remove: function(picker, type, fn){		Dom.$event.$default.remove(picker.input(), type, fn);	}});
+/** * @author  xuld *//** * 表示一个数据选择器。 * @abstract class * @extends Control */var Picker = Control.extend(IInput).implement(IDropDownOwner).implement({		tpl: '<span class="x-picker">\			<input type="text" class="x-textbox"/>\		</span>',		dropDownListTpl: '<span class="x-picker">\			<a href="javascript:;" class="x-button">A</a>\		</span>',			menuButtonTpl: '<button class="x-button" type="button"><span class="x-button-menu"></span></button>',		/**	 * 当前控件是否为下拉列表。	 */	dropDownList: false,		/**	 * 下拉框的宽度。	 */	dropDownWidth: 'auto',		/**	 * @config dropDownList 是否允许用户输入自定义的文本值。	 */		create: function(options){		return Dom.parseNode(options.dropDownList ? this.dropDownListTpl : this.tpl);	},		/**	 * 获取当前输入域实际用于提交数据的表单域。	 * @return {Dom} 一个用于提交表单的数据域。	 */	input: function(){				// 如果不存在隐藏域。		if(!this.hiddenField) {						var textBox = this.find('.x-textbox');						if(textBox){				return textBox;				}						this.hiddenField = Dom.parse('<input type="hidden">').appendTo(this);			this.hiddenField.setAttr('name', Dom.getAttr(this.node, 'name'));		}				return this.hiddenField;	},		/**	 * 获取当前控件的按钮部分。	 */	button: function(){		return this.find('button');	},		/**	 * @protected	 * @override	 */	init: function(){				// 如果是 <input> 或 <a> 直接替换为 x-picker		if(!this.first() && !this.hasClass('x-picker')) {			var elem = this.node;						// 创建 x-picker 组件。			this.node = Dom.createNode('span', 'x-picker x-' + this.xtype);						// 替换当前节点。			if(elem.parentNode){				elem.parentNode.replaceChild(this.node, elem);			}						// 插入原始 <input> 节点。			this.prepend(elem);		}				// 如果没有下拉菜单按钮，添加之。		if(!this.button()) {			this.append(this.menuButtonTpl);			}				// 初始化菜单。		elem = this.next();		if(elem && !elem.hasClass('x-dropdown')) {			elem = null;		}		this.setDropDown(this.createDropDown(elem));				// 设置菜单显示的事件。		(this.dropDownList ? this : this.button()).on('click', this.toggleDropDown, this);			},		setWidth: function(value){		var first = this.first();		if(value >= 0){			value -= this.getWidth() - first.getWidth();		}		first.setWidth(value);		return this;	},		disabled: function(value){		value = value !== false;				// 子节点全部设置样式。		this.children().setAttr("disabled", value);				// 为按钮增加 disabled 样式。		this.query('.x-textbox').toggleClass("x-textbox-disabled", value);				// 为按钮增加 disabled 样式。		this.query('.x-button').toggleClass("x-button-disabled", value);	},		readOnly: function(value){				value = value !== false;				// 子节点全部设置样式。		this.input().setAttr("readonly", value);				// 为按钮增加 disabled 样式。		this.query('.x-textbox').toggleClass("x-textbox-readonly", value);	},		// 下拉菜单		onDropDownShow: function(){		// 默认选择当前值。		this.updateDropDown();		this.button().addClass('x-button-actived');		return IDropDownOwner.onDropDownShow.apply(this, arguments);	},		onDropDownHide: function(){		this.button().removeClass('x-button-actived');		return IDropDownOwner.onDropDownHide.apply(this, arguments);	},		/**	 * 创建当前 Picker 的菜单。	 * @return {Control} 下拉菜单。	 */	createDropDown: function(existDom){		return existDom || Dom.parse('<div/>');	},		/**	 * 将当前文本的值同步到下拉菜单。	 * @protected virtual	 */	updateDropDown: Function.empty	}).addEvents('change', {	add: function(picker, type, fn){		Dom.$event.$default.add(picker.input(), type, fn);	},	remove: function(picker, type, fn){		Dom.$event.$default.remove(picker.input(), type, fn);	}});
 /*********************************************************
  * Controls.Form.SearchTextBox
  *********************************************************/
@@ -9845,7 +9846,7 @@ Dom.implement({
 
 
 
-var Droppable = (function(){
+(function(){
 	
 	/**
 	 * 全部的区。
@@ -9854,7 +9855,7 @@ var Droppable = (function(){
 		
 		dp = Draggable.prototype,
 		
-		Droppable = Class({
+		Droppable = window.Droppable = Class({
 		
 			initEvent: function (draggable, e) {
 				e.draggable = draggable;
@@ -10037,10 +10038,6 @@ var Droppable = (function(){
 		},
 		initEvent: mouseEvents && mouseEvents.initEvent
 	});
-	
-	
-	return Droppable;
-
 })();
 
 

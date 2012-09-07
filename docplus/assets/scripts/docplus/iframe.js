@@ -9,14 +9,19 @@ DocPlus.IFrameController = DocPlus.Controller.extend({
 	 */
 	dataPath: null,
 	
+	init: function(){
+		this.dataPath = this.name + '/';
+		DocPlus.Controller.prototype.init.call(this);
+	},
+	
 	initView: function(view){
 		
 		// view 的哈希地址即网址。
-		this.initIFrameView(view, view.hash);
+		this.initIFrameView(view, this.dataPath + view.pathInfo);
 	},
 	
 	initHomeView: function(view){
-		view.setHtml('首页');
+		this.initIFrameView(view, this.dataPath + 'index.html');
 	},
 	
 	/**
@@ -24,7 +29,7 @@ DocPlus.IFrameController = DocPlus.Controller.extend({
 	 */
 	initIFrameView: function(view, url){
 		view.container = DocPlus.containers.append('<iframe class="container" frameborder="0"></iframe>');
-		view.setTitle();
+		 
 		// view.container.on('load', function(){
 			// view.setTitle(this.node.contentDocument.title);
 		// });

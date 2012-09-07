@@ -1,6 +1,6 @@
 
 /*********************************************************
- * This file is created by a tool at 2012/9/2 10:31
+ * This file is created by a tool at 2012/9/7 22:13
  *********************************************************/
 
 
@@ -1432,6 +1432,7 @@ input.x-button-small {
 .x-picker {
   position: relative;
   display: inline-block;
+  line-height: 18px !important;
   *margin-left: .3em;
 }
 .x-picker:first-child {

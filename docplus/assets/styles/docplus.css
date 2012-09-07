@@ -1,6 +1,7 @@
 /**
- * @author 
+ * @author  xuld
  */
+
 body {
   overflow: hidden;
 }
@@ -26,7 +27,7 @@ body {
   margin: 0;
   line-height: 26px;
   font-size: 18px;
-  color: #ffffff;
+  color: white;
 }
 #toolbar {
   float: right;
@@ -41,19 +42,28 @@ body {
   -moz-border-radius: 5px 5px 0 0;
   border-radius: 5px 5px 0 0;
   background-color: #f1f7fb;
-  background-image: -moz-linear-gradient(top, #ffffff, #dcebf4);
-  background-image: -ms-linear-gradient(top, #ffffff, #dcebf4);
-  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#dcebf4));
-  background-image: -webkit-linear-gradient(top, #ffffff, #dcebf4);
-  background-image: -o-linear-gradient(top, #ffffff, #dcebf4);
-  background-image: linear-gradient(top, #ffffff, #dcebf4);
+  background-image: -moz-linear-gradient(top, white, #dcebf4);
+  background-image: -ms-linear-gradient(top, white, #dcebf4);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(white), to(#dcebf4));
+  background-image: -webkit-linear-gradient(top, white, #dcebf4);
+  background-image: -o-linear-gradient(top, white, #dcebf4);
+  background-image: linear-gradient(top, white, #dcebf4);
   background-repeat: repeat-x;
-  border: 1px solid #7CA1D2;
+  border: 1px solid #7ca1d2;
   margin-right: -1px;
   overflow: hidden;
 }
+#tab-container li.selected-alt {
+  background: #f6fbfd;
+  background-image: -moz-linear-gradient(top, #ddecf4, #f6fbfd);
+  background-image: -ms-linear-gradient(top, #ddecf4, #f6fbfd);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ddecf4), to(#f6fbfd));
+  background-image: -webkit-linear-gradient(top, #ddecf4, #f6fbfd);
+  background-image: -o-linear-gradient(top, #ddecf4, #f6fbfd);
+  background-image: linear-gradient(top, #ddecf4, #f6fbfd);
+}
 #tab-container li.selected {
-  background: #ffffff;
+  background: white;
 }
 #tab-container a {
   font-size: 13px;
@@ -78,7 +88,7 @@ body {
   height: 30px;
 }
 #tabs li.selected {
-  border-bottom-color: #ffffff;
+  border-bottom-color: white;
 }
 #tabs-more {
   float: right;
@@ -99,7 +109,7 @@ body {
 #doctree .x-treeview {
   height: 100%;
 }
-#container {
+#containers {
   margin: 5px;
   float: left;
 }
@@ -119,12 +129,15 @@ body {
   position: absolute;
   display: none;
 }
+.header-highlight {
+  color: red;
+}
 .doc {
   padding: 10px;
   overflow: auto;
 }
 .doc h1 {
-  color: #66AB16;
+  color: #66ab16;
   font-family: 'Arial';
 }
 .doc h1 small {
@@ -132,7 +145,7 @@ body {
   margin-left: 10px;
 }
 .doc h3 {
-  color: #250C58;
+  color: #250c58;
 }
 .doc pre {
   overflow-x: auto;
@@ -146,7 +159,7 @@ body {
 }
 .doc-attrs {
   float: right;
-  background: #F7F7F7;
+  background: #f7f7f7;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
