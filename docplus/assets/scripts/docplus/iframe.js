@@ -29,11 +29,10 @@ DocPlus.IFrameController = DocPlus.Controller.extend({
 	 */
 	initIFrameView: function(view, url){
 		view.container = DocPlus.containers.append('<iframe class="container" frameborder="0"></iframe>');
-		 
+		view.container.setAttr('src', url);
 		// view.container.on('load', function(){
 			// view.setTitle(this.node.contentDocument.title);
 		// });
-		view.container.setAttr('src', url);
 	}
 	
 });

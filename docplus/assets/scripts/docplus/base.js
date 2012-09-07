@@ -697,7 +697,7 @@ var DocPlus = {
 		 * 生成视图对应的菜单项。
 		 * @protected virtual
 		 */
-		initViewMenu: function (veiw) {
+		initViewMenu: function (view) {
 			var menu = new ContextMenu();
 			menu.on('show', DocPlus.showMask);
 			menu.on('hide', DocPlus.hideMask);
@@ -714,7 +714,7 @@ var DocPlus = {
 			menu.add('-');
 			menu.add('关闭其它选项卡').on('click', DocPlus.closeOtherViews);
 			menu.add('全部关闭').on('click', DocPlus.closeAllViews);
-			veiw.contextMenu = menu;
+			view.contextMenu = menu;
 		},
 		
 		/**
