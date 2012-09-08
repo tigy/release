@@ -1,6 +1,6 @@
 
 /*********************************************************
- * This file is created by a tool at 2012/9/7 23:14
+ * This file is created by a tool at 2012/9/8 19:25
  *********************************************************/
 
 
@@ -1614,3 +1614,189 @@ input.x-button-small {
 /*********************************************************
  * System.Text.Tpl
  *********************************************************/
+
+/*********************************************************
+ * Controls.Form.ListBox
+ *********************************************************/
+.x-listbox {
+  display: inline-block;
+  background-color: #ffffff;
+  border-color: #ccc;
+  border-color: rgba(0, 0, 0, 0.2);
+  border-style: solid;
+  border-width: 1px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  *display: inline;
+  *zoom: 1;
+  _zoom: 0;
+  _display: block;
+  padding: 4px 0;
+  margin: 0;
+  list-style: none;
+  overflow: auto;
+}
+.x-listbox-item {
+  display: block;
+  padding: 3px 10px;
+  color: #555555;
+  white-space: nowrap;
+  cursor: default;
+  _width: 100%;
+}
+.x-listbox-item a {
+  color: #333333;
+  cursor: default;
+}
+.x-listbox-selected {
+  background-color: #005580;
+}
+.x-listbox-hover {
+  background-color: #0088cc;
+}
+.x-listbox-item a:hover {
+  text-decoration: none;
+}
+.x-listbox-selected,
+.x-listbox-hover {
+  color: #ffffff;
+}
+.x-listbox-selected a,
+.x-listbox-hover a {
+  color: #ffffff;
+}
+.x-listbox-readonly {
+  background-color: #eeeeee !important;
+}
+.x-listbox-disabled {
+  border-color: #dddddd !important;
+  background-color: #eeeeee !important;
+}
+.x-listbox-disabled .x-listbox-selected {
+  background-color: #555555;
+}
+
+/*********************************************************
+ * Controls.Form.ComboBox
+ *********************************************************/
+/**
+ * @author 
+ */
+
+/*********************************************************
+ * Controls.Form.Suggest
+ *********************************************************/
+/**
+ * @author  xuld
+ */
+.x-suggest {
+  margin-top: 2px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+
+/*********************************************************
+ * Controls.Core.Common
+ *********************************************************/
+html .x-left {
+  float: left;
+}
+html .x-right {
+  float: right;
+}
+html .x-left,
+html .x-right {
+  _display: inline;
+}
+html .x-middle {
+  vertical-align: middle;
+}
+.x-center {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+html .x-relative,
+html div.x-relative {
+  position: relative;
+}
+html .x-absolute,
+html div.x-absolute {
+  position: absolute;
+}
+html .x-inline {
+  display: inline;
+}
+html .x-block {
+  display: block;
+}
+html .x-inline-block {
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+}
+html .x-hide,
+html div.x-hide {
+  display: none;
+}
+.x-break-word {
+  word-wrap: break-word;
+  word-break: break-all;
+}
+html .x-plain,
+html div.x-plain {
+  margin: 0;
+  padding: 0;
+}
+.x-clear {
+  *zoom: 1;
+}
+.x-clear:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+html .x-alt,
+.x-alt a {
+  color: #70a3cd;
+}
+html .x-hint,
+.x-hint a {
+  color: #999999;
+}
+.x-alt a:hover,
+.x-hint a:hover,
+a.x-alt:hover,
+a.x-hint:hover {
+  color: #005580;
+}
+.x-highlight {
+  color: #ff6600 !important;
+}
+.x-warning {
+  color: #c09853 !important;
+}
+.x-error {
+  color: #b94a48 !important;
+}
+.x-success {
+  color: #468847 !important;
+}
+html .x-row,
+html div.x-row {
+  margin-bottom: 10px;
+}
+.x-blank {
+  height: 10px;
+  display: block;
+  visibility: hidden;
+  color: #ffffff;
+}
+.x-debug {
+  background: #C03!important;
+  color: #fff!important;
+}

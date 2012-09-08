@@ -61,18 +61,18 @@ var DocPlus = {
 			var menu = DocPlus.listMenu;
 			if (!menu) {
 				DocPlus.listMenu = menu = new ContextMenu().appendTo();
+				menu.hide();
 				menu.on('show', DocPlus.showMask);
 				menu.on('hide', DocPlus.hideMask);
-				menu.hide();
 			}
 
 			if (Dom.isHidden(menu.node)) {
 				DocPlus.initViewListMenu(menu);
 				menu.showBy(this, 'br');
-			} else {
-				menu.hide();
 			}
 		});
+		
+		DocPlus.initSearchBox();
 
 		// 刷新页面显示。
 		
@@ -86,6 +86,70 @@ var DocPlus = {
 
 		// 刷新当前激活的视图。
 		DocPlus.reload();
+	},
+	
+	search: function(text){
+		return [];
+		
+		/* [{
+			hash: 'aaaa',
+			icon: 'icon',
+			text: 'asdsad',
+			hint: 'System.Dom.Base'
+		}];
+		
+		
+		*/
+		
+		
+		
+	},
+
+	initSearchBox: function(){
+		
+		
+		var suggest = aa = new Suggest(Dom.find('#searchtextbox'));
+		
+		suggest.dropDownWidth = -1;
+		suggest.realignDropDown = function(){
+			suggest.dropDown.align(this, 'br', 4, 0);
+		};
+		suggest.dropDown.appendTo('main');
+		
+		suggest.getSuggestItems = function(text){
+			var items = DocPlus.search(text);
+			
+			if(!items.length){
+				return items;	
+			}
+			
+			for(var i = 0; i < items.length; i++){
+				items[i] = String.format('<li data-hash="{hash}"><strong>{text}</strong><br><span class="x-hint">{hint}</span></li>', items[i]);
+			}
+			
+			items.push('<li data-hash="search/' + text.replace(/"/g, "&quot;") + '" class="x-listbox-last">更多»</li>');
+			return items;
+		}; 
+		suggest.on('select', function(item){
+			var hash = item.getAttr('data-hash');
+			if(hash != null){
+				DocPlus.navigate(hash);
+				return false;
+			}
+		});
+		
+		// Dom.find('#searchtextbox').on('keydown', onKeyDown);
+// 		
+		// Dom.find('.x-searchtextbox-search').on('click', showSearchBox);
+// 		
+		// function onKeyDown(e){
+// 			
+		// }
+// 		
+// 		
+		// function showSearchBox(e){
+// 			
+		// }
 	},
 
 	// 配置
@@ -337,8 +401,10 @@ var DocPlus = {
 			// 用控制器创建真正的视图对象。
 			// 保存新打开的视图。
 			view = controller.homeView;
-		
-			controller.initHomeView(view);
+			
+			if(!view.container) {
+				controller.initHomeView(view);
+			}
 			
 		} else {
 		
@@ -373,6 +439,22 @@ var DocPlus = {
 
 	closeCurrentView: function () {
 		DocPlus.currentView && DocPlus.currentView.close();
+	},
+
+	reloadCurrentView: function () {
+		if(DocPlus.currentView) {
+			if(DocPlus.currentView.container){
+				DocPlus.currentView.container.remove();
+			}
+			
+			DocPlus.currentView.controller.initView(DocPlus.currentView);
+		}
+	},
+
+	cloneCurrentView: function () {
+		if(DocPlus.currentView) {
+			DocPlus.createView(DocPlus.currentView.hash + '?');
+		}
 	},
 
 	closeOtherViews: function () {
@@ -698,22 +780,29 @@ var DocPlus = {
 		 * @protected virtual
 		 */
 		initViewMenu: function (view) {
-			var menu = new ContextMenu();
-			menu.on('show', DocPlus.showMask);
-			menu.on('hide', DocPlus.hideMask);
-			menu.add('关闭').on('click', DocPlus.closeCurrentView);
-			menu.add('-');
-			menu.add('高亮').on('click', DocPlus.highlightCurrentView).checked(view.isHighlighted());
-			// var subMenu = new Menu();
-			// subMenu.items.add();
-			// subMenu.items.add('红色');
-			// subMenu.items.add('绿色');
-			// menu.items.add('标记').setSubMenu(subMenu);
-			menu.add('-');
-			menu.add('恢复关闭的选项卡').on('click', DocPlus.closeCurrentView);
-			menu.add('-');
-			menu.add('关闭其它选项卡').on('click', DocPlus.closeOtherViews);
-			menu.add('全部关闭').on('click', DocPlus.closeAllViews);
+			var menu = this.contextMenu;
+			if(!menu){
+				this.contextMenu = menu = new ContextMenu();
+				menu.on('show', DocPlus.showMask);
+				menu.on('hide', DocPlus.hideMask);
+				menu.add('关闭').on('click', DocPlus.closeCurrentView);
+				menu.add('关闭其它').on('click', DocPlus.closeOtherViews);
+				menu.add('关闭全部').on('click', DocPlus.closeAllViews);
+				menu.add('-');
+				//menu.add('在新窗口打开');
+				menu.add('刷新').on('click', DocPlus.reloadCurrentView);
+				//menu.add('重复打开').on('click', DocPlus.cloneCurrentView);
+				menu.add('高亮').on('click', DocPlus.highlightCurrentView);
+				menu.add('-');
+				// var subMenu = new Menu();
+				// subMenu.items.add();
+				// subMenu.items.add('红色');
+				// subMenu.items.add('绿色');
+				// menu.items.add('标记').setSubMenu(subMenu);
+				menu.add('恢复关闭的选项卡').on('click', DocPlus.restoreLastView);
+				
+			}
+			
 			view.contextMenu = menu;
 		},
 		
@@ -721,7 +810,7 @@ var DocPlus = {
 		 * 更新视图对应的菜单。
 		 */
 		updateViewMenu: function(view){
-			
+			view.contextMenu.item(-3).checked(view.isHighlighted());
 		},
 		
 		/**
@@ -997,6 +1086,7 @@ DocPlus.HomeView = DocPlus.View.extend({
 
 		this.header = Dom.create('li')
 			.setHtml('<a href="#!' + hash + '" title="' + (headerTitle || headerHtml) + '">' + headerHtml + '</a>')
+			.on('mouseup', this.onHeaderMouseUp, this)
 			.appendTo(DocPlus.navs);
 	},
 
