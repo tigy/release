@@ -5,7 +5,7 @@ DocPlus.APIController = DocPlus.Controller.extend({
 	/**
 	 * 初始化当前控制器对应的导航菜单。
 	 */
-	init: function (data) {
+	loadData: function (data) {
 		this.dom = data.dom;
 		this.members = data.members;
 		
@@ -23,13 +23,13 @@ DocPlus.APIController = DocPlus.Controller.extend({
 	/**
 	 * 初始化当前控制器对应的视图。
 	 */
-	initView: function(view, pathInfo){
-		view.setContent('加载中...'); 
-		var dataPath = this.dataPath + pathInfo + '.js';
+	initView: function(view){
+		view.setHtml('加载中...'); 
+		var dataPath = this.name + '/data/' + view.pathInfo + '.js';
 		DocPlus.jsonp(dataPath, function(data){
 			DocPlus.APIRender.render(view, data);
 		}, function(){
-			view.setContent('无法载入数据: ' + dataPath);
+			view.setHtml('无法载入数据: ' + dataPath);
 		});
 	},
 	
@@ -356,9 +356,9 @@ DocPlus.APIRender = {
 		});
 		
 		view.setTitle(DocPlus.APIRender.getShortReadableName(data.name, data.memberType, data.memberOf));
-		view.setContent(tpl);
+		view.setHtml(tpl);
 
-		Object.each(view.content.dom.getElementsByTagName('ul'), function (node) {
+		Object.each(view.container.dom.getElementsByTagName('ul'), function (node) {
 			if (!node.className) {
 				var m;
 				node.className = 'doc-list';
@@ -370,7 +370,7 @@ DocPlus.APIRender = {
 			}
 		});
 
-		Object.each(view.content.dom.getElementsByTagName('pre'), function (node) {
+		Object.each(view.container.dom.getElementsByTagName('pre'), function (node) {
 			if (!node.className) {
 				var code = Dom.getText(node).trim(),
 					format = Dom.getAttr(node, 'format'),

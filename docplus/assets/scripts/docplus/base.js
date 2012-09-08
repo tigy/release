@@ -124,10 +124,12 @@ var DocPlus = {
 			}
 			
 			for(var i = 0; i < items.length; i++){
+				items[i].text = DocPlus.encodeHTML(items[i].text);
+				items[i].hint = DocPlus.encodeHTML(items[i].hint);
 				items[i] = String.format('<li data-hash="{hash}"><strong>{text}</strong><br><span class="x-hint">{hint}</span></li>', items[i]);
 			}
 			
-			items.push('<li data-hash="search/' + text.replace(/"/g, "&quot;") + '" class="x-listbox-last">更多»</li>');
+			items.push('<li data-hash="search/' + DocPlus.encodeHTML(text) + '" class="x-listbox-last">更多»</li>');
 			return items;
 		}; 
 		suggest.on('select', function(item){
@@ -138,19 +140,29 @@ var DocPlus = {
 			}
 		});
 		
-		// Dom.find('#searchtextbox').on('keydown', onKeyDown);
-// 		
-		// Dom.find('.x-searchtextbox-search').on('click', showSearchBox);
-// 		
-		// function onKeyDown(e){
-// 			
-		// }
-// 		
-// 		
-		// function showSearchBox(e){
-// 			
-		// }
+		Dom.find('.x-searchtextbox-search').on('click', function(){
+			DocPlus.navigate("search/" + text);
+		});
+
 	},
+	
+	// 工具函数。
+
+	encodeHTML: (function(map){
+		function replaceMap(v){
+			return map[v];
+		}
+		
+		return function (value) {
+			return value.replace(/[&<>\'\"]/g, replaceMap);
+		};
+	})({
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'\'': '&#39;',
+		'\"': '&quot;'
+	}),
 
 	// 配置
 	
