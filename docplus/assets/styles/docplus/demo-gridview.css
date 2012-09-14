@@ -1,0 +1,55 @@
+﻿.demo-gridview {
+    padding: 5px;
+}
+
+.demo-gridview h2 {
+    background: url("../../images/group-expand-sprite.gif") 3px -47px no-repeat;
+    color: #3764A0;
+    font-size: 12px;
+    padding: 4px 4px 4px 17px;
+    border-bottom: 2px solid #99BBE8;
+    cursor: pointer;
+    clear: left;
+    margin: 0;
+}
+
+.demo-gridview .demo-gridview-collapsed {
+    background-position: 3px 3px;
+}
+
+.demo-gridview ul{
+    margin-bottom: 20px;
+    padding: 0;
+}
+
+.demo-gridview li {
+    float: left;
+    width: 132px;
+    list-style: none;
+    margin-right: 8px;
+}
+
+.demo-gridview a {
+    display: block;
+    text-align: center;
+    color: #555555;
+    text-decoration: none;
+    font-size: 12px;
+    line-height: 18px;
+    border: 1px solid #ffffff;
+    padding: 5px;
+}
+
+.demo-gridview img {
+    border: 1px solid #DDDDDD;
+    width: 120px;
+    height: 90px;
+}
+
+.demo-gridview a:hover {
+    /*background-color: #F5FDE3;
+    border-color: #66AB16;*/
+    background-color: #DFEFFF;
+    border-color: #6593CF; 
+    
+}
