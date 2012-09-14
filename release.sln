@@ -1,23 +1,23 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Web Developer Express 11
+# Visual Studio 2012
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "release", ".", "{096E64AA-7FFE-40EC-BA51-5B6D4250F2B3}"
 	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Debug.AspNetCompiler.FixedNames = "false"
-		Debug.AspNetCompiler.ForceOverwrite = "true"
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/FormControlsPart2"
 		Debug.AspNetCompiler.PhysicalPath = "..\release\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\FormControlsPart2\"
 		Debug.AspNetCompiler.Updateable = "true"
-		Debug.AspNetCompiler.VirtualPath = "/FormControlsPart2"
-		Release.AspNetCompiler.Debug = "False"
-		Release.AspNetCompiler.FixedNames = "false"
-		Release.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/FormControlsPart2"
 		Release.AspNetCompiler.PhysicalPath = "..\release\"
 		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\FormControlsPart2\"
 		Release.AspNetCompiler.Updateable = "true"
-		Release.AspNetCompiler.VirtualPath = "/FormControlsPart2"
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "22789"
 	EndProjectSection
 EndProject

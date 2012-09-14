@@ -15,7 +15,7 @@ DocPlus.IFrameController = DocPlus.Controller.extend({
 	},
 	
 	initView: function(view){
-		
+	    
 		// view 的哈希地址即网址。
 		this.initIFrameView(view, this.dataPath + view.pathInfo);
 	},
