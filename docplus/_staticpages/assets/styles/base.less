@@ -1,0 +1,175 @@
+
+// Scaffolding
+//----------------
+
+@bg: #F8F8F8;
+
+body {
+  overflow: hidden;
+}
+
+// Header
+
+#header {
+  #gradient > .vertical(#103E68, #085D91);
+  padding: 5px 5px 0;
+  height: 60px;
+}
+
+#logo-container, #tabs {
+  height: 30px;
+  overflow: hidden;
+}
+  
+#logo-container h1 {
+  margin: 0;
+  line-height: 26px;
+  font-size: 18px;
+  color: #ffffff; 
+}
+
+#toolbar {
+  float: right;
+}
+
+#tab-container {
+   height: 30px;
+     
+  li{
+    float: left;
+    height: 28px;
+    .border-radius(5px 5px 0 0);
+    background-color: #f1f7fb;
+    background-image: -moz-linear-gradient(top, #ffffff, #dcebf4);
+    background-image: -ms-linear-gradient(top, #ffffff, #dcebf4);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#dcebf4));
+    background-image: -webkit-linear-gradient(top, #ffffff, #dcebf4);
+    background-image: -o-linear-gradient(top, #ffffff, #dcebf4);
+    background-image: linear-gradient(top, #ffffff, #dcebf4);
+    background-repeat: repeat-x; 
+    
+    border: 1px solid #7CA1D2;
+    margin-right: -1px;
+    overflow: hidden;
+    
+    &.selected-alt {
+      background: lighten(#E6F2F9, 4%);
+      background-image: -moz-linear-gradient(top, #DDECF4, lighten(#E6F2F9, 4%));
+      background-image: -ms-linear-gradient(top, #DDECF4, lighten(#E6F2F9, 4%));
+      background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#DDECF4), to(lighten(#E6F2F9, 4%)));
+      background-image: -webkit-linear-gradient(top, #DDECF4, lighten(#E6F2F9, 4%));
+      background-image: -o-linear-gradient(top, #DDECF4,lighten(#E6F2F9, 4%));
+      background-image: linear-gradient(top, #DDECF4, lighten(#E6F2F9, 4%));
+    }
+    
+    &.selected {
+      background: @white;
+    }
+  }
+  
+  a {
+    font-size: 13px;
+    line-height: 28px;
+    padding: 0 10px;
+    color: #656565;
+    font-weight: bold;
+    text-decoration: none;
+    display: block;
+  }
+  
+  .x-closebutton {
+    padding: 7px 5px;
+    margin-left: -13px;
+    line-height: 13px;
+  }
+}
+  
+#tabs a {
+  padding-right: 20px; 
+}
+
+#tab-container-split {
+  float: left;
+  width: 10px;
+  height: 30px;
+}
+
+#tabs li.selected{
+  border-bottom-color: @white;
+}
+
+#tabs-more {
+  float: right;
+  
+  a {
+    padding: 0 5px;
+  }
+}
+
+// Body
+
+#sidebar {
+  background: @bg;
+  border-right: 1px solid @grayBorder;
+  padding: 5px;
+  float: left;
+}
+
+#sidebar-toolbar {
+  border-top: 1px solid @grayBorder;
+  margin-top: 10px;
+}
+
+#doctree .x-treeview {
+  height:100%; 
+}
+
+#containers {
+  margin: 5px;
+  float: left;
+}
+
+#splitter {
+   top: auto;
+   bottom: 0;
+}
+
+.container {
+  border: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+#mask {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  display: none;
+}
+
+// Fx
+.x-suggest {
+  margin:0 4px;
+  width: 186px;
+  padding: 0;
+}
+
+.x-suggest .x-listbox-hover, .x-suggest .x-listbox-item:hover {
+  background: #FFFFAA;
+  color: #995F5F;
+}
+
+.x-suggest .x-listbox-item {
+    border-bottom: 1px solid #BFBFBF;
+    cursor: pointer;
+}
+
+.x-suggest .x-listbox-last {
+    border-bottom: none;
+    text-align: right;
+}
+
+.header-highlight {
+  color: red;
+}
