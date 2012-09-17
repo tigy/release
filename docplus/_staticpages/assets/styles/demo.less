@@ -1,0 +1,394 @@
+﻿
+
+@import "blue.less";
+
+/*********************************** 基本 *******************************************/
+
+.demo-doc {
+    .doc();
+}
+
+article.demo, aside.demo, footer.demo, header.demo, hgroup.demo, nav.demo, section.demo {
+	display: block;
+}
+
+article.demo, aside.demo {
+	margin-bottom: 10px;
+}
+
+section.demo {
+	margin-bottom: 20px;
+}
+
+h1.demo, h2.demo, h3.demo, h4.demo, h5.demo, h6.demo{
+    .header();
+}
+
+h1.demo {
+    .h1();
+}
+
+h2.demo {
+    .h2();
+}
+
+h3.demo {
+    .h3();
+}
+
+h4.demo {
+    .h4();
+}
+
+h5.demo, h6.demo {
+    .h5();
+}
+
+a.demo {
+    .a();
+}
+
+hr.demo {
+    .hr();
+}
+
+table.demo {
+    .table();
+
+    th, td {
+        border: 1px solid #ddd;
+	    padding: 5px;
+    }
+}
+
+dt.demo {
+    .dt();
+}
+
+dd.demo {
+    .dd();
+}
+
+p.demo {
+    .p();
+}
+
+blockquote.demo {
+	.blockquote();
+}
+
+ol.demo, ul.demo {
+  .list();
+}
+
+ul.demo{
+  .ul();
+}
+
+ol.demo  {
+  .ol()
+}
+
+textarea.demo {
+	.textarea();
+}
+
+code.demo {
+	.code();
+}
+
+input.demo {
+	.input();
+}
+
+img.demo {
+	.img()
+}
+
+.demo-nav {
+    .aside();
+    font-size: 12px;
+    line-height: 18px;
+
+    ul {
+        margin: 10px 0;
+        padding: 0;
+    }
+
+    li {
+        list-style: none;
+    }
+}
+    
+/*********************************** 语法高亮 *******************************************/
+
+.syntaxhighligher();
+    
+/*********************************** 工具 *******************************************/
+
+// 布局
+
+.demo-inline {
+	display: inline;
+}
+
+.demo-block {
+	display: block;
+}
+
+.demo-inline-block {
+	display: inline-block;
+	*display: inline;
+	*zoom: 1;
+}
+
+.demo-hide {
+	display: none;
+}
+
+.demo-left {
+    float: left;
+}
+
+.demo-right {
+    float: right;
+}
+
+.demo-clear {
+    *zoom: 1;
+
+    &:after {
+        content: ".";
+        display: block;
+        height: 0;
+        clear: both;
+        visibility: hidden;
+    }
+}
+
+// 定位
+
+.demo-absolute {
+	position: absolute;
+}
+
+.demo-relative {
+	position: relative;
+}
+
+// 盒子
+
+.demo-box, .demo-box-small, .demo-box-large {
+	position:relative;
+	width: 80px;
+	height: 80px;
+	margin-right: 10px;
+	padding: 10px;
+	text-align: center;
+	line-height: 80px;
+	display: inline-block;
+	*display: inline;
+	*zoom: 1;
+	background-color: #E95C41;
+	color: #ffffff;
+}
+
+.demo-box-small {
+	height: 40px;
+	width: 40px;
+	line-height: 40px;
+}
+
+.demo-box-large {
+	height: 200px;
+	width: 200px;
+	line-height: 200px;
+}
+
+.demo-container {
+	position: relative;
+	border: 1px solid #ddd;
+	height: 250px;
+	width: 400px;
+}
+
+.demo-plain {
+	margin: 0;
+	padding: 0;	
+}
+
+// 字体
+
+.demo-strong {
+	font-weight: bold;
+}
+
+.demo-underline {
+	text-decoration: underline;
+}
+
+.demo-italic {
+	font-style: italic;
+}
+
+.demo-small {
+	font-size: x-small;
+}
+
+.demo-large {
+	font-size: x-large;
+}
+
+// 颜色
+
+.demo-hint {
+	color: #999999;	
+}
+
+.demo-highlight {
+	color: #FF6600;	
+}
+
+.demo-white, .demo-c0 {
+	background-color: #ffffff;
+	color: #000000;
+}
+
+.demo-gray{
+	background-color: #F3F3F3;
+	color: #000000;
+}
+
+.demo-red, .demo-c1 {
+	background-color: #9d261d;
+}
+
+.demo-orange, .demo-c2 {
+	background-color: #f89406;
+	color: #000000;
+}
+
+.demo-yellow, .demo-c3 {
+	background-color: #ffc40d;
+}
+
+.demo-green, .demo-c4 {
+	background-color: #B4B900;
+}
+
+.demo-indigo, .demo-c5 {
+	background-color: #90D9E8;
+	color: #000000;
+}
+
+.demo-blue, .demo-c6 {
+	background-color: #285A8F;
+}
+
+.demo-purple, .demo-c7 {
+	background-color: #B05A89;
+}
+
+.demo-black, .demo-c8 {
+	background-color: #000000;
+}
+
+/*********************************** 组件 *******************************************/
+
+// 查看源码
+
+.demo-viewsource-button {
+	margin-bottom: 20px;
+    font-size: 12px;
+
+    .sh {
+        margin-bottom: 30px;
+    }
+}
+
+.demo-viewsource-arrow {
+	float: left;
+	font-size: 20px;
+	line-height: 12px;
+    margin-right: 1px;
+}
+
+// 提示
+
+.demo-control-toolbar {
+	float: right;
+	font-size: 12px;
+}
+
+.demo-control-testcases {
+    font-size: 12px;
+}
+
+.demo-tip, .demo-tip-error, .demo-tip-warning, .demo-tip-success {
+	padding: 2px 10px;
+	margin: 2px 0;
+	line-height:16px;
+	border: 2px solid transparent;
+	*border: 2px solid #F9F9F9;
+	clear: both;
+}
+
+.demo-tip-error {
+	background:#FBE3E4;
+	color:#8a1f11;
+	border-color:#FBC2C4;
+}
+
+.demo-tip-error a.demo {
+	color:#8a1f11;
+}
+
+.demo-tip-warning{
+	background:#FFF6BF;
+	color:#514721;
+	border-color:#FFD324;
+}
+
+.demo-tip-warning a.demo {
+	color:#514721;
+}
+
+.demo-tip-success {
+	background:#E6EFC2;
+	color:#264409;
+	border-color:#C6D880;
+}
+
+.demo-tip-success a.demo {
+	color:#264409;
+}
+
+.demo-tip .demo-control-toolbar {
+	display: none;
+}
+
+.demo-tip-hover {
+	background: #eee;	
+}
+
+.demo-tip-hover .demo-control-toolbar {
+	display: block;
+}
+
+// 问答
+
+.demo-question input{
+	vertical-align: -3px;
+}
+
+.demo-questions menu {
+	padding-left: 15px;
+	margin: 0;
+}
+
+h2.demo-testcase {
+	border-bottom: 1px solid #DDDDDD;
+	margin: 13px 2px 2px;
+	text-indent: 15px;
+	font-size: 20px;
+}

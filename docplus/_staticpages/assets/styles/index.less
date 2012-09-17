@@ -1,4 +1,6 @@
 
+@import "mixins.less";
+
 // Scaffolding
 //----------------
 
@@ -63,7 +65,7 @@ body {
     }
     
     &.selected {
-      background: @white;
+      background: #ffffff;
     }
   }
   
@@ -95,7 +97,7 @@ body {
 }
 
 #tabs li.selected{
-  border-bottom-color: @white;
+  border-bottom-color: #ffffff;
 }
 
 #tabs-more {
@@ -110,13 +112,13 @@ body {
 
 #sidebar {
   background: @bg;
-  border-right: 1px solid @grayBorder;
+  border-right: 1px solid #ddd;
   padding: 5px;
   float: left;
 }
 
 #sidebar-toolbar {
-  border-top: 1px solid @grayBorder;
+  border-top: 1px solid #ddd;
   margin-top: 10px;
 }
 
@@ -148,6 +150,10 @@ body {
   display: none;
 }
 
+.docplus-index-highlight a{
+  color: red!important;
+}
+
 // Fx
 .x-suggest {
   margin:0 4px;
@@ -168,8 +174,4 @@ body {
 .x-suggest .x-listbox-last {
     border-bottom: none;
     text-align: right;
-}
-
-.header-highlight {
-  color: red;
 }

@@ -2,7 +2,6 @@
  * 全部文档公用的样式文件。
  */
 
-@import "mixins.less";
 
 // Reset
 
@@ -24,88 +23,14 @@ body {
 
 .docplus-clear {
     *zoom: 1;
-}
 
-.docplus-clear:after {
-    content: ".";
-    display: block;
-    height: 0;
-    clear: both;
-    visibility: hidden;
-}
-
-// Page
-
-.docplus-doc {
-    padding: 10px;
-    overflow: auto;
-}
-
-.docplus-header {
-    font-family: 'Arial';
-    margin: 10px 0;
-    font-weight: bold;
-    
-    small {
-        font-size: 12px;
-        margin-left: 10px;
-        color: #999999;
-        font-weight: normal;
+    &:after {
+        content: ".";
+        display: block;
+        height: 0;
+        clear: both;
+        visibility: hidden;
     }
-}
-
-h1.docplus-header {
-    color: #3F529C;
-    font-size: 30px;
-    line-height: 30px;
-}
-
-h2.docplus-header {
-    color: #250C58;
-    font-size: 18px;
-    line-height: 18px;
-}
-
-h3.docplus-header {
-    color: #333333;
-    font-size: 14px;
-    line-height: 14px;
-    margin: 0;
-}
-
-.docplus-content {
-    margin: 8px 0 16px;
-}
-
-.docplus-line {
-    -moz-border-bottom-colors: none;
-    -moz-border-image: none;
-    -moz-border-left-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-top-colors: none;
-    border-color: #E5E5E5;
-    border-color: #E5E5E5 -moz-use-text-color -moz-use-text-color;
-    border-right: 0 none;
-    border-style: solid none none;
-    border-width: 1px 0 0;
-    clear: both;
-    display: block;
-    float: none;
-    font-size: 0;
-    height: 0;
-    line-height: 0;
-    margin: 12px 0;
-}
-
-.docplus-aside {
-  float: right;
-  background: #F7F7F7;
-  .border-radius(3px);
-  padding: 0 20px 0 10px;
-  border: 1px solid #ddd;
-  color: #555;
-  margin-left: 15px;
-  margin-bottom: 20px;
 }
 
 

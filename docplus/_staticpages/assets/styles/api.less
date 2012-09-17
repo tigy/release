@@ -1,92 +1,94 @@
 
+
+@import "blue.less";
+
 // API Document
 //----------------
 
-@import "mixins.less";
 
+.docplus-api {
+    .doc();
 
-.doc {
-
-  
-  h1 {
-    color: #66AB16;
-    font-family: 'Arial';
-    
-    small {
-      font-size: 12px;
-      margin-left: 10px;
+    h1, h2, h3, h4, h5, h6{
+        .header();
     }
-  }
-  
-  h3 {
-    color: #250C58;
-  }
 
-  pre {
-    overflow-x: auto;
-  }
-  
-}
-    
-.doc-func {
-  float: right;
-  margin-top: 10px;
-  
-  a {
-    color: #333333;
-  }
-}
+    h1 {
+        .h1();
+    }
 
-.doc-attrs {
-  float: right;
-  background: #F7F7F7;
-  .border-radius(5px);
-  padding: 0 20px 0 10px;
-  border: 1px solid #ddd;
-  color: #ddd;
-  margin-left: 15px;
-  margin-bottom: 20px;
-}
+    h2 {
+        .h2();
+    }
 
-.doc-members {
-  width: auto;
-  
-  th {
-    background: #f1f1f1;
-    padding: 3px 8px;
-  }
+    h3 {
+        .h3();
+    }
 
-  p {
-    margin: 0;
-  }
-}
+    h4 {
+        .h4();
+    }
 
-.doc-syntax {
-  padding: 10px;
-  display: inline-block;
-}
+    h5, h6 {
+        .h5();
+    }
 
-.doc-content {
-  padding-left: 20px;
-  margin-bottom: 20px;
-}
+    a {
+        .a();
+    }
 
-.doc-params {
-  dt {
-    font-weight: normal;
-  }
-}
+    hr {
+        .hr();
+    }
 
-.x-panel {
-  margin: 10px 0;
+    table {
+        .table();
+    }
+
+    dt {
+        .dt();
+    }
+
+    dd {
+        .dd();
+    }
+
+    p {
+        .p();
+    }
+
+    blockquote{
+        .blockquote();
+    }
+
+    ul, ol {
+        .list();
+    }
+
+    ul {
+      .ul();
+    }
+
+    ol {
+      .ol()
+    }
+
 }
 
-.x-panel-header {
-  padding: 2px 10px;
+.docplus-api-aside{
+    .aside();
 }
 
-.x-panel-body {
-  padding: 15px;
+.docplus-api-content{
+    .content();
+}
+
+.syntaxhighligher();
+
+.docplus-api-syntax {
+    padding: 5px;
+    display: inline-block;
+    color: #1E347B;
 }
 
 
