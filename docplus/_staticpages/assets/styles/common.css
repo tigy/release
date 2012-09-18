@@ -1,0 +1,23 @@
+/**
+ * 全部文档公用的样式文件。
+ */
+body {
+  margin: 0;
+  padding: 0;
+}
+.docplus-left {
+  float: left;
+}
+.docplus-right {
+  float: right;
+}
+.docplus-clear {
+  *zoom: 1;
+}
+.docplus-clear:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}

@@ -1,6 +1,11 @@
 ﻿
 @import "mixins.less";
 
+.body() {
+    margin: 0;
+    padding: 0;
+}
+
 .doc(){
     padding: 10px;
     overflow: auto;
@@ -88,7 +93,7 @@
 
 .table(){
     border: 0;
-    border-collapse: separate;
+    border-collapse: collapse;
     border-spacing: 0;
     empty-cells: show;
     width: auto;
