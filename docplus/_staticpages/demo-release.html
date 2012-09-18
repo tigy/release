@@ -1,351 +1,213 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Milk - J+ Control Library</title>
-        <link href="assets/styles/demo-release.less" rel="stylesheet/less" type="text/css">
-        <script src="assets/scripts/less.min.js" type="text/javascript"></script>
-        <script src="assets/scripts/demo.js" type="text/javascript"></script>
-    </head>
-    <body>
+<head>
+    <meta charset="UTF-8">
+    <title>组件名</title>
+    <link href="assets/styles/demo-release.less" rel="stylesheet/less" type="text/css">
+    <script src="assets/scripts/less.min.js" type="text/javascript"></script>
+    <script src="assets/scripts/demo.js" type="text/javascript"></script>
+</head>
+<body>
 
-        <div id="demo-main">
-
-            <header class="demo" id="demo-header">
-                <div id="demo-topbar">
-                    <nav class="demo-toolbar">
-                        <a class="demo" id="demo-toggleview" onclick="Demo.toggleView()" href="javascript://显示或外围导航菜单">❒ 在新窗口打开</a>
-                    </nav>
-                </div>
-            
-                <h1 class="demo">底层函数<small>System.Core-Base.Core</small></h1>
-                <hr class="demo">
-
-                <nav class="demo-nav">
-                    <dl class="demo">
-                        <dt class="demo">示例:</dt>
-                        <dd class="demo"><a class="demo" href="">创建控件</a></dd>
-                        <dd class="demo">&nbsp;&nbsp;&nbsp;&nbsp;<a class="demo" href="">使用HTML方式</a></dd>
-                        <dd class="demo">&nbsp;&nbsp;&nbsp;&nbsp;<a class="demo" href="">使用CSS方式</a></dd>
-                        <dd class="demo"><a class="demo" href="">常用API</a></dd>
-                        <dt class="demo">工具:</dt>
-                        <dd class="demo"><a class="demo" href="data/source/base.js.html#Array">转到 API 文档</a></dd>
-                        <dd class="demo"><a class="demo" href="data/source/base.js.html#Array">显示/隐藏查看源码</a></dd>
-                        <dd class="demo"><a class="demo" href="data/source/base.js.html#Array">展开/折叠全部源码</a></dd>
-                    </dl>
-                
-                </nav>
-            </header>
-        
-            <article class="demo">
-            
-                <h2 class="demo">创建控件</h2>
-				<section class="demo">
-                <h3 class="demo">使用HTML方式</h3>
-            
-                <aside class="demo">
-                    默认: <textarea class="x-textbox"></textarea>
-                </aside>
-
-                <div class="demo-viewsource demo-control-viewsource-full">
-                    <span class="demo-viewsource-arrow">▸</span>
-                    <a onclick="Demo.expandSource(this.parentNode)" href="javascript://查看用于创建上文组件的所有源码" class="demo">查看源码</a>
-                </div>
-
-                <div class="demo-viewsource demo-control-viewsource-full">
-                    <span class="demo-viewsource-arrow">▾</span>
-                    <a onclick="Demo.expandSource(this.parentNode)" href="javascript://查看用于创建上文组件的所有源码" class="demo">查看源码</a>
-
-
-
-                    <pre class="sh sh-line sh-htm"><ol class="sh-linenumbers"><li class="sh-linenumber0"></li><li class="sh-linenumber1"></li><li class="sh-linenumber2"></li><li class="sh-linenumber3"></li><li class="sh-linenumber4"></li><li class="sh-linenumber5"></li><li class="sh-linenumber6"></li><li class="sh-linenumber7"></li><li class="sh-linenumber8"></li><li class="sh-linenumber9"></li><li class="sh-linenumber0"></li><li class="sh-linenumber1"></li></ol><code class="sh-code sh-htm"><span class="sh-tag">&lt;div</span><span class="sh-plain"> </span><span class="sh-attrname">class</span><span class="sh-punctuation">=</span><span class="sh-attrvalue">"x-control"</span><span class="sh-tag">&gt;</span><span class="sh-plain">
-	    </span><span class="sh-tag">&lt;div</span><span class="sh-plain"> </span><span class="sh-attrname">class</span><span class="sh-punctuation">=</span><span class="sh-attrvalue">"x-control-header"</span><span class="sh-tag">&gt;</span><span class="sh-plain">
-		    </span><span class="sh-tag">&lt;h2&gt;</span><span class="sh-plain">
-			    header
-		    </span><span class="sh-tag">&lt;/h2&gt;</span><span class="sh-plain">
-	    </span><span class="sh-tag">&lt;/div&gt;</span><span class="sh-plain">
-	    </span><span class="sh-tag">&lt;div</span><span class="sh-plain"> </span><span class="sh-attrname">class</span><span class="sh-punctuation">=</span><span class="sh-attrvalue">"x-control-body"</span><span class="sh-tag">&gt;</span><span class="sh-plain">
-		    </span><span class="sh-tag">&lt;div</span><span class="sh-plain"> </span><span class="sh-attrname">class</span><span class="sh-punctuation">=</span><span class="sh-attrvalue">"x-control-content"</span><span class="sh-tag">&gt;</span><span class="sh-plain">
-			    body
-		    </span><span class="sh-tag">&lt;/div&gt;</span><span class="sh-plain">
-	    </span><span class="sh-tag">&lt;/div&gt;</span><span class="sh-plain">
-    </span><span class="sh-tag">&lt;/div&gt;</span></code></pre>
-                </div>
-            
-                <aside class="demo">
-                    警告: <textarea class="x-textbox x-textbox-warning"></textarea>
-                </aside>
-
-                <aside class="demo">
-                    错误: <textarea class="x-textbox x-textbox-error"></textarea>
-                </aside>
-			</section>
-			<section class="demo">
-                <h3 class="demo">使用CSS方式</h3>
-            
-                <aside class="demo">
-                    成功: <textarea class="x-textbox x-textbox-success"></textarea>
-                </aside>
-			</section>
-            </article>
-        
-        
-            <article class="demo">
-            
-                <h2 class="demo">常用API</h2>
-
-                <div class="demo-testcases demo-clear">
-                    <div class="demo-right demo-small"><a onclick="Demo.runTestAll();" href="javascript://按顺序执行全部函数;" class="demo">全部执行</a> | <a onclick="Demo.speedTestAll();" href="javascript:;" class="demo">全部效率</a></div>
-                    <h3 class="demo">操作标题</h3>
-                    <div title="a.setTitle(&quot;&lt;em&gt;value&lt;/em&gt;&quot;)" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-0"><span class="demo-control-toolbar"><a onclick="Demo.runTest(0); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(0); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(0); return false;" href="javascript://a.setTitle(&quot;&lt;em&gt;value&lt;/em&gt;&quot;)" class="demo">设置标题</a>						</div>
-                    <div title="a.getTitle()" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-1"><span class="demo-control-toolbar"><a onclick="Demo.runTest(1); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(1); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(1); return false;" href="javascript://a.getTitle()" class="demo">获取标题</a>						</div>
-                    <h3 class="demo">使用 ScrollableControl 提供的方法操作子控件</h3>
-                    <div title="a.append(&quot;&lt;div&gt;这是通过 append 插入的&lt;/div&gt;&quot;);" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-2"><span class="demo-control-toolbar"><a onclick="Demo.runTest(2); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(2); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(2); return false;" href="javascript://a.append(&quot;&lt;div&gt;这是通过 append 插入的&lt;/div&gt;&quot;);" class="demo">添加子控件到末尾</a>						</div>
-                    <div title="a.addAt(0, &quot;&lt;div&gt;这是通过 addAt 插入的&lt;/div&gt;&quot;);" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-3"><span class="demo-control-toolbar"><a onclick="Demo.runTest(3); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(3); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(3); return false;" href="javascript://a.addAt(0, &quot;&lt;div&gt;这是通过 addAt 插入的&lt;/div&gt;&quot;);" class="demo">添加子控件到指定位置</a>						</div>
-                    <div title="a.removeAt(0)" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-4"><span class="demo-control-toolbar"><a onclick="Demo.runTest(4); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(4); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(4); return false;" href="javascript://a.removeAt(0)" class="demo">删除指定位置的子控件</a>						</div>
-                    <div title="a.item(0)" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-5"><span class="demo-control-toolbar"><a onclick="Demo.runTest(5); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(5); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(5); return false;" href="javascript://a.item(0)" class="demo">获取某一位置的子控件</a>						</div>
-                    <div title="a.indexOf(b)" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-6"><span class="demo-control-toolbar"><a onclick="Demo.runTest(6); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(6); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(6); return false;" href="javascript://a.indexOf(b)" class="demo">获取一个子控件在当前控件集合中的位置</a>						</div>
-                    <div title="a.each(function(item, i){trace(&quot;#&quot;, i, &quot; =&gt; &quot;, item.getText());})" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-7"><span class="demo-control-toolbar"><a onclick="Demo.runTest(7); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(7); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(7); return false;" href="javascript://a.each(function(item, i){trace(&quot;#&quot;, i, &quot; =&gt; &quot;, item.getText());})" class="demo">遍历子控件</a>						</div>
-                    <div title="a.count()" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-8"><span class="demo-control-toolbar"><a onclick="Demo.runTest(8); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(8); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(8); return false;" href="javascript://a.count()" class="demo">获取子控件的个数</a>						</div>
-                    <h3 class="demo">使用 Dom 提供的方法操作子节点</h3>
-                    <div title="a.prepend(&quot;&lt;div&gt;这是通过 prepend 插入的&lt;/div&gt;&quot;);" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-9"><span class="demo-control-toolbar"><a onclick="Demo.runTest(9); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(9); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(9); return false;" href="javascript://a.prepend(&quot;&lt;div&gt;这是通过 prepend 插入的&lt;/div&gt;&quot;);" class="demo">添加子控件到第一个节点</a>						</div>
-                    <div title="a.remove(b);" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-10"><span class="demo-control-toolbar"><a onclick="Demo.runTest(10); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(10); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(10); return false;" href="javascript://a.remove(b);" class="demo">删除指定子控件</a>						</div>
-                    <div title="a.empty()" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-11"><span class="demo-control-toolbar"><a onclick="Demo.runTest(11); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(11); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(11); return false;" href="javascript://a.empty()" class="demo">清空子控件</a>						</div>
-                    <div title="a.children()" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-12"><span class="demo-control-toolbar"><a onclick="Demo.runTest(12); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(12); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(12); return false;" href="javascript://a.children()" class="demo">获取子控件列表</a>						</div>
-                    <div title="a.child(1)" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-13"><span class="demo-control-toolbar"><a onclick="Demo.runTest(13); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(13); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(13); return false;" href="javascript://a.child(1)" class="demo">获取指定位置的容器</a>						</div>
-                    <div title="a.has(b)" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-14"><span class="demo-control-toolbar"><a onclick="Demo.runTest(14); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(14); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(14); return false;" href="javascript://a.has(b)" class="demo">判断子控件是否存在于当前控件中</a>						</div>
-                </div>
-
-                <article id="demo-questions">
-                    <section id="demo-questions-qd1" class="demo-tip">
-                        <h3 class="demo">1. 语言 javascript 的原名是什么?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q10" name="demo-questions-q1"><label for="demo-questions-q10">java</label><br>
-                            <input type="radio" id="demo-questions-q11" name="demo-questions-q1"><label for="demo-questions-q11">jscript</label><br>
-                            <input type="radio" id="demo-questions-q12" name="demo-questions-q1"><label for="demo-questions-q12">livescript</label><br>
-                            <input type="radio" id="demo-questions-q13" name="demo-questions-q1"><label for="demo-questions-q13">ecmascript</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd2" class="demo-tip">
-                        <h3 class="demo">2. 以下代码哪个是插入一个javascript脚本到html的普遍做法?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q20" name="demo-questions-q2"><label for="demo-questions-q20">&lt;script type="text/javascript" src="name.js" /&gt;</label><br>
-                            <input type="radio" id="demo-questions-q21" name="demo-questions-q2"><label for="demo-questions-q21">&lt;script type="text/javascript" src="name.js" &gt;var a = 1;&lt;/script&gt;</label><br>
-                            <input type="radio" id="demo-questions-q22" name="demo-questions-q2"><label for="demo-questions-q22">&lt;script rel="text/javascript" href="name.js" &gt;&lt;/script&gt;</label><br>
-                            <input type="radio" id="demo-questions-q23" name="demo-questions-q2"><label for="demo-questions-q23">&lt;script type="text/javascript" language="javascript" href="name.js" &gt;&lt;/script&gt;</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd3" class="demo-tip">
-                        <h3 class="demo">3. 以下代码哪个语法不正确?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q30" name="demo-questions-q3"><label for="demo-questions-q30">var a = 6..b</label><br>
-                            <input type="radio" id="demo-questions-q31" name="demo-questions-q3"><label for="demo-questions-q31">var a = [0][0]</label><br>
-                            <input type="radio" id="demo-questions-q32" name="demo-questions-q3"><label for="demo-questions-q32">var a = "000".split(/~/);</label><br>
-                            <input type="radio" id="demo-questions-q33" name="demo-questions-q3"><label for="demo-questions-q33">var ￥=$;</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd4" class="demo-tip">
-                        <h3 class="demo">4. 一个有名字的函数可以通过函数名实现递归, 那么匿名函数如何递归调用?
-    </h3>
-                        <menu class="demo">
-                            <li>
-                                <input type="radio" id="demo-questions-q40" name="demo-questions-q4"><label for="demo-questions-q40">使用arguments.caller</label>
-                            </li>
-                            <li>
-                            <input type="radio" id="demo-questions-q41" name="demo-questions-q4"><label for="demo-questions-q41">使用arguments.callee</label>
-                            </li>
-                            <input type="radio" id="demo-questions-q42" name="demo-questions-q4"><label for="demo-questions-q42">使用this</label><br>
-                            <input type="radio" id="demo-questions-q43" name="demo-questions-q4"><label for="demo-questions-q43">无法实现</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd5" class="demo-tip">
-                        <h3 class="demo">5. 变量 a满足 a !== a, 那么 a 是?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q50" name="demo-questions-q5"><label for="demo-questions-q50">Infinity</label><br>
-                            <input type="radio" id="demo-questions-q51" name="demo-questions-q5"><label for="demo-questions-q51">NaN</label><br>
-                            <input type="radio" id="demo-questions-q52" name="demo-questions-q5"><label for="demo-questions-q52">undefined</label><br>
-                            <input type="radio" id="demo-questions-q53" name="demo-questions-q5"><label for="demo-questions-q53">不存在这样的变量</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd6" class="demo-tip">
-                        <h3 class="demo">6. 变量 a 满足 a == null, 那么下面的值中 a 只可以是?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q60" name="demo-questions-q6"><label for="demo-questions-q60">undefined</label><br>
-                            <input type="radio" id="demo-questions-q61" name="demo-questions-q6"><label for="demo-questions-q61">Null</label><br>
-                            <input type="radio" id="demo-questions-q62" name="demo-questions-q6"><label for="demo-questions-q62">""</label><br>
-                            <input type="radio" id="demo-questions-q63" name="demo-questions-q6"><label for="demo-questions-q63">NaN</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd7" class="demo-tip">
-                        <h3 class="demo">7. "xuld222".substr(2,3) 等于什么?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q70" name="demo-questions-q7"><label for="demo-questions-q70">"l"</label><br>
-                            <input type="radio" id="demo-questions-q71" name="demo-questions-q7"><label for="demo-questions-q71">"ul"</label><br>
-                            <input type="radio" id="demo-questions-q72" name="demo-questions-q7"><label for="demo-questions-q72">"ld"</label><br>
-                            <input type="radio" id="demo-questions-q73" name="demo-questions-q7"><label for="demo-questions-q73">"ld2"</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd8" class="demo-tip">
-                        <h3 class="demo">8. ([] instanceof Array) + ("" instanceof String)等于什么?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q80" name="demo-questions-q8"><label for="demo-questions-q80">"truetrue"</label><br>
-                            <input type="radio" id="demo-questions-q81" name="demo-questions-q8"><label for="demo-questions-q81">true</label><br>
-                            <input type="radio" id="demo-questions-q82" name="demo-questions-q8"><label for="demo-questions-q82">2</label><br>
-                            <input type="radio" id="demo-questions-q83" name="demo-questions-q8"><label for="demo-questions-q83">1</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd9" class="demo-tip">
-                        <h3 class="demo">9. "我C".length 等于多少?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q90" name="demo-questions-q9"><label for="demo-questions-q90">undefined</label><br>
-                            <input type="radio" id="demo-questions-q91" name="demo-questions-q9"><label for="demo-questions-q91">2</label><br>
-                            <input type="radio" id="demo-questions-q92" name="demo-questions-q9"><label for="demo-questions-q92">3</label><br>
-                            <input type="radio" id="demo-questions-q93" name="demo-questions-q9"><label for="demo-questions-q93">根据文件编码的不同，肯能是 2 或 3</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd10" class="demo-tip">
-                        <h3 class="demo">10. var a = [1,2,3,4,5,6].splice(2,3); a 是什么?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q100" name="demo-questions-q10"><label for="demo-questions-q100">[3, 4, 5]</label><br>
-                            <input type="radio" id="demo-questions-q101" name="demo-questions-q10"><label for="demo-questions-q101">[1, 3, 4, 5, 6]</label><br>
-                            <input type="radio" id="demo-questions-q102" name="demo-questions-q10"><label for="demo-questions-q102">[1, 2, 5, 6]</label><br>
-                            <input type="radio" id="demo-questions-q103" name="demo-questions-q10"><label for="demo-questions-q103">[1, 2, 6]</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd11" class="demo-tip">
-                        <h3 class="demo">11. 如何可以将数组array中指定的索引index的值删除?如数组[1,2,4]删除索引0之后，为[2,4]?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q110" name="demo-questions-q11"><label for="demo-questions-q110">array.splice(index)</label><br>
-                            <input type="radio" id="demo-questions-q111" name="demo-questions-q11"><label for="demo-questions-q111">array.splice(index,1)</label><br>
-                            <input type="radio" id="demo-questions-q112" name="demo-questions-q11"><label for="demo-questions-q112">array.remove(index)</label><br>
-                            <input type="radio" id="demo-questions-q113" name="demo-questions-q11"><label for="demo-questions-q113">delete array[index]</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd12" class="demo-tip">
-                        <h3 class="demo">12. var a = [2], b = a; b.push(2);那么现在a 是什么?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q120" name="demo-questions-q12"><label for="demo-questions-q120">undefined</label><br>
-                            <input type="radio" id="demo-questions-q121" name="demo-questions-q12"><label for="demo-questions-q121">[2]</label><br>
-                            <input type="radio" id="demo-questions-q122" name="demo-questions-q12"><label for="demo-questions-q122">[2, 2]</label><br>
-                            <input type="radio" id="demo-questions-q123" name="demo-questions-q12"><label for="demo-questions-q123">[[2], 2]</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd13" class="demo-tip">
-                        <h3 class="demo">13. "asas".replace("s","a") 的结果是什么?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q130" name="demo-questions-q13"><label for="demo-questions-q130">"aaaa"</label><br>
-                            <input type="radio" id="demo-questions-q131" name="demo-questions-q13"><label for="demo-questions-q131">"aaas"</label><br>
-                            <input type="radio" id="demo-questions-q132" name="demo-questions-q13"><label for="demo-questions-q132">"ssss"</label><br>
-                            <input type="radio" id="demo-questions-q133" name="demo-questions-q13"><label for="demo-questions-q133">"sasa"</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd14" class="demo-tip">
-                        <h3 class="demo">14. 使用for(in)遍历对时, 对象的什么成员不会被遍历出来?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q140" name="demo-questions-q14"><label for="demo-questions-q140">prototype 下的属性</label><br>
-                            <input type="radio" id="demo-questions-q141" name="demo-questions-q14"><label for="demo-questions-q141">所有Javascript内置对象</label><br>
-                            <input type="radio" id="demo-questions-q142" name="demo-questions-q14"><label for="demo-questions-q142">全部对象都会被遍历出来，没有例外</label><br>
-                            <input type="radio" id="demo-questions-q143" name="demo-questions-q14"><label for="demo-questions-q143">全部未被改写的成员</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd15" class="demo-tip">
-                        <h3 class="demo">15. 下面哪个值作非运算是true?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q150" name="demo-questions-q15"><label for="demo-questions-q150">Infinity</label><br>
-                            <input type="radio" id="demo-questions-q151" name="demo-questions-q15"><label for="demo-questions-q151">NaN</label><br>
-                            <input type="radio" id="demo-questions-q152" name="demo-questions-q15"><label for="demo-questions-q152">[]</label><br>
-                            <input type="radio" id="demo-questions-q153" name="demo-questions-q15"><label for="demo-questions-q153">"null"</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd16" class="demo-tip">
-                        <h3 class="demo">16. 1/0 等于什么?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q160" name="demo-questions-q16"><label for="demo-questions-q160">编译错误</label><br>
-                            <input type="radio" id="demo-questions-q161" name="demo-questions-q16"><label for="demo-questions-q161">产生除零异常</label><br>
-                            <input type="radio" id="demo-questions-q162" name="demo-questions-q16"><label for="demo-questions-q162">Infinity</label><br>
-                            <input type="radio" id="demo-questions-q163" name="demo-questions-q16"><label for="demo-questions-q163">NaN</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd17" class="demo-tip">
-                        <h3 class="demo">17. function a(){return []} 那么 a() == a() 等于?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q170" name="demo-questions-q17"><label for="demo-questions-q170">[]</label><br>
-                            <input type="radio" id="demo-questions-q171" name="demo-questions-q17"><label for="demo-questions-q171">true</label><br>
-                            <input type="radio" id="demo-questions-q172" name="demo-questions-q17"><label for="demo-questions-q172">false</label><br>
-                            <input type="radio" id="demo-questions-q173" name="demo-questions-q17"><label for="demo-questions-q173">IE6 为 false，其它为 true</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd18" class="demo-tip">
-                        <h3 class="demo">18. var a = 0 || 2, 那么 a 等于?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q180" name="demo-questions-q18"><label for="demo-questions-q180">true</label><br>
-                            <input type="radio" id="demo-questions-q181" name="demo-questions-q18"><label for="demo-questions-q181">false</label><br>
-                            <input type="radio" id="demo-questions-q182" name="demo-questions-q18"><label for="demo-questions-q182">0</label><br>
-                            <input type="radio" id="demo-questions-q183" name="demo-questions-q18"><label for="demo-questions-q183">2</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd19" class="demo-tip">
-                        <h3 class="demo">19. [] != ![] 等于什么 ?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q190" name="demo-questions-q19"><label for="demo-questions-q190">false</label><br>
-                            <input type="radio" id="demo-questions-q191" name="demo-questions-q19"><label for="demo-questions-q191">0</label><br>
-                            <input type="radio" id="demo-questions-q192" name="demo-questions-q19"><label for="demo-questions-q192">true</label><br>
-                            <input type="radio" id="demo-questions-q193" name="demo-questions-q19"><label for="demo-questions-q193">[]</label><br>
-                        </menu>
-
-                    </section>
-                    <section id="demo-questions-qd20" class="demo-tip">
-                        <h3 class="demo">20. 下面哪个不是javascript的内置类型?
-    </h3>
-                        <menu class="demo">
-                            <input type="radio" id="demo-questions-q200" name="demo-questions-q20"><label for="demo-questions-q200">Array</label><br>
-                            <input type="radio" id="demo-questions-q201" name="demo-questions-q20"><label for="demo-questions-q201">Date</label><br>
-                            <input type="radio" id="demo-questions-q202" name="demo-questions-q20"><label for="demo-questions-q202">Element</label><br>
-                            <input type="radio" id="demo-questions-q203" name="demo-questions-q20"><label for="demo-questions-q203">null</label><br>
-                        </menu>
-
-                    </section>
-                    <input type="button" value="验证" onclick="Demo.checkAnswers()"><div id="demo-questions-info"></div>
-                </article>
-        
-            </article>
-        
+    <header class="demo" id="demo-header">
+        <div id="demo-topbar">
+            <nav class="demo-toolbar">
+                <a class="demo" id="demo-toggleview" onclick="Demo.toggleView()" href="javascript://显示或外围导航菜单">❒ 在新窗口打开</a>
+            </nav>
         </div>
-    </body>
+
+        <h1 class="demo">底层函数<small>System.Core-Base.Core</small></h1>
+        <hr class="demo">
+
+        <nav class="demo-nav">
+            <dl class="demo">
+                <dt class="demo">示例:</dt>
+                <dd class="demo"><a class="demo" href="">创建控件</a></dd>
+                <dd class="demo">&nbsp;&nbsp;&nbsp;&nbsp;<a class="demo" href="">使用HTML方式</a></dd>
+                <dd class="demo">&nbsp;&nbsp;&nbsp;&nbsp;<a class="demo" href="">使用CSS方式</a></dd>
+                <dd class="demo"><a class="demo" href="">常用API</a></dd>
+                <dt class="demo">工具:</dt>
+                <dd class="demo"><a class="demo" href="data/source/base.js.html#Array">转到 API 文档</a></dd>
+                <dd class="demo"><a class="demo" href="data/source/base.js.html#Array">显示/隐藏查看源码</a></dd>
+                <dd class="demo"><a class="demo" href="data/source/base.js.html#Array">展开/折叠全部源码</a></dd>
+            </dl>
+
+        </nav>
+    </header>
+
+    <article class="demo">
+
+        <h2 class="demo">创建控件</h2>
+        <section class="demo">
+            <h3 class="demo">使用HTML方式</h3>
+
+            <aside class="demo">
+                默认:
+                <textarea class="x-textbox"></textarea>
+            </aside>
+
+            <div class="demo-viewsource demo-control-viewsource-full">
+                <span class="demo-viewsource-arrow">▸</span>
+                <a onclick="Demo.expandSource(this.parentNode)" href="javascript://查看用于创建上文组件的所有源码" class="demo">查看源码</a>
+            </div>
+
+            <aside class="demo">
+                默认:
+                <textarea class="x-textbox"></textarea>
+            </aside>
+
+            <div class="demo-viewsource demo-control-viewsource-full">
+                <span class="demo-viewsource-arrow">▾</span>
+                <a onclick="Demo.expandSource(this.parentNode)" href="javascript://查看用于创建上文组件的所有源码" class="demo">查看源码</a>
+
+
+
+                <pre class="sh sh-line sh-htm"><ol class="sh-linenumbers"><li class="sh-linenumber0"></li><li class="sh-linenumber1"></li><li class="sh-linenumber2"></li><li class="sh-linenumber3"></li><li class="sh-linenumber4"></li><li class="sh-linenumber5"></li><li class="sh-linenumber6"></li><li class="sh-linenumber7"></li><li class="sh-linenumber8"></li><li class="sh-linenumber9"></li><li class="sh-linenumber0"></li><li class="sh-linenumber1"></li></ol><code class="sh-code sh-htm"><span class="sh-tag">&lt;div</span><span class="sh-plain"> </span><span class="sh-attrname">class</span><span class="sh-punctuation">=</span><span class="sh-attrvalue">"x-control"</span><span class="sh-tag">&gt;</span><span class="sh-plain">
+	</span><span class="sh-tag">&lt;div</span><span class="sh-plain"> </span><span class="sh-attrname">class</span><span class="sh-punctuation">=</span><span class="sh-attrvalue">"x-control-header"</span><span class="sh-tag">&gt;</span><span class="sh-plain">
+		</span><span class="sh-tag">&lt;h2&gt;</span><span class="sh-plain">
+			header
+		</span><span class="sh-tag">&lt;/h2&gt;</span><span class="sh-plain">
+	</span><span class="sh-tag">&lt;/div&gt;</span><span class="sh-plain">
+	</span><span class="sh-tag">&lt;div</span><span class="sh-plain"> </span><span class="sh-attrname">class</span><span class="sh-punctuation">=</span><span class="sh-attrvalue">"x-control-body"</span><span class="sh-tag">&gt;</span><span class="sh-plain">
+		</span><span class="sh-tag">&lt;div</span><span class="sh-plain"> </span><span class="sh-attrname">class</span><span class="sh-punctuation">=</span><span class="sh-attrvalue">"x-control-content"</span><span class="sh-tag">&gt;</span><span class="sh-plain">
+			body
+		</span><span class="sh-tag">&lt;/div&gt;</span><span class="sh-plain">
+	</span><span class="sh-tag">&lt;/div&gt;</span><span class="sh-plain">
+</span><span class="sh-tag">&lt;/div&gt;</span></code></pre>
+            </div>
+
+            <aside class="demo">
+                警告:
+                <textarea class="x-textbox x-textbox-warning"></textarea>
+            </aside>
+
+            <div class="demo-viewsource demo-control-viewsource-full">
+                <span class="demo-viewsource-arrow">▸</span>
+                <a onclick="Demo.expandSource(this.parentNode)" href="javascript://查看用于创建上文组件的所有源码" class="demo">查看源码</a>
+            </div>
+
+            <aside class="demo">
+                错误:
+                <textarea class="x-textbox x-textbox-error"></textarea>
+            </aside>
+
+            <div class="demo-viewsource demo-control-viewsource-full">
+                <span class="demo-viewsource-arrow">▸</span>
+                <a onclick="Demo.expandSource(this.parentNode)" href="javascript://查看用于创建上文组件的所有源码" class="demo">查看源码</a>
+            </div>
+
+        </section>
+
+        <section class="demo">
+            <h3 class="demo">使用CSS方式</h3>
+
+            <aside class="demo">
+                成功:
+                <textarea class="x-textbox x-textbox-success"></textarea>
+            </aside>
+
+            <div class="demo-viewsource demo-control-viewsource-full">
+                <span class="demo-viewsource-arrow">▸</span>
+                <a onclick="Demo.expandSource(this.parentNode)" href="javascript://查看用于创建上文组件的所有源码" class="demo">查看源码</a>
+            </div>
+        </section>
+
+    </article>
+
+    <article class="demo">
+        说明：
+            
+        <hr class="demo" />
+
+        <table class="demo">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>名称</th>
+                    <th>说明</th>
+                    <th>继承</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="member-public">
+                    <td><span class="icon-member icon-member-signle icon-config"></span><span class="x-icon icon-static"></span></td>
+                    <td><a href="#api/assert.rootPath">rootPath</a> </td>
+                    <td>
+                        <p>System 安装的根目录, 可以为相对目录。</p>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr class="member-public">
+                    <td><span class="icon-member icon-member-signle icon-config"></span><span class="x-icon icon-static"></span></td>
+                    <td><a href="#api/assert.stackTrace">stackTrace</a> </td>
+                    <td>
+                        <p>是否在 assert 失败时显示函数调用堆栈。</p>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr class="member-public">
+                    <td><span class="icon-member icon-member-signle icon-config"></span><span class="x-icon icon-static"></span></td>
+                    <td><a href="#api/assert.useLess">useLess</a> </td>
+                    <td>
+                        <p>是否使用 lesscss</p>
+                    </td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+
+    </article>
+
+    <article class="demo">
+
+        <h2 class="demo">常用API</h2>
+
+        <div class="demo-right demo-small"><a onclick="Demo.runTestAll();" href="javascript://按顺序执行全部函数;" class="demo">全部执行</a> | <a onclick="Demo.speedTestAll();" href="javascript:;" class="demo">全部效率</a></div>
+
+        <section class="demo demo-testcases demo-clear">
+
+            <h3 class="demo">操作标题</h3>
+            <div title="a.getTitle()" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-1"><span class="demo-right"><a onclick="Demo.runTest(1); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(1); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(1); return false;" href="javascript://a.getTitle()" class="demo">获取标题</a>						</div>
+        </section>
+
+        <section class="demo demo-testcases demo-clear">
+            <h3 class="demo">使用 ScrollableControl 提供的方法操作子控件</h3>
+            <div title="a.append(&quot;&lt;div&gt;这是通过 append 插入的&lt;/div&gt;&quot;);" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-2"><span class="demo-right"><a onclick="Demo.runTest(2); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(2); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(2); return false;" href="javascript://a.append(&quot;&lt;div&gt;这是通过 append 插入的&lt;/div&gt;&quot;);" class="demo">添加子控件到末尾</a>						</div>
+
+            <div title="a.empty()" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-11"><span class="demo-right"><a onclick="Demo.runTest(11); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(11); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(11); return false;" href="javascript://a.empty()" class="demo">清空子控件</a>						</div>
+            <div title="a.children()" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-12"><span class="demo-right"><a onclick="Demo.runTest(12); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(12); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(12); return false;" href="javascript://a.children()" class="demo">获取子控件列表</a>						</div>
+            <div title="a.child(1)" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-13"><span class="demo-right"><a onclick="Demo.runTest(13); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(13); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(13); return false;" href="javascript://a.child(1)" class="demo">获取指定位置的容器</a>						</div>
+            <div title="a.has(b)" onmouseout="this.className = this.className.replace(' demo-tip-hover', '');" onmouseover="this.className += ' demo-tip-hover'" class="demo-tip" id="demo-testcase-14">
+                <span class="demo-right"><a onclick="Demo.runTest(14); return false;" href="javascript://执行函数" class="demo">执行</a> | 							<a onclick="Demo.speedTest(14); return false;" href="javascript://测试函数执行的速度" class="demo">效率</a> | 							<a onclick="Demo.expandSource(this); return false;" href="javascript://查看函数源码" class="demo demo-control-viewsource demo-control-viewsource-simple">查看源码</a>						</span><a onclick="Demo.runTest(14); return false;" href="javascript://a.has(b)" class="demo">判断子控件是否存在于当前控件中</a>
+            </div>
+        </section>
+
+    </article>
+
+    <article class="demo" id="demo-questions">
+        <section id="demo-questions-qd1" class="demo demo-tip">
+            <h3 class="demo">1. 语言 javascript 的原名是什么?
+            </h3>
+            <menu class="demo">
+                <input type="radio" id="demo-questions-q10" name="demo-questions-q1"><label for="demo-questions-q10">java</label><br>
+                <input type="radio" id="demo-questions-q11" name="demo-questions-q1"><label for="demo-questions-q11">jscript</label><br>
+                <input type="radio" id="demo-questions-q12" name="demo-questions-q1"><label for="demo-questions-q12">livescript</label><br>
+                <input type="radio" id="demo-questions-q13" name="demo-questions-q1"><label for="demo-questions-q13">ecmascript</label><br>
+            </menu>
+
+        </section>
+        <section id="demo-questions-qd2" class="demo demo-tip">
+            <h3 class="demo">2. 以下代码哪个是插入一个javascript脚本到html的普遍做法?</h3>
+            <menu class="demo">
+                <input type="radio" id="demo-questions-q20" name="demo-questions-q2"><label for="demo-questions-q20">&lt;script type="text/javascript" src="name.js" /&gt;</label><br>
+                <input type="radio" id="demo-questions-q21" name="demo-questions-q2"><label for="demo-questions-q21">&lt;script type="text/javascript" src="name.js" &gt;var a = 1;&lt;/script&gt;</label><br>
+                <input type="radio" id="demo-questions-q22" name="demo-questions-q2"><label for="demo-questions-q22">&lt;script rel="text/javascript" href="name.js" &gt;&lt;/script&gt;</label><br>
+                <input type="radio" id="demo-questions-q23" name="demo-questions-q2"><label for="demo-questions-q23">&lt;script type="text/javascript" language="javascript" href="name.js" &gt;&lt;/script&gt;</label><br>
+            </menu>
+
+        </section>
+        <input type="button" value="验证" onclick="Demo.checkAnswers()"><div id="demo-questions-info"></div>
+    </article>
+
+</body>
 </html>
