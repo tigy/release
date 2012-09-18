@@ -2,10 +2,10 @@
 
 @import "blue.less";
 
-/*********************************** 基本 *******************************************/
+/***************** 基本 ****************/
 
-.demo-doc {
-    .doc();
+body {
+	.body();
 }
 
 article.demo, aside.demo, footer.demo, header.demo, hgroup.demo, nav.demo, section.demo {
@@ -34,6 +34,7 @@ h2.demo {
 
 h3.demo {
     .h3();
+	margin-top: 15px;
 }
 
 h4.demo {
@@ -105,26 +106,12 @@ img.demo {
 	.img()
 }
 
-.demo-nav {
-    .aside();
-    font-size: 12px;
-    line-height: 18px;
-
-    ul {
-        margin: 10px 0;
-        padding: 0;
-    }
-
-    li {
-        list-style: none;
-    }
-}
     
-/*********************************** 语法高亮 *******************************************/
+/*************** 语法高亮 ***************/
 
 .syntaxhighligher();
     
-/*********************************** 工具 *******************************************/
+/***************** 工具 ****************/
 
 // 布局
 
@@ -293,11 +280,104 @@ img.demo {
 	background-color: #000000;
 }
 
-/*********************************** 组件 *******************************************/
+
+/***************** 组件 ****************/
+
+// 页面
+
+.demo-nav {
+    .aside();
+    font-size: 12px;
+    line-height: 18px;
+
+    ul {
+        margin: 10px 0;
+        padding: 0;
+    }
+
+    li {
+        list-style: none;
+    }
+}
+
+.demo-toolbar, .demo-toolbar-dropdown {
+	a {
+		color: #333333;
+		text-decoration: none;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+}
+
+.demo-toolbar {
+	float: right;
+	font-size: 12px;
+	color: #999999;
+}
+
+.demo-toolbar-dropdown {
+	font-size: 12px;
+	position: absolute;
+	right: 0;
+	top: 20px;
+	border: 1px solid #9B9B9B;
+    -moz-box-shadow: 1px 1px 2px #CCCCCC;
+    -webkit-box-shadow: 1px 1px 2px #CCCCCC;
+    box-shadow: 1px 1px 2px #CCCCCC;
+	z-index: 99999;
+	background-color: #FFFFFF;
+	padding-left: 6px;
+	padding-right: 6px;
+
+	a {
+		-moz-user-select: none;
+		cursor: pointer;
+		display: block;
+		overflow: hidden;
+	}
+
+	input {
+		vertical-align: -3px;
+	}
+}
+
+.demo-toolbar-dropdown-seperator {
+	border-top: 1px solid #EBEBEB;
+}
+
+.demo-toolbar-dropdown-input {
+	width: 100px;
+}
+
+select.demo-toolbar-dropdown-input {
+	width: 106px;
+}
+
+.demo-toolbar-dropdown-controlstate, .demo-toolbar-dropdown-goto {
+	padding-bottom: 5px;
+}
+
+.demo-toolbar-dropdown-goto {
+	width: 250px;
+
+	input {
+		width: 242px;
+		padding: 3px;
+		margin: 3px 0;
+	}
+
+	div {
+		_height: 300px;
+		max-height: 300px;
+		overflow: auto;
+	}
+}
 
 // 查看源码
 
-.demo-viewsource-button {
+.demo-viewsource {
 	margin-bottom: 20px;
     font-size: 12px;
 
@@ -314,15 +394,6 @@ img.demo {
 }
 
 // 提示
-
-.demo-control-toolbar {
-	float: right;
-	font-size: 12px;
-}
-
-.demo-control-testcases {
-    font-size: 12px;
-}
 
 .demo-tip, .demo-tip-error, .demo-tip-warning, .demo-tip-success {
 	padding: 2px 10px;
@@ -363,32 +434,50 @@ img.demo {
 	color:#264409;
 }
 
-.demo-tip .demo-control-toolbar {
+.demo-tip .demo-right {
 	display: none;
 }
 
 .demo-tip-hover {
 	background: #eee;	
+
+	.demo-right {
+		display: block;
+	}
 }
 
-.demo-tip-hover .demo-control-toolbar {
-	display: block;
+// 测试
+
+.demo-testcases {
+	font-size: 12px;
 }
 
 // 问答
 
-.demo-question input{
+.demo-questions {
+	h3.demo {
+		margin-top: 5px;
+	}
+
+	li {
+		list-style: none;
+	}
+}
+
+/*.demo-question input{
 	vertical-align: -3px;
 }
 
 .demo-questions menu {
 	padding-left: 15px;
 	margin: 0;
-}
+}*/
+
+/*// 测试
 
 h2.demo-testcase {
 	border-bottom: 1px solid #DDDDDD;
 	margin: 13px 2px 2px;
 	text-indent: 15px;
 	font-size: 20px;
-}
+}*/
